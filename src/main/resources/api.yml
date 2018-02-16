@@ -1,0 +1,876 @@
+swagger: '2.0'
+info:
+  description: GA4GH Data-Object-Service (DOS) registry service
+  version: 2.0.0
+  title: DOS Regsitry
+  termsOfService: TBD
+  contact:
+    name: DNAStack API Design Team
+    url: 'http://example.com'
+  license:
+    name: DNAStack DOS Registry
+basePath: /ga4gh/v1
+paths:
+  /nodes:
+    get:
+      tags:
+        - DOS Node list
+      summary: Retrieve a list of GA4GH DOS data nodes specific to a customer
+      description: >-
+        Provide a collection of GA4GH DOS data nodes associated with the
+        customer.
+      operationId: get_nodes
+      produces:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          description: The auth token
+          type: string
+          required: true
+        - name: name
+          in: query
+          description: A keyword to search in the field of `name` from data nodes.
+          type: string
+          required: false
+        - name: alias
+          in: query
+          description: A keyword to search in the field of `aliases` from data nodes.
+          type: string
+          required: false
+        - name: description
+          in: query
+          description: A keyword to search in the field of `description` from data nodes.
+          type: string
+          required: false
+        - name: provider_information
+          in: query
+          description: A keyword to search in the field of `provider_information` from data nodes.
+          type: string
+          required: false
+        - name: page_token
+          in: query
+          description: Page token to identify the record to start retrieval from.
+          type: string
+          required: false
+        - name: page_size
+          in: query
+          description: The number of entries to be retrieved.
+          type: integer
+          required: false
+      responses:
+        '200':
+          description: Return data nodes details.
+          schema:
+            $ref: '#/definitions/ga4ghDataNodesResponse'
+        '204':
+          description: No content.
+        '400':
+          description: >-
+            Indicates that the server could not understand the request. This is
+            not the same as 422 which indicates a validation error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '401':
+          description: >-
+            Unauthorized.  This will be returned when no authentication
+            information is provided.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '403':
+          description: >-
+            The principal associated with the request does not have sufficient
+            rights to perform this operation on the requested resource.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '404':
+          description: The requested resource was not found.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '422':
+          description: >-
+            The request was syntactically correct but was not semantically
+            correct. Usually indicating a validation problem.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '500':
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+    post:
+      tags:
+        - Create a GA4GH DOS data node
+      summary: Create a GA4GH DOS data node to the list specific to a customer
+      description: >-
+        Add/Create a GA4GH DOS data node to the list associated with the
+        customer.
+      operationId: create_node
+      produces:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          description: The auth token
+          type: string
+          required: true
+        - name: request-body
+          in: body
+          description: 'Node creation request'
+          required: true
+          schema:
+            $ref: '#/definitions/ga4ghDataNodeCreationRequest'
+      responses:
+        '201':
+          description: Return the newly created data node details.
+          schema:
+            $ref: '#/definitions/ga4ghDataNodeResponse'
+        '204':
+          description: No content.
+        '400':
+          description: >-
+            Indicates that the server could not understand the request. This is
+            not the same as 422 which indicates a validation error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '401':
+          description: >-
+            Unauthorized.  This will be returned when no authentication
+            information is provided.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '403':
+          description: >-
+            The principal associated with the request does not have sufficient
+            rights to perform this operation on the requested resource.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '404':
+          description: The requested resource was not found.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '422':
+          description: >-
+            The request was syntactically correct but was not semantically
+            correct. Usually indicating a validation problem.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '500':
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+  /nodes/{id}:
+    get:
+      tags:
+        - Retrieve a data node specified by {id}
+      summary: Retrieve the information of the ga4gh data node specified by {id}
+      description: >-
+        Retrieve the information of the ga4gh data node specified by {id}
+      operationId: get_node_by_id
+      produces:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          description: The auth token
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Return data nodes details.
+          schema:
+            $ref: '#/definitions/ga4ghDataNodeResponse'
+        '204':
+          description: No content.
+        '400':
+          description: >-
+            Indicates that the server could not understand the request. This is
+            not the same as 422 which indicates a validation error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '401':
+          description: >-
+            Unauthorized.  This will be returned when no authentication
+            information is provided.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '403':
+          description: >-
+            The principal associated with the request does not have sufficient
+            rights to perform this operation on the requested resource.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '404':
+          description: The requested resource was not found.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '422':
+          description: >-
+            The request was syntactically correct but was not semantically
+            correct. Usually indicating a validation problem.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '500':
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+    put:
+      tags:
+        - Update a data node specified by {id}
+      summary: Update the GA4GH DOS data node specified by {id}
+      description: >-
+        Update the GA4GH DOS data node specified by {id}
+      operationId: update_node
+      produces:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          description: The auth token
+          type: string
+          required: true
+        - name: request-body
+          in: body
+          description: 'Node update request'
+          required: true
+          schema:
+            $ref: '#/definitions/ga4ghDataNodeUpdateRequest'
+      responses:
+        '200':
+          description: Return the newly updated data node details.
+          schema:
+            $ref: '#/definitions/ga4ghDataNodeResponse'
+        '204':
+          description: No content.
+        '400':
+          description: >-
+            Indicates that the server could not understand the request. This is
+            not the same as 422 which indicates a validation error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '401':
+          description: >-
+            Unauthorized.  This will be returned when no authentication
+            information is provided.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '403':
+          description: >-
+            The principal associated with the request does not have sufficient
+            rights to perform this operation on the requested resource.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '404':
+          description: The requested resource was not found.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '422':
+          description: >-
+            The request was syntactically correct but was not semantically
+            correct. Usually indicating a validation problem.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '500':
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+    delete:
+      tags:
+        - Delete a data node specified by {id}
+      summary: Delete the GA4GH DOS data node specified by {id}
+      description: >-
+        Delete the GA4GH DOS data node specified by {id}
+      operationId: delete_node
+      produces:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          description: The auth token
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Return the deleted data node details.
+          schema:
+            $ref: '#/definitions/ga4ghDataNodeResponse'
+        '204':
+          description: No content.
+        '400':
+          description: >-
+            Indicates that the server could not understand the request. This is
+            not the same as 422 which indicates a validation error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '401':
+          description: >-
+            Unauthorized.  This will be returned when no authentication
+            information is provided.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '403':
+          description: >-
+            The principal associated with the request does not have sufficient
+            rights to perform this operation on the requested resource.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '404':
+          description: The requested resource was not found.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '422':
+          description: >-
+            The request was syntactically correct but was not semantically
+            correct. Usually indicating a validation problem.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '500':
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+  /dataobjects:
+    get:
+      tags:
+        - DOS data object list
+      summary: Retrieve a list of GA4GH DOS data objects by searching all the data nodes available to a customer
+      description: >-
+        Provide a collection of GA4GH DOS data objects by searching all the data nodes
+        available to a customer.
+      operationId: get_dataobjects
+      produces:
+        - application/json
+      parameters:
+        - name: Authorization
+          in: header
+          description: The auth token
+          type: string
+          required: true
+        - name: node_id
+          in: query
+          description: query data objects by {node_id}
+          type: string
+          required: false
+          type: string
+        - name: id
+          in: query
+          description: query data objects by {id}
+          type: string
+          required: false
+          type: string
+        - name: name
+          in: query
+          description: A keyword to search in the field of `name` from data object.
+          type: string
+          required: false
+        - name: range_size_from
+          in: query
+          description: query data objects by specific size range lower bound
+          type: int64
+          required: false
+        - name: range_size_to
+          in: query
+          description: query data objects by specific size range upper bound
+          type: int64
+          required: false
+        - name: date_created_from
+          in: query
+          description: query data objects by specific creation date range lower bound
+          type: date-time
+          required: false
+        - name: date_created_to
+          in: query
+          description: query data objects by specific creation date range upper bound
+          type: date-time
+          required: false
+        - name: date_updated_from
+          in: query
+          description: query data objects by specific updated date range lower bound
+          type: date-time
+          required: false
+        - name: date_updated_to
+          in: query
+          description: query data objects by specific updated date range upper bound
+          type: date-time
+          required: false
+        - name: version
+          in: query
+          description: A keyword to search in the field of `version` from data object.
+          type: string
+          required: false
+        - name: mime_type
+          in: query
+          description: query data objects by specific mime_type to match the value in the field of `mime_type` from data object.
+          type: string
+          example: application/json
+          required: false
+        - name: description
+          in: query
+          description: A keyword to search in the field of `description` from data nodes.
+          type: string
+          required: false
+        - name: alias
+          in: query
+          description: A keyword to search in the field of `aliases` from data nodes.
+          type: string
+          required: false
+        - name: checksum
+          in: query
+          description: A combination of `type,value` pair to search in the field of `chechsum` from data nodes.
+          type: string
+          example: md5~afafeafeaffefafefe
+          required: false
+        - name: checksum
+          in: query
+          description: A keyword of to search in the field of `urls` from data nodes.
+          type: string
+          required: false
+        - name: page_token
+          in: query
+          description: Page token to identify the record to start retrieval from.
+          type: string
+          required: false
+        - name: page_size
+          in: query
+          description: The number of entries to be retrieved.
+          type: integer
+          required: false
+      responses:
+        '200':
+          description: Return data nodes details.
+          schema:
+            $ref: '#/definitions/ga4ghDataObjectsResponse'
+        '204':
+          description: No content.
+        '400':
+          description: >-
+            Indicates that the server could not understand the request. This is
+            not the same as 422 which indicates a validation error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '401':
+          description: >-
+            Unauthorized.  This will be returned when no authentication
+            information is provided.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '403':
+          description: >-
+            The principal associated with the request does not have sufficient
+            rights to perform this operation on the requested resource.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '404':
+          description: The requested resource was not found.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '422':
+          description: >-
+            The request was syntactically correct but was not semantically
+            correct. Usually indicating a validation problem.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+        '500':
+          description: Internal Server Error.
+          schema:
+            $ref: '#/definitions/emptyDataResponse'
+definitions:
+  ga4ghDataNodesResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/ga4ghDataNode'
+      paging:
+        $ref: '#/definitions/cursors'
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/notification'
+  ga4ghDataNodesResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/ga4ghDataNode'
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/notification'
+  ga4ghDataObjectsResponse:
+    type: object
+    properties:
+      data_objects:
+        type: array
+        items:
+          "$ref": "#/definitions/ga4ghDataObjectOnNode"
+        description: The list of Data Objects.
+      paging:
+        $ref: '#/definitions/cursors'
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/notification'
+    title: >-
+      /-------------------------------------------------------------------
+      A list of data objects
+      /-------------------------------------------------------------------
+  ga4ghDataNodeCreationRequest:
+    type: object
+    description: 'The object containing information for the to-be-created data node.'
+    properties:
+      http_address:
+        type: string
+        description: >-
+          The http/https address of this Data Node.
+        required: true
+      provider_information:
+        type: string
+        description: >-
+          The information related to the service provider of this ga4gh data node.
+        requried: true
+      name:
+        type: string
+        description: 'The name of the data node to be created'
+        example: AWS-USE2-DATANODE-1
+        required: false
+      aliases:
+        type: array
+        items:
+          type: string
+        description: 'A list of strings that can be used to find this Data Node to make it more discoverable.'
+        required: false
+      description:
+        type: string
+        description: >-
+          A human readable general description of this Data Node.
+        required: false
+  ga4ghDataNodeUpdateRequest:
+    type: object
+    description: 'The object containing information for the to-be-updated data node.'
+    properties:
+      provider_information:
+        type: string
+        description: >-
+          The information related to the service provider of this ga4gh data node.
+        requried: false
+      name:
+        type: string
+        description: 'User specified prefered authenticator'
+        example: AWS-USE2-DATANODE-1
+        required: false
+      aliases:
+        type: array
+        items:
+          type: string
+        description: 'A list of strings that can be used to find this Data Node to make it more discoverable.'
+        required: false
+      description:
+        type: string
+        description: >-
+          A human readable general description of this Data Node.
+        required: false
+  cursors:
+    description: Cursors object for identifying pagination
+    type: object
+    properties:
+      next_page_token:
+        description: >-
+          The continuation token, which is used to page through large result sets.
+          To get the next page of results, set this parameter to the value of
+          `next_page_token` from the previous response. This value is
+          left absent when there are no more values to return
+        type: string
+        example: ASDEFSEVTYIKMLI
+  ga4ghDataNode:
+    type: object
+    title: Data Node: a server which serves ga4ghDataObjects (e.g., file, API or other resource)
+    properties:
+      id:
+        type: string
+        description: >-
+          An identifier unique to this Data Node.
+        required: true
+      name:
+        type: string
+        description: >-
+          A string that can be optionally used to name a Data Node.
+        required: false
+      http_address:
+        type: string
+        description: >-
+          The http/https address of this Data Node.
+        required: true
+      provider_information:
+        type: string
+        description: >-
+          The information related to the service provider of this ga4gh data node.
+        requried: true
+      health_status:
+        type: string
+        description: >-
+          The health status of this Data Node.
+        example: UP
+        required: false
+      health_report:
+        type: string
+        description: >-
+          The detailed health report of this Data Node.
+        required: false
+      created:
+        type: string
+        format: date-time
+        description: >-
+          Timestamp of data node creation/addition in RFC3339.
+        required: true
+      last_health_updated:
+        type: string
+        format: date-time
+        description: >-
+          Timestamp of the last health check was updated in RFC3339,
+          identical to create timestamp in systems that do not support updates.
+        required: false
+      description:
+        type: string
+        description: >-
+          A human readable general description of this Data Node.
+        required: false
+      aliases:
+        type: array
+        items:
+          type: string
+        title: >-
+          A list of strings that can be used to find this Data Node
+          to make it more discoverable.
+        required: false
+  ga4ghDataObjectOnNode:
+    type: object
+    title: 'Data Object from a data node: a file, API or other resource'
+    allOf:
+      - $ref: '#/definitions/ga4ghDataObject'
+      - properties:
+          node_id:
+            type: string
+            description: >-
+              An identifier unique to the data node where this Data Object is from.
+            required: true
+  ga4ghDataObject:
+    type: object
+    title: 'Data Object: a file, API or other resource'
+    properties:
+      id:
+        type: string
+        description: >-
+          REQUIRED
+          An identifier unique to this Data Object.
+      name:
+        type: string
+        description: >-
+          OPTIONAL
+          A string that can be optionally used to name a Data Object.
+      size:
+        type: string
+        format: int64
+        description: >-
+          REQUIRED
+          The computed size in bytes.
+      created:
+        type: string
+        format: date-time
+        description: >-
+          REQUIRED
+          Timestamp of object creation in RFC3339.
+      updated:
+        type: string
+        format: date-time
+        description: >-
+          OPTIONAL
+          Timestamp of update in RFC3339, identical to create timestamp in systems
+          that do not support updates.
+      version:
+        type: string
+        description: >-
+          OPTIONAL
+          A string representing a version.
+      mime_type:
+        type: string
+        description: >-
+          OPTIONAL
+          A string providing the mime-type of the Data Object.
+          For example, "application/json".
+      checksums:
+        type: array
+        items:
+          "$ref": "#/definitions/ga4ghChecksum"
+        description: >-
+          REQUIRED
+          The checksum of the Data Object. At least one checksum must be provided.
+      urls:
+        type: array
+        items:
+          "$ref": "#/definitions/ga4ghURL"
+        description: >-
+          OPTIONAL
+          The list of URLs that can be used to access the Data Object.
+      description:
+        type: string
+        description: >-
+          OPTIONAL
+          A human readable description of the contents of the Data Object.
+      aliases:
+        type: array
+        items:
+          type: string
+        title: >-
+          OPTIONAL
+          A list of strings that can be used to find this Data Object.
+          These aliases can be used to represent the Data Object's location in
+          a directory (e.g. "bucket/folder/file.name") to make Data Objects
+          more discoverable. They might also be used to represent
+  ga4ghChecksum:
+    type: object
+    properties:
+      checksum:
+        type: string
+        description: >-
+          REQUIRED
+          The hex-string encoded checksum for the Data.
+      type:
+        type: string
+        description: >-
+          OPTIONAL
+          The digest method used to create the checksum. If left unspecified md5
+          will be assumed.
+
+          possible values:
+          md5                # most blob stores provide a checksum using this
+          multipart-md5      # multipart uploads provide a specialized tag in S3
+          sha256
+          sha512
+  ga4ghURL:
+    type: object
+    properties:
+      url:
+        type: string
+        description: >-
+          REQUIRED
+          A URL that can be used to access the file.
+      system_metadata:
+        "$ref": "#/definitions/protobufStruct"
+        description: >-
+          OPTIONAL
+          These values are reported by the underlying object store.
+          A set of key-value pairs that represent system metadata about the object.
+      user_metadata:
+        "$ref": "#/definitions/protobufStruct"
+        description: >-
+          OPTIONAL
+          These values are reported by the underlying object store.
+          A set of key-value pairs that represent metadata provided by the uploader.
+  protobufStruct:
+    type: object
+    properties:
+      fields:
+        type: object
+        additionalProperties:
+          "$ref": "#/definitions/protobufValue"
+        description: Unordered map of dynamically typed values.
+    description: >-
+      `Struct` represents a structured data value, consisting of fields
+      which map to dynamically typed values. In some languages, `Struct`
+      might be supported by a native representation. For example, in
+      scripting languages like JS a struct is represented as an
+      object. The details of that representation are described together
+      with the proto support for the language.
+
+      The JSON representation for `Struct` is JSON object.
+  protobufValue:
+    type: object
+    properties:
+      null_value:
+        "$ref": "#/definitions/protobufNullValue"
+        description: Represents a null value.
+      number_value:
+        type: number
+        format: double
+        description: Represents a double value.
+      string_value:
+        type: string
+        description: Represents a string value.
+      bool_value:
+        type: boolean
+        format: boolean
+        description: Represents a boolean value.
+      struct_value:
+        "$ref": "#/definitions/protobufStruct"
+        description: Represents a structured value.
+      list_value:
+        "$ref": "#/definitions/protobufListValue"
+        description: Represents a repeated `Value`.
+    description: >-
+      `Value` represents a dynamically typed value which can be either
+      null, a number, a string, a boolean, a recursive struct value, or a
+      list of values. A producer of value is expected to set one of that
+      variants, absence of any variant indicates an error.
+
+      The JSON representation for `Value` is JSON value.
+  protobufNullValue:
+    type: string
+    enum:
+    - NULL_VALUE
+    default: NULL_VALUE
+    description: >-
+      `NullValue` is a singleton enumeration to represent the null value for the
+      `Value` type union.
+
+       The JSON representation for `NullValue` is JSON `null`.
+
+       - NULL_VALUE: Null value.
+  protobufListValue:
+    type: object
+    properties:
+      values:
+        type: array
+        items:
+          "$ref": "#/definitions/protobufValue"
+        description: Repeated field of dynamically typed values.
+    description: >-
+      `ListValue` is a wrapper around a repeated field of values.
+
+      The JSON representation for `ListValue` is JSON array.
+  notification:
+    type: object
+    properties:
+      code:
+        type: string
+        example: E422CDNPAYRCPTG001
+        description: 'Notification code. First character indicates severity (E,W,I).'
+      message:
+        type: string
+        example: Something is invalid
+        description: >-
+          Description of the error or information notification. Where the
+          response is 2xx, it's a notification with informational details about
+          this response.
+      uuid:
+        type: string
+        example: aadde-ddddee-eeeedd-eeeedd
+        description: Unique identifier for this notification
+      timestamp:
+        type: string
+        format: date-time
+        example: 2017-10-12T20:38:45.408Z
+        description: Timestamp of the notification
+      metadata:
+        type: object
+        additionalProperties:
+          type: object
+        description: Context specific to this area. May not be provided.
+  emptyDataResponse:
+    type: object
+    properties:
+      data:
+        type: string
+        example: null
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/notification'
