@@ -9,7 +9,7 @@ info:
     url: 'http://example.com'
   license:
     name: DNAStack DOS Registry
-basePath: /ga4gh/v1
+basePath: /v1
 paths:
   /nodes:
     get:
@@ -349,13 +349,11 @@ paths:
           description: query data objects by {node_id}
           type: string
           required: false
-          type: string
         - name: id
           in: query
           description: query data objects by {id}
           type: string
           required: false
-          type: string
         - name: name
           in: query
           description: A keyword to search in the field of `name` from data object.
@@ -364,32 +362,12 @@ paths:
         - name: range_size_from
           in: query
           description: query data objects by specific size range lower bound
-          type: int64
+          type: integer
           required: false
         - name: range_size_to
           in: query
           description: query data objects by specific size range upper bound
-          type: int64
-          required: false
-        - name: date_created_from
-          in: query
-          description: query data objects by specific creation date range lower bound
-          type: date-time
-          required: false
-        - name: date_created_to
-          in: query
-          description: query data objects by specific creation date range upper bound
-          type: date-time
-          required: false
-        - name: date_updated_from
-          in: query
-          description: query data objects by specific updated date range lower bound
-          type: date-time
-          required: false
-        - name: date_updated_to
-          in: query
-          description: query data objects by specific updated date range upper bound
-          type: date-time
+          type: integer
           required: false
         - name: version
           in: query
@@ -400,7 +378,6 @@ paths:
           in: query
           description: query data objects by specific mime_type to match the value in the field of `mime_type` from data object.
           type: string
-          example: application/json
           required: false
         - name: description
           in: query
@@ -416,12 +393,6 @@ paths:
           in: query
           description: A combination of `type,value` pair to search in the field of `chechsum` from data nodes.
           type: string
-          example: md5~afafeafeaffefafefe
-          required: false
-        - name: checksum
-          in: query
-          description: A keyword of to search in the field of `urls` from data nodes.
-          type: string
           required: false
         - name: page_token
           in: query
@@ -432,6 +403,30 @@ paths:
           in: query
           description: The number of entries to be retrieved.
           type: integer
+          required: false
+        - name: date_created_from
+          in: query
+          description: query data objects by specific creation date range lower bound
+          type: string
+          format: date-time
+          required: false
+        - name: date_created_to
+          in: query
+          description: query data objects by specific creation date range upper bound
+          type: string
+          format: date-time
+          required: false
+        - name: date_updated_from
+          in: query
+          description: query data objects by specific updated date range lower bound
+          type: string
+          format: date-time
+          required: false
+        - name: date_updated_to
+          in: query
+          description: query data objects by specific updated date range upper bound
+          type: string
+          format: date-time
           required: false
       responses:
         '200':
@@ -486,7 +481,7 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/notification'
-  ga4ghDataNodesResponse:
+  ga4ghDataNodeResponse:
     type: object
     properties:
       data:
@@ -520,29 +515,31 @@ definitions:
       http_address:
         type: string
         description: >-
+          REQUIRED
           The http/https address of this Data Node.
-        required: true
       provider_information:
         type: string
         description: >-
-          The information related to the service provider of this ga4gh data node.
-        requried: true
+          REQUIRED
+          The information related to the service provider of this ga4gh data node
       name:
         type: string
-        description: 'The name of the data node to be created'
+        description: >-
+          OPTIONAL
+          The name of the data node to be created
         example: AWS-USE2-DATANODE-1
-        required: false
       aliases:
         type: array
         items:
           type: string
-        description: 'A list of strings that can be used to find this Data Node to make it more discoverable.'
-        required: false
+        description: >-
+         OPTIONAL
+         A list of strings that can be used to find this Data Node to make it more discoverable.
       description:
         type: string
         description: >-
+          OPTIONAL
           A human readable general description of this Data Node.
-        required: false
   ga4ghDataNodeUpdateRequest:
     type: object
     description: 'The object containing information for the to-be-updated data node.'
@@ -550,24 +547,22 @@ definitions:
       provider_information:
         type: string
         description: >-
+          OPTIONAL
           The information related to the service provider of this ga4gh data node.
-        requried: false
       name:
         type: string
-        description: 'User specified prefered authenticator'
+        description: 'OPTIONAL User specified prefered authenticator'
         example: AWS-USE2-DATANODE-1
-        required: false
       aliases:
         type: array
         items:
           type: string
-        description: 'A list of strings that can be used to find this Data Node to make it more discoverable.'
-        required: false
+        description: 'OPTiONAL A list of strings that can be used to find this Data Node to make it more discoverable.'
       description:
         type: string
         description: >-
+          OPTIONAL
           A human readable general description of this Data Node.
-        required: false
   cursors:
     description: Cursors object for identifying pagination
     type: object
@@ -582,65 +577,66 @@ definitions:
         example: ASDEFSEVTYIKMLI
   ga4ghDataNode:
     type: object
-    title: Data Node: a server which serves ga4ghDataObjects (e.g., file, API or other resource)
+    title: >-
+      Data Node - a server which serves ga4ghDataObjects (e.g., file, API or other resource)
     properties:
       id:
         type: string
         description: >-
+          REQUIRED
           An identifier unique to this Data Node.
-        required: true
       name:
         type: string
         description: >-
+          OPTIONAL
           A string that can be optionally used to name a Data Node.
-        required: false
       http_address:
         type: string
         description: >-
+          REQUIRED
           The http/https address of this Data Node.
-        required: true
       provider_information:
         type: string
         description: >-
+          REQUIRED
           The information related to the service provider of this ga4gh data node.
-        requried: true
       health_status:
         type: string
         description: >-
+          OPTIONAL
           The health status of this Data Node.
         example: UP
-        required: false
       health_report:
         type: string
         description: >-
+          OPTIONAL
           The detailed health report of this Data Node.
-        required: false
       created:
         type: string
         format: date-time
         description: >-
+          REQUIRED
           Timestamp of data node creation/addition in RFC3339.
-        required: true
       last_health_updated:
         type: string
         format: date-time
         description: >-
+          OPTIONAL
           Timestamp of the last health check was updated in RFC3339,
           identical to create timestamp in systems that do not support updates.
-        required: false
       description:
         type: string
         description: >-
+          OPTIONAL
           A human readable general description of this Data Node.
-        required: false
       aliases:
         type: array
         items:
           type: string
         title: >-
+          OPTIONAL
           A list of strings that can be used to find this Data Node
           to make it more discoverable.
-        required: false
   ga4ghDataObjectOnNode:
     type: object
     title: 'Data Object from a data node: a file, API or other resource'
@@ -650,8 +646,8 @@ definitions:
           node_id:
             type: string
             description: >-
+              REQUIRED
               An identifier unique to the data node where this Data Object is from.
-            required: true
   ga4ghDataObject:
     type: object
     title: 'Data Object: a file, API or other resource'

@@ -26,3 +26,7 @@ nbdist/
 
 ## Generated java
 src/generated
+.swagger-codegen
+.swagger-codegen-ignore
+*.DS_Store
+pom.xml
