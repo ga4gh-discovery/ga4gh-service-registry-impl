@@ -1,4 +1,4 @@
-package com.dnastack.dos.registry.dosregistry;
+package com.dnastack.dos.registry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

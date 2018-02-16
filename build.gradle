@@ -51,6 +51,7 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('io.springfox:springfox-swagger2:2.7.0')
 	compile('io.springfox:springfox-swagger-ui:2.7.0')
+	compile group: 'joda-time', name: 'joda-time', version: '2.3'
 	compileOnly('org.projectlombok:lombok')
 
 	runtime('org.springframework.boot:spring-boot-devtools')

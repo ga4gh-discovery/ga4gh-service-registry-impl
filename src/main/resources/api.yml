@@ -6,7 +6,7 @@ info:
   termsOfService: TBD
   contact:
     name: DNAStack API Design Team
-    url: 'http://example.com'
+    url: 'http://dnastack.com'
   license:
     name: DNAStack DOS Registry
 basePath: /v1
