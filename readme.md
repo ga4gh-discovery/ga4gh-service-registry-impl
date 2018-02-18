@@ -25,7 +25,9 @@ RESTful APIs to facilitate registry services for underlying DOS nodes
 
     ./gradlew bootRun -Dspring.profiles.active=local
 
-Remote debug:
+After successfully bootRun it on local, you can view the swagger-ui [here](http://localhost:8082/swagger-ui.html)
+
+#### Remote debug:
 
     ./gradlew bootRun  -Dspring.profiles.active=local --debug-jvm
 
