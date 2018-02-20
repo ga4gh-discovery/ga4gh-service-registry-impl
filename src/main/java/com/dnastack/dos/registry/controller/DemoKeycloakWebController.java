@@ -2,12 +2,15 @@ package com.dnastack.dos.registry.controller;
 
 import com.dnastack.dos.registry.model.Customer;
 import com.dnastack.dos.registry.repository.CustomerRepository;
+import com.dnastack.dos.registry.service.DataNodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.security.Principal;
+import java.util.List;
 
 /**
  * This class servers as ...
@@ -19,6 +22,9 @@ import java.security.Principal;
 public class DemoKeycloakWebController {
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private DataNodeService dataNodeService;
 
     @GetMapping(path = "/")
     public String index() {
@@ -33,6 +39,16 @@ public class DemoKeycloakWebController {
         model.addAttribute("username", principal.getName());
         return "customers";
     }
+
+    @GetMapping(path = "/nodes")
+    public String nodes(Principal principal, Model model) {
+
+        List<Ga4ghDataNodeDto> nodes = dataNodeService.getNodes(null, null, null, null, null, null, null);
+        model.addAttribute("nodes", nodes);
+        model.addAttribute("username", principal.getName());
+        return "nodes";
+    }
+
 
     // add customers for demonstration
     public void addCustomers() {

@@ -1,5 +1,7 @@
 package com.dnastack.dos.registry.controller;
 
+import com.dnastack.dos.registry.service.DataNodeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("ga4gh/v1")
 public class DataNodeController implements NodesApi{
+
+    @Autowired
+    private DataNodeService dataNodeService;
+
     @Override
     public ResponseEntity<Ga4ghDataNodeResponseDto> createNode(String authorization, Ga4ghDataNodeCreationRequestDto requestBody) {
         return null;

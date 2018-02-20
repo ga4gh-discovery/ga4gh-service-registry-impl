@@ -8,11 +8,13 @@
         <h1>Customer Portal</h1>
     </div>
     <div>
-        <p>This is just a sample page to access to our customers</p>
+        <p>This is a portal to access your DOS (Data-Object-Service) registry, where you can see your managed data nodes.</p>
 
-        <h2>Existing Customers</h2>
         <div class="well">
-            <b>Enter the intranet: </b><a th:href="@{/customers}">customers</a>
+            <b>Please login to see your managed data nodes here: </b><a th:href="@{/nodes}">nodes</a>
+        </div>
+        <div class="well">
+            <b>Make sure you would still have the session: </b><a th:href="@{/customers}">customers</a>
         </div>
     </div>
     <div id="pagefoot" th:include="layout :: footerFragment">Footer
