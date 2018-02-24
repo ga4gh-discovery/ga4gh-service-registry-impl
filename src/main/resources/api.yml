@@ -335,7 +335,7 @@ paths:
           in: header
           description: The auth token
           type: string
-          required: true
+          required: false
         - name: node_ids
           in: query
           description: query data objects by specifying a list of comma separated node_ids
