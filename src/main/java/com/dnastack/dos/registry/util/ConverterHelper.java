@@ -24,10 +24,14 @@ public class ConverterHelper {
         dto.setDescription(dataNode.getDescription());
         dto.setUrl(dataNode.getUrl());
         dto.setCreated(dataNode.getCreated());
-        dto.setHealthStatus(dataNode.getHealthStatus().name());
+        if(dataNode.getHealthStatus() != null) {
+            dto.setHealthStatus(dataNode.getHealthStatus().name());
+        }
         dto.setLastHealthUpdated(dataNode.getLastHealthUpdated());
         dto.setMetaData(dataNode.getMetaData());
-        dto.setAliases(dataNode.getAliases().stream().collect(Collectors.toList()));
+        if(dataNode.getAliases()!=null) {
+            dto.setAliases(dataNode.getAliases().stream().collect(Collectors.toList()));
+        }
 
         return dto;
     }
@@ -36,8 +40,11 @@ public class ConverterHelper {
                                                              Ga4ghDataNodeCreationRequestDto creationRequestDto){
         dataNode.setName(creationRequestDto.getName());
         dataNode.setUrl(creationRequestDto.getUrl());
+        dataNode.setDescription(creationRequestDto.getDescription());
         dataNode.setMetaData(creationRequestDto.getMetaData());
-        dataNode.setAliases(creationRequestDto.getAliases().stream().collect(Collectors.toSet()));
+        if(creationRequestDto.getAliases()!=null) {
+            dataNode.setAliases(creationRequestDto.getAliases().stream().collect(Collectors.toSet()));
+        }
         dataNode.setHealthStatus(HealthStatus.UNKNOWN);
         dataNode.setLastHealthUpdated(DateTime.now());
 
@@ -50,7 +57,9 @@ public class ConverterHelper {
         dataNode.setName(updateRequestDto.getName());
         dataNode.setDescription(updateRequestDto.getDescription());
         dataNode.setMetaData(updateRequestDto.getMetaData());
-        dataNode.setAliases(updateRequestDto.getAliases().stream().collect(Collectors.toSet()));
+        if(updateRequestDto.getAliases()!=null) {
+            dataNode.setAliases(updateRequestDto.getAliases().stream().collect(Collectors.toSet()));
+        }
 
         //TODO: make it a enum
         dataNode.setLastUpdatedBy("UPDATER");

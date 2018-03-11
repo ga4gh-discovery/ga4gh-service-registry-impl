@@ -72,6 +72,7 @@ public class DataNodeService {
         //TODO: Ask Jim if we need to validate the uniqueness of node name
 
         ConverterHelper.convertFromDataNodeCreationRequestDto(dataNode, creationRequestDto);
+        repository.save(dataNode);
 
         return dataNode;
     }
