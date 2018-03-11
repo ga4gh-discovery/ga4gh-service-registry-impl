@@ -538,6 +538,8 @@ definitions:
         description: >-
           OPTIONAL
           A human readable general description of this Data Node.
+    required:
+        - url
   Ga4ghDataNodeUpdateRequest:
     type: object
     description: 'The object containing information for the to-be-updated data node.'
@@ -631,6 +633,10 @@ definitions:
           OPTIONAL
           A list of strings that can be used to find this data node
           to make it more discoverable.
+    required:
+      - id
+      - url
+      - created
   Ga4ghDataObjectOnNode:
     type: object
     title: 'Data Object from a data node: a file, API or other resource'
@@ -714,6 +720,11 @@ definitions:
           These aliases can be used to represent the Data Object's location in
           a directory (e.g. "bucket/folder/file.name") to make Data Objects
           more discoverable. They might also be used to represent
+    required:
+      - id
+      - size
+      - created
+      - checksums
     title: 'Data Object: a file, API or other resource'
   Checksum:
     type: object
@@ -735,6 +746,8 @@ definitions:
           multipart-md5      # multipart uploads provide a specialized tag in S3
           sha256
           sha512
+    required:
+      - checksum
   URL:
     type: object
     properties:
@@ -747,6 +760,8 @@ definitions:
         $ref: '#/definitions/SystemMetadata'
       user_metadata:
         $ref: '#/definitions/UserMetadata'
+    required:
+      - url
   SystemMetadata:
     type: object
     additionalProperties: true
