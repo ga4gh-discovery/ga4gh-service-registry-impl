@@ -5,7 +5,10 @@ import com.dnastack.dos.registry.controller.Ga4ghDataNodeDto;
 import com.dnastack.dos.registry.controller.Ga4ghDataNodeUpdateRequestDto;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.model.HealthStatus;
+import com.google.gson.Gson;
+import com.sun.tools.javac.util.List;
 import org.joda.time.DateTime;
+import org.springframework.util.StringUtils;
 
 import java.util.stream.Collectors;
 
@@ -16,6 +19,8 @@ import java.util.stream.Collectors;
  * @since: 1.0.0 <br/>
  */
 public class ConverterHelper {
+
+    public static Gson gson = new Gson();
 
     public static Ga4ghDataNodeDto convertToDto(Ga4ghDataNode dataNode){
         Ga4ghDataNodeDto dto = new Ga4ghDataNodeDto();
@@ -29,8 +34,11 @@ public class ConverterHelper {
         }
         dto.setLastHealthUpdated(dataNode.getLastHealthUpdated());
         dto.setMetaData(dataNode.getMetaData());
-        if(dataNode.getAliases()!=null) {
-            dto.setAliases(dataNode.getAliases().stream().collect(Collectors.toList()));
+        if(!StringUtils.isEmpty(dataNode.getAliases())) {
+            //dto.setAliases(dataNode.getAliases().stream().collect(Collectors.toList()));
+            //convert it to a list
+            List fromJson = gson.fromJson(dataNode.getAliases(), List.class);
+            dto.setAliases(fromJson);
         }
 
         return dto;
@@ -38,13 +46,23 @@ public class ConverterHelper {
 
     public static void convertFromDataNodeCreationRequestDto(Ga4ghDataNode dataNode,
                                                              Ga4ghDataNodeCreationRequestDto creationRequestDto){
-        dataNode.setName(creationRequestDto.getName());
-        dataNode.setUrl(creationRequestDto.getUrl());
-        dataNode.setDescription(creationRequestDto.getDescription());
-        dataNode.setMetaData(creationRequestDto.getMetaData());
-        if(creationRequestDto.getAliases()!=null) {
-            dataNode.setAliases(creationRequestDto.getAliases().stream().collect(Collectors.toSet()));
+        if(!StringUtils.isEmpty(creationRequestDto.getName())) {
+            dataNode.setName(creationRequestDto.getName());
         }
+        if(!StringUtils.isEmpty(creationRequestDto.getUrl())) {
+            dataNode.setUrl(creationRequestDto.getUrl());
+        }
+        if(!StringUtils.isEmpty(creationRequestDto.getDescription())) {
+            dataNode.setDescription(creationRequestDto.getDescription());
+        }
+        if(creationRequestDto.getMetaData() != null) {
+            dataNode.setMetaData(creationRequestDto.getMetaData());
+        }
+        if(creationRequestDto.getAliases()!=null) {
+            //dataNode.setAliases(creationRequestDto.getAliases().stream().collect(Collectors.toSet()));
+            dataNode.setAliases(gson.toJson(creationRequestDto.getAliases()));
+        }
+
         dataNode.setHealthStatus(HealthStatus.UNKNOWN);
         dataNode.setLastHealthUpdated(DateTime.now());
 
@@ -54,11 +72,18 @@ public class ConverterHelper {
 
     public static void convertFromDataNodeUpdateRequestDto(Ga4ghDataNode dataNode,
                                                              Ga4ghDataNodeUpdateRequestDto updateRequestDto){
-        dataNode.setName(updateRequestDto.getName());
-        dataNode.setDescription(updateRequestDto.getDescription());
-        dataNode.setMetaData(updateRequestDto.getMetaData());
+        if(!StringUtils.isEmpty(updateRequestDto.getName())) {
+            dataNode.setName(updateRequestDto.getName());
+        }
+        if(!StringUtils.isEmpty(updateRequestDto.getDescription())) {
+            dataNode.setDescription(updateRequestDto.getDescription());
+        }
+        if(updateRequestDto.getMetaData() != null) {
+            dataNode.setMetaData(updateRequestDto.getMetaData());
+        }
         if(updateRequestDto.getAliases()!=null) {
-            dataNode.setAliases(updateRequestDto.getAliases().stream().collect(Collectors.toSet()));
+            //dataNode.setAliases(updateRequestDto.getAliases().stream().collect(Collectors.toSet()));
+            dataNode.setAliases(gson.toJson(updateRequestDto.getAliases()));
         }
 
         //TODO: make it a enum

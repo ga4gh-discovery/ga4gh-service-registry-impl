@@ -3,6 +3,7 @@ package com.dnastack.dos.registry.controller;
 import com.dnastack.dos.registry.exception.BusinessValidationException;
 import com.dnastack.dos.registry.exception.DataNodeNotFoundException;
 import com.dnastack.dos.registry.exception.ServiceException;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,7 @@ public class DataNodeControllerAdvice {
         final HttpStatus status = HttpStatus.NOT_FOUND;
         logError(e, faultGuid, status);
 
-        return formResponse(status, formErrors("E8888", e.getMessage(), faultGuid, "BIZ_VALIDATION", e));
+        return formResponse(status, formErrors("E1000", e.getMessage(), faultGuid, "VALIDATION", null));
     }
 
     @ExceptionHandler(BusinessValidationException.class)
@@ -40,7 +41,7 @@ public class DataNodeControllerAdvice {
         final HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         logError(e, faultGuid, status);
 
-        return formResponse(status, formErrors("E8888", e.getMessage(), faultGuid, "BIZ_VALIDATION", e));
+        return formResponse(status, formErrors("E8888", e.getMessage(), faultGuid, "BIZ_VALIDATION", null));
     }
 
     /**
@@ -58,7 +59,7 @@ public class DataNodeControllerAdvice {
         final HttpStatus status = HttpStatus.BAD_REQUEST;
         logError(e, faultGuid, status);
 
-        return formResponse(status, formErrors("E8888", e.getMessage(), faultGuid, "VALIDATION", e));
+        return formResponse(status, formErrors("E9998", e.getMessage(), faultGuid, "VALIDATION", null));
     }
 
     @ExceptionHandler({Exception.class, ServiceException.class})
@@ -67,7 +68,7 @@ public class DataNodeControllerAdvice {
         final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         logError(e, faultGuid, status);
 
-        return formResponse(status, formErrors("E9999", e.getMessage(), faultGuid, "INTERNAL", e));
+        return formResponse(status, formErrors("E9999", e.getMessage(), faultGuid, "INTERNAL", null));
     }
 
     /**
@@ -125,9 +126,12 @@ public class DataNodeControllerAdvice {
         errorDto.setCode(code);
         errorDto.setMessage(message);
         errorDto.setUuid(faultGuid);
+        errorDto.setTimestamp(DateTime.now());
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("source", source);
-        metadata.put("cause", cause);
+        if(cause!=null) {
+            metadata.put("cause", cause);
+        }
         errorDto.setMetadata(metadata);
 
         return Arrays.asList(errorDto);

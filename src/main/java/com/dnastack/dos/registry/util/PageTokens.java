@@ -1,6 +1,6 @@
-package com.dnastack.dos.registry.model;
+package com.dnastack.dos.registry.util;
 
-import com.dnastack.dos.registry.util.Base64JsonCodec;
+import com.dnastack.dos.registry.model.Page;
 
 /**
  * This models page_token to/from a encode String

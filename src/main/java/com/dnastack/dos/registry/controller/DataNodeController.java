@@ -1,25 +1,32 @@
 package com.dnastack.dos.registry.controller;
 
+import com.dnastack.dos.registry.exception.ServiceException;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
+import com.dnastack.dos.registry.util.PageTokens;
 import com.dnastack.dos.registry.service.DataNodeService;
 import com.dnastack.dos.registry.util.ConverterHelper;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("ga4gh/registry/dos/v1")
 public class DataNodeController implements NodesApi{
+
+    //TODO: remove this field after discussion with Jim to finalize the way how authentication works
+    public static final String CUSTOMER_ID = "demo-customer";
+
+    public static final int DEFAULT_PAGE_SIZE = 10;
 
     @Autowired
     private DataNodeService dataNodeService;
@@ -36,7 +43,9 @@ public class DataNodeController implements NodesApi{
 
         //TODO: ask Jim if the `id` filed in the dos_nod object should be encoded?
 
-        Ga4ghDataNode dataNode = dataNodeService.createNode(requestBody);
+        //TODO: get customerId from security context holder
+        String customerId = CUSTOMER_ID;
+        Ga4ghDataNode dataNode = dataNodeService.createNode(customerId, requestBody);
         return formResponseEntity(dataNode, HttpStatus.CREATED);
     }
 
@@ -69,15 +78,50 @@ public class DataNodeController implements NodesApi{
         //TODO: ask Jim if about the alias data-type... should be a Set or a simple JSON string?
 
         //TODO: get customerId from security context holder
-        String customerId = "";
-        List<Ga4ghDataNode> dataNodes = dataNodeService.getNodes(customerId, name, alias, description, pageToken, pageSize);
+        String customerId = CUSTOMER_ID;
+
+        com.dnastack.dos.registry.model.Page page;
+
+        try {
+            page = Objects.isNull(pageToken) ?
+                    new com.dnastack.dos.registry.model.Page(1) : PageTokens.fromCursor(pageToken);
+        } catch (Exception e){
+            throw new ServiceException("Page Token (" + pageToken + ") is not decode-able ");
+        }
+
+        if(pageSize==null){
+            pageSize = DEFAULT_PAGE_SIZE;
+        }
+
+        Pageable pageable = new PageRequest(page.getPageNumber(), pageSize);
+
+        if(name==null){
+            name = "";
+        }
+        if(alias==null){
+            alias = "";
+        }
+        if(description==null){
+            description = "";
+        }
+
+        Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(customerId, name, alias, description, pageable);
+
         Ga4ghDataNodesResponseDto ga4ghDataNodesResponseDto = new Ga4ghDataNodesResponseDto();
-        ga4ghDataNodesResponseDto.setDosNodes(
-            dataNodes
-                    .stream()
-                    .map(ConverterHelper::convertToDto)
-                    .collect(Collectors.toList())
-        );
+        if(dataNodesPage.hasContent()) {
+            ga4ghDataNodesResponseDto.setDosNodes(
+                    dataNodesPage.getContent()
+                            .stream()
+                            .map(ConverterHelper::convertToDto)
+                            .collect(Collectors.toList())
+            );
+        } else {
+            ga4ghDataNodesResponseDto.setDosNodes(new ArrayList<>());
+        }
+
+        if(dataNodesPage.hasNext()) {
+            ga4ghDataNodesResponseDto.setNextPageToken(PageTokens.toCursor(page.next()));
+        }
 
         return new ResponseEntity(ga4ghDataNodesResponseDto, HttpStatus.OK);
     }

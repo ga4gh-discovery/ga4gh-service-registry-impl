@@ -1,22 +1,21 @@
 package com.dnastack.dos.registry.service;
 
 import com.dnastack.dos.registry.controller.Ga4ghDataNodeCreationRequestDto;
-import com.dnastack.dos.registry.controller.Ga4ghDataNodeDto;
 import com.dnastack.dos.registry.controller.Ga4ghDataNodeUpdateRequestDto;
 import com.dnastack.dos.registry.exception.BusinessValidationException;
 import com.dnastack.dos.registry.exception.DataNodeNotFoundException;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
 import com.dnastack.dos.registry.util.ConverterHelper;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -37,36 +36,30 @@ public class DataNodeService {
         this.repository = repository;
     }
 
-    public List<Ga4ghDataNode> getNodes(String customerId, String name, String alias, String description, String pageToken, Integer pageSize) {
+    public Page<Ga4ghDataNode> getNodes(String customerId, String name, String alias, String description, Pageable pageable) {
 
-        Ga4ghDataNode node1 = new Ga4ghDataNode() {
-            {
-                setId("1");
-                setName("SickKids");
-                setCreated(DateTime.now());
-                setUrl("http://sickkids.com/public/data");
-            }
-        };
+        Assert.notNull(pageable, "Pageable cannot be null");
+        Assert.isTrue(pageable.getPageSize() > 0,
+                String.format("Page Size can not be less than 1. Received page size: %d", new Object[]{pageable.getPageSize()}));
+        Assert.isTrue(pageable.getPageNumber() > 0,
+                String.format("Page number can not be less than 1. Received page number: %d", new Object[]{pageable.getPageNumber()}));
+        Assert.notNull(customerId, "CustomerId cannot be null");
+        Assert.notNull(name, "Name cannot be null");
+        Assert.notNull(alias, "Alias cannot be null");
+        Assert.notNull(description, "Description cannot be null");
 
-        Ga4ghDataNode node2 = new Ga4ghDataNode() {{
-            setId("2");
-            setName("MountSinai");
-            setCreated(DateTime.now());
-            setUrl("http://mountsinai.com/public/data");
-        }};
+        return repository.findByCustomerIdAndNameIgnoreCaseContainingAndAliasesIgnoreCaseContainingAndDescriptionIgnoreCaseContaining(
+                customerId, name, alias, description, pageable);
 
-        return Arrays.asList(node1, node2);
     }
 
-    public Ga4ghDataNode createNode(Ga4ghDataNodeCreationRequestDto creationRequestDto) {
+    public Ga4ghDataNode createNode(String customerId, Ga4ghDataNodeCreationRequestDto creationRequestDto) {
 
         Ga4ghDataNode dataNode = new Ga4ghDataNode();
 
         String id = UUID.randomUUID().toString();
         dataNode.setId(id);
 
-        //TODO: get customerId from security context holder
-        String customerId = "demo-customer";
         dataNode.setCustomerId(customerId);
 
         //TODO: Ask Jim if we need to validate the uniqueness of node name

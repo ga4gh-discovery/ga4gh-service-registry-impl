@@ -2,6 +2,7 @@ package com.dnastack.dos.registry.repository;
 
 import com.dnastack.dos.registry.DosRegistryApplication;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
+import com.google.gson.Gson;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ public class Ga4ghDataNodeRepositoryLocalIT {
     @Autowired
     Ga4ghDataNodeRepository repository;
 
+    Gson gson = new Gson();
+
     @Test
     public void whenAddDataNode_thenReturnDataNode() {
         // given
@@ -53,7 +56,7 @@ public class Ga4ghDataNodeRepositoryLocalIT {
             dataNode.setName(name);
 
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-            dataNode.setAliases(aliases);
+            dataNode.setAliases(gson.toJson(aliases));
 
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
@@ -77,10 +80,10 @@ public class Ga4ghDataNodeRepositoryLocalIT {
 
         if(exists) {
             assertEquals(3, found.getMetaData().size());
-            assertEquals(2, found.getAliases().size());
+            assertEquals(2, gson.toJson(found.getAliases()).length());
         } else {
             assertEquals(2, found.getMetaData().size());
-            assertEquals(2, found.getAliases().size());
+            assertEquals(2, gson.toJson(found.getAliases()).length());
 
         }
     }
@@ -97,7 +100,7 @@ public class Ga4ghDataNodeRepositoryLocalIT {
             dataNode.setId(id);
             dataNode.setName(name);
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-            dataNode.setAliases(aliases);
+            dataNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
