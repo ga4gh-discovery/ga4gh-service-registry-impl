@@ -6,10 +6,10 @@ import com.dnastack.dos.registry.controller.Ga4ghDataNodeUpdateRequestDto;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.model.HealthStatus;
 import com.google.gson.Gson;
-import com.sun.tools.javac.util.List;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

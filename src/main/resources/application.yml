@@ -1,12 +1,15 @@
 server:
-  port: 8082
+  port: 8083
 
 keycloak:
   auth-server-url: http://localhost:8180/auth
-  realm: SpringBootKeycloak
-  resource: login-app
-  public-client: true
+  realm: DNAstack
+  resource: dos-registry
+  public-client: false
   principal-attribute: preferred_username
+  bearer-only: true
+  enable-basic-auth: false # basic auth is default true, we dont want that
+  cors: true
 
 spring:
   jpa:
@@ -19,3 +22,12 @@ spring:
       jadira:
         usertype:
           autoRegisterUserTypes: true
+
+logging:
+    level:
+        org.springframework.ws.client.MessageTracing.sent: TRACE
+        org.springframework.ws.client.MessageTracing.received: TRACE
+        org.apache.http.wire: DEBUG
+        org.springframework: DEBUG
+        org.springframework.web.client.RestTemplate: DEBUG
+        org.keycloak.adapters.springsecurity: TRACE

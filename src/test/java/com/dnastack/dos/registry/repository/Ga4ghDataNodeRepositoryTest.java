@@ -128,15 +128,15 @@ public class Ga4ghDataNodeRepositoryTest {
         Page<Ga4ghDataNode> nodesByNameLike_nonExsist =
                 repository.findByCustomerIdAndNameLike(customerId1, "not_exist_%", new PageRequest(0,50));
 
-        Assert.assertEquals(0, nodesByNameLike.getTotalElements());
-        Assert.assertTrue(nodesByNameLike.isFirst());
-        Assert.assertFalse(nodesByNameLike.isLast());
-        Assert.assertFalse(nodesByNameLike.hasNext());
-        Assert.assertFalse(nodesByNameLike.hasContent());
-        Assert.assertFalse(nodesByNameLike.hasPrevious());
-        Assert.assertEquals(0, nodesByNameLike.getTotalPages());
-        Assert.assertEquals(0, nodesByNameLike.getSize());
-        Assert.assertEquals(0, nodesByNameLike.getNumberOfElements());
+        Assert.assertEquals(0, nodesByNameLike_nonExsist.getTotalElements());
+        Assert.assertTrue(nodesByNameLike_nonExsist.isFirst());
+        Assert.assertTrue(nodesByNameLike_nonExsist.isLast());
+        Assert.assertFalse(nodesByNameLike_nonExsist.hasNext());
+        Assert.assertFalse(nodesByNameLike_nonExsist.hasContent());
+        Assert.assertFalse(nodesByNameLike_nonExsist.hasPrevious());
+        Assert.assertEquals(0, nodesByNameLike_nonExsist.getTotalPages());
+        Assert.assertEquals(50, nodesByNameLike_nonExsist.getSize());
+        Assert.assertEquals(0, nodesByNameLike_nonExsist.getNumberOfElements());
 
     }
 

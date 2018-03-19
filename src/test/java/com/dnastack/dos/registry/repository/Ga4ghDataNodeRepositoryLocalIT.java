@@ -3,6 +3,7 @@ package com.dnastack.dos.registry.repository;
 import com.dnastack.dos.registry.DosRegistryApplication;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.google.gson.Gson;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = DosRegistryApplication.class)
 @RunWith(SpringRunner.class)
 @ActiveProfiles("local")
+@Ignore
 public class Ga4ghDataNodeRepositoryLocalIT {
 
     @Autowired
