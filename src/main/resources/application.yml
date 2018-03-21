@@ -31,3 +31,4 @@ logging:
         org.springframework: DEBUG
         org.springframework.web.client.RestTemplate: DEBUG
         org.keycloak.adapters.springsecurity: TRACE
+        com.dnastack.dos.registry: DEBUG

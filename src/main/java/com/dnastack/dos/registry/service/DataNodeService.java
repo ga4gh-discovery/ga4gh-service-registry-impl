@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 /**
@@ -32,11 +33,16 @@ public class DataNodeService {
     private final Ga4ghDataNodeRepository repository;
 
     @Autowired
+    HttpServletRequest httpReq;
+
+    @Autowired
     public DataNodeService(Ga4ghDataNodeRepository repository) {
         this.repository = repository;
     }
 
     public Page<Ga4ghDataNode> getNodes(String customerId, String name, String alias, String description, Pageable pageable) {
+
+        logger.debug("User principle: " + httpReq.getUserPrincipal());
 
         Assert.notNull(pageable, "Pageable cannot be null");
         Assert.isTrue(pageable.getPageSize() > 0,
