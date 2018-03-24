@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: GA4GH Data-Object-Service (DOS) registry service
-  version: 2.0.0
+  version: 1.0.0
   title: DOS Regsitry
   termsOfService: TBD
   contact:
@@ -43,6 +43,18 @@ paths:
           description: A keyword to search in the field of `description` from data nodes.
           type: string
           required: false
+        - name: metadata
+          in: query
+          description: >-
+            Query data nodes by specifying a list of <key, value> pairs AS STRING type,
+            to match against the meta_date field of the data nodes.
+            NOTE: as for now, OpenAPI does not support object as query parameter properly, this is a work-around solution until it support it!
+          type: array
+          required: false
+          collectionFormat: pipes
+          items:
+            type: string
+            x-example: {"key":"category", "value": "cancer"}
         - name: page_token
           in: query
           description: Page token to identify the record to start retrieval from.

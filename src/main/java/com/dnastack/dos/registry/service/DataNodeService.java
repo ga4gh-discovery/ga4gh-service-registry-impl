@@ -8,6 +8,7 @@ import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
 import com.dnastack.dos.registry.repository.QueryDataNodesSpec;
 import com.dnastack.dos.registry.util.ConverterHelper;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -42,8 +44,7 @@ public class DataNodeService {
         this.repository = repository;
     }
 
-    //TODO: remove customerId from the method signature
-    public Page<Ga4ghDataNode> getNodes(String customerId, String name, String alias, String description, Pageable pageable) {
+    public Page<Ga4ghDataNode> getNodes(String name, String alias, String description, Map<String,String> meta, Pageable pageable) {
 
         logger.debug("User principle: " + httpReq.getUserPrincipal());
 
@@ -52,13 +53,8 @@ public class DataNodeService {
                 String.format("Page Size can not be less than 1. Received page size: %d", new Object[]{pageable.getPageSize()}));
         Assert.isTrue(pageable.getPageNumber() > 0,
                 String.format("Page number can not be less than 1. Received page number: %d", new Object[]{pageable.getPageNumber()}));
-        Assert.notNull(customerId, "CustomerId cannot be null");
-        Assert.notNull(name, "Name cannot be null");
-        Assert.notNull(alias, "Alias cannot be null");
-        Assert.notNull(description, "Description cannot be null");
 
-        //TODO: get meta into picture after api.yaml change
-        return repository.findAll(new QueryDataNodesSpec(name,alias,description,null), pageable);
+        return repository.findAll(new QueryDataNodesSpec(name,alias,description,meta), pageable);
 
     }
 

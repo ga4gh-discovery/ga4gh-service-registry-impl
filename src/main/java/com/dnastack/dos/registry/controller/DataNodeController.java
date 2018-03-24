@@ -2,9 +2,11 @@ package com.dnastack.dos.registry.controller;
 
 import com.dnastack.dos.registry.exception.ServiceException;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
+import com.dnastack.dos.registry.model.KeyValuePair;
 import com.dnastack.dos.registry.util.PageTokens;
 import com.dnastack.dos.registry.service.DataNodeService;
 import com.dnastack.dos.registry.util.ConverterHelper;
+import com.google.gson.Gson;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,8 @@ public class DataNodeController implements NodesApi{
     public static final String OWNER_ID = "demo-customer";
 
     public static final int DEFAULT_PAGE_SIZE = 10;
+
+    private final static Gson gson = new Gson();
 
     @Autowired
     private DataNodeService dataNodeService;
@@ -77,6 +81,7 @@ public class DataNodeController implements NodesApi{
                                                               @ApiParam(value = "A keyword to search in the field of `name` from data nodes.") @RequestParam(value = "name", required = false) String name,
                                                               @ApiParam(value = "A keyword to search in the field of `aliases` from data nodes.") @RequestParam(value = "alias", required = false) String alias,
                                                               @ApiParam(value = "A keyword to search in the field of `description` from data nodes.") @RequestParam(value = "description", required = false) String description,
+                                                              @ApiParam(value = "Query data nodes by specifying a list of <key, value> pairs AS STRING type, to match against the meta_date field of the data nodes. NOTE: as for now, OpenAPI does not support object as query parameter properly, this is a work-around solution until it support it!") @RequestParam(value = "metadata", required = false) List<String> metadata,
                                                               @ApiParam(value = "Page token to identify the record to start retrieval from.") @RequestParam(value = "page_token", required = false) String pageToken,
                                                               @ApiParam(value = "The number of entries to be retrieved.") @RequestParam(value = "page_size", required = false) Integer pageSize)
     {
@@ -100,17 +105,17 @@ public class DataNodeController implements NodesApi{
 
         Pageable pageable = new PageRequest(page.getPageNumber(), pageSize);
 
-        if(name==null){
-            name = "";
-        }
-        if(alias==null){
-            alias = "";
-        }
-        if(description==null){
-            description = "";
-        }
+        //form teh meta object
+        LinkedHashMap<String, String> meta = metadata.stream()
+                .map(m -> {
+                    return gson.fromJson(m, KeyValuePair.class);
+                })
+                .collect(Collectors.toMap(KeyValuePair::getKey, KeyValuePair::getValue,
+                        (oldValue, newValue) -> oldValue,       // if same key, take the old key
+                        LinkedHashMap::new
+                ));
 
-        Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(ownerId, name, alias, description, pageable);
+        Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(name, alias, description, meta, pageable);
 
         Ga4ghDataNodesResponseDto ga4ghDataNodesResponseDto = new Ga4ghDataNodesResponseDto();
         if(dataNodesPage.hasContent()) {
