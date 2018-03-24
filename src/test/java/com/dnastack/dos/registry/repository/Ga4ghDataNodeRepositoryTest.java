@@ -251,6 +251,9 @@ public class Ga4ghDataNodeRepositoryTest {
         Map<String, String> meta = new HashMap<String, String>(){{
             put("category", "cancer");
         }};
+
+        Page<Ga4ghDataNode> bySpecDefault = repository.findAll(new QueryDataNodesSpec(null,null,null, null), new PageRequest(0,10));
+
         Page<Ga4ghDataNode> bySPec = repository.findAll(new QueryDataNodesSpec("","test1","", meta), new PageRequest(0,10));
 
         System.out.println(bySPec);

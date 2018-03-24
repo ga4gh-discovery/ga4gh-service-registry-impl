@@ -64,7 +64,7 @@ public class QueryDataNodesSpec implements Specification<Ga4ghDataNode> {
     }
 
     private String formatToLike(String input) {
-        return StringUtils.isEmpty(input) ? "%" + input + "%" : "%";
+        return !StringUtils.isEmpty(input) ? "%" + input + "%" : "%";
     }
 
 }

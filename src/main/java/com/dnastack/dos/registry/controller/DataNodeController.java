@@ -67,7 +67,7 @@ public class DataNodeController implements NodesApi{
     }
 
     @Override
-    @PreAuthorize("hasAuthority('dos_user')")
+    @PreAuthorize("hasAuthority('dos_user') or hasAuthority('dos_owner')")
     public ResponseEntity<Ga4ghDataNodeResponseDto> getNodeById(@ApiParam(value = "UUID of the data node to get",required=true ) @PathVariable("node_id") String nodeId,
                                                                 @ApiParam(value = "The auth token" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization)
     {
@@ -76,7 +76,7 @@ public class DataNodeController implements NodesApi{
     }
 
     @Override
-    @PreAuthorize("hasAuthority('dos_user')")
+    @PreAuthorize("hasAuthority('dos_user') or hasAuthority('dos_owner')")
     public ResponseEntity<Ga4ghDataNodesResponseDto> getNodes(@ApiParam(value = "The auth token" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,
                                                               @ApiParam(value = "A keyword to search in the field of `name` from data nodes.") @RequestParam(value = "name", required = false) String name,
                                                               @ApiParam(value = "A keyword to search in the field of `aliases` from data nodes.") @RequestParam(value = "alias", required = false) String alias,
@@ -106,7 +106,9 @@ public class DataNodeController implements NodesApi{
         Pageable pageable = new PageRequest(page.getPageNumber(), pageSize);
 
         //form teh meta object
-        LinkedHashMap<String, String> meta = metadata.stream()
+        Map<String, String> meta = null;
+        if(metadata != null) {
+            meta=metadata.stream()
                 .map(m -> {
                     return gson.fromJson(m, KeyValuePair.class);
                 })
@@ -114,7 +116,7 @@ public class DataNodeController implements NodesApi{
                         (oldValue, newValue) -> oldValue,       // if same key, take the old key
                         LinkedHashMap::new
                 ));
-
+        }
         Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(name, alias, description, meta, pageable);
 
         Ga4ghDataNodesResponseDto ga4ghDataNodesResponseDto = new Ga4ghDataNodesResponseDto();
