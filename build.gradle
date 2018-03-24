@@ -77,6 +77,7 @@ dependencies {
 //	testCompile('org.hsqldb:hsqldb')
 	testCompile('com.h2database:h2')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.springframework.security:spring-security-test:4.2.2.RELEASE')
 }
 
 sourceSets {

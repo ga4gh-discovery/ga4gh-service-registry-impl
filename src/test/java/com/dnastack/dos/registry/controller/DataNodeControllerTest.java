@@ -1,5 +1,6 @@
 package com.dnastack.dos.registry.controller;
 
+import com.dnastack.dos.registry.util.SecurityTestUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.collection.IsMapContaining;
@@ -10,7 +11,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -22,6 +26,8 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,6 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 //  @SpringBootTest annotation (loads entire Application context) is required for aspectJ
 @SpringBootTest
+@WebAppConfiguration
+@ActiveProfiles({"it"})
 public class DataNodeControllerTest {
 
     public static final String NODE_ENDPOINT = "/ga4gh/registry/dos/v1/nodes";
@@ -52,14 +60,26 @@ public class DataNodeControllerTest {
     @Autowired
     private WebApplicationContext wac;
 
+    @Autowired
+    FilterChainProxy springSecurityFilterChain;
+
     private MockMvc mockMvc;
 
     @Before
     public void setUp() {
-        //mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc =
+                MockMvcBuilders.webAppContextSetup(wac)
+                        .apply(springSecurity())
+                        .build();
+
+        /*
         mockMvc = MockMvcBuilders.standaloneSetup(dataNodeController)
                 .setControllerAdvice(dataNodeControllerAdvice)
+                .addFilters(springSecurityFilterChain)
+                .apply(springSecurity())
                 .build();
+
+        */
     }
 
     @Test
@@ -77,6 +97,7 @@ public class DataNodeControllerTest {
 
         mockMvc.perform(
                 post(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(reqeustBody))
@@ -107,6 +128,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 post(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosOwner())
                         //.header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(reqeustBody))
@@ -127,6 +149,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 post(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("")
@@ -150,6 +173,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 post(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(reqeustBody))
@@ -171,6 +195,8 @@ public class DataNodeControllerTest {
 
         mockMvc.perform(
                 delete(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosOwner())
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -189,6 +215,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 delete(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -207,6 +234,7 @@ public class DataNodeControllerTest {
 
         mockMvc.perform(
                 get(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosUser())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -224,6 +252,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 get(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosUser())
                         //.header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -245,6 +274,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 get(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosUser())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -271,6 +301,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 get(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosUser())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -289,6 +320,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 get(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosUser())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -315,6 +347,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 get(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosUser())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .param("page_size", "5")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -343,6 +376,7 @@ public class DataNodeControllerTest {
 
         MvcResult interim = mockMvc.perform(
                 get(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosUser())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .param("page_size", "5")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -363,6 +397,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 get(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosUser())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .param("page_token", nextPageToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -384,6 +419,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 get(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosUser())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .param("page_token", pageToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -416,6 +452,7 @@ public class DataNodeControllerTest {
 
         mockMvc.perform(
                 put(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(reqeustBody))
@@ -446,6 +483,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 put(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(reqeustBody))
@@ -468,6 +506,7 @@ public class DataNodeControllerTest {
         String reqeustBody = mapper.writeValueAsString(requestDto);
         MvcResult result = mockMvc.perform(
                 put(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(reqeustBody))
@@ -497,6 +536,7 @@ public class DataNodeControllerTest {
 
         MvcResult result = mockMvc.perform(
                 post(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(reqeustBody))

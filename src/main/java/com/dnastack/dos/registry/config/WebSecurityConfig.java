@@ -54,10 +54,12 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
-        http.authorizeRequests()
-                .antMatchers("/ga4gh/registry/dos/v1/**")
-                .hasRole("dos_user")
-                .anyRequest()
-                .permitAll();
+        http
+            .csrf().disable()
+            .authorizeRequests()
+            .antMatchers("/ga4gh/registry/dos/v1/**")
+            .hasRole("dos_user")
+            .anyRequest()
+            .permitAll();
     }
 }

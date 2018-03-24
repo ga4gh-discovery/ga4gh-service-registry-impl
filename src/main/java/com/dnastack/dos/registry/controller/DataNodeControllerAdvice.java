@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -60,6 +61,18 @@ public class DataNodeControllerAdvice {
         logError(e, faultGuid, status);
 
         return formResponse(status, formErrors("E9998", e.getMessage(), faultGuid, "VALIDATION", null));
+    }
+
+
+    @ExceptionHandler({
+            AuthenticationCredentialsNotFoundException.class
+    })
+    ResponseEntity<ErrorDataResponseDto> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException e) {
+        String faultGuid = UUID.randomUUID().toString();
+        final HttpStatus status = HttpStatus.UNAUTHORIZED;
+        logError(e, faultGuid, status);
+
+        return formResponse(status, formErrors("E4003", e.getMessage(), faultGuid, "SECURITY", null));
     }
 
     @ExceptionHandler({Exception.class, ServiceException.class})
