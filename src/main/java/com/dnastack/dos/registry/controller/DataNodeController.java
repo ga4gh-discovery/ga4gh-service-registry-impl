@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("ga4gh/registry/dos/v1")
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class DataNodeController implements NodesApi{
 
     //TODO: remove this field after discussion with Jim to finalize the way how authentication works
@@ -32,6 +35,7 @@ public class DataNodeController implements NodesApi{
     private DataNodeService dataNodeService;
 
     @Override
+    @PreAuthorize("hasAuthority('dos_owner')")
     public ResponseEntity<Ga4ghDataNodeResponseDto> createNode(@ApiParam(value = "The auth token" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,
                                                                @ApiParam(value = "Node creation request" ,required=true ) @Valid @RequestBody Ga4ghDataNodeCreationRequestDto requestBody)
     {
@@ -49,6 +53,7 @@ public class DataNodeController implements NodesApi{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('dos_owner')")
     public ResponseEntity<Ga4ghDataNodeResponseDto> deleteNode(@ApiParam(value = "UUID of the data node to delete",required=true ) @PathVariable("node_id") String nodeId,
                                                                @ApiParam(value = "The auth token" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization)
 
@@ -58,6 +63,7 @@ public class DataNodeController implements NodesApi{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('dos_user')")
     public ResponseEntity<Ga4ghDataNodeResponseDto> getNodeById(@ApiParam(value = "UUID of the data node to get",required=true ) @PathVariable("node_id") String nodeId,
                                                                 @ApiParam(value = "The auth token" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization)
     {
@@ -66,6 +72,7 @@ public class DataNodeController implements NodesApi{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('dos_user')")
     public ResponseEntity<Ga4ghDataNodesResponseDto> getNodes(@ApiParam(value = "The auth token" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,
                                                               @ApiParam(value = "A keyword to search in the field of `name` from data nodes.") @RequestParam(value = "name", required = false) String name,
                                                               @ApiParam(value = "A keyword to search in the field of `aliases` from data nodes.") @RequestParam(value = "alias", required = false) String alias,
