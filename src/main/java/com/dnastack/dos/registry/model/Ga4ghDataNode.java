@@ -54,7 +54,7 @@ public class Ga4ghDataNode {
     private String aliases = ""; //put these aliases as a json string for the ease of pageable search
 
     @NotNull
-    private String customerId = "";
+    private String ownerId = "";
 
 }
 

@@ -98,7 +98,7 @@ public class Ga4ghDataNodeRepositoryLocalIT {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node-"+i;
             Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setCustomerId(customerId);
+            dataNode.setOwnerId(customerId);
             dataNode.setId(id);
             dataNode.setName(name);
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
@@ -113,8 +113,8 @@ public class Ga4ghDataNodeRepositoryLocalIT {
         });
 
         // when
-        Page<Ga4ghDataNode> dataNodes = repository.findByCustomerId(customerId, new PageRequest(0, 10));
-        Page<Ga4ghDataNode> dataNodesNextPage = repository.findByCustomerId(customerId, new PageRequest(1, 10));
+        Page<Ga4ghDataNode> dataNodes = repository.findByOwnerId(customerId, new PageRequest(0, 10));
+        Page<Ga4ghDataNode> dataNodesNextPage = repository.findByOwnerId(customerId, new PageRequest(1, 10));
 
 
         // then

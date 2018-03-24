@@ -6,11 +6,13 @@ import com.dnastack.dos.registry.exception.BusinessValidationException;
 import com.dnastack.dos.registry.exception.DataNodeNotFoundException;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
+import com.dnastack.dos.registry.repository.QueryDataNodesSpec;
 import com.dnastack.dos.registry.util.ConverterHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -40,6 +42,7 @@ public class DataNodeService {
         this.repository = repository;
     }
 
+    //TODO: remove customerId from the method signature
     public Page<Ga4ghDataNode> getNodes(String customerId, String name, String alias, String description, Pageable pageable) {
 
         logger.debug("User principle: " + httpReq.getUserPrincipal());
@@ -54,8 +57,8 @@ public class DataNodeService {
         Assert.notNull(alias, "Alias cannot be null");
         Assert.notNull(description, "Description cannot be null");
 
-        return repository.findByCustomerIdAndNameIgnoreCaseContainingAndAliasesIgnoreCaseContainingAndDescriptionIgnoreCaseContaining(
-                customerId, name, alias, description, pageable);
+        //TODO: get meta into picture after api.yaml change
+        return repository.findAll(new QueryDataNodesSpec(name,alias,description,null), pageable);
 
     }
 
@@ -66,10 +69,9 @@ public class DataNodeService {
         String id = UUID.randomUUID().toString();
         dataNode.setId(id);
 
-        dataNode.setCustomerId(customerId);
+        dataNode.setOwnerId(customerId);
 
         //TODO: Ask Jim if we need to validate the uniqueness of node name
-
         ConverterHelper.convertFromDataNodeCreationRequestDto(dataNode, creationRequestDto);
         repository.save(dataNode);
 

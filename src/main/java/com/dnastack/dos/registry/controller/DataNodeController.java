@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class DataNodeController implements NodesApi{
 
     //TODO: remove this field after discussion with Jim to finalize the way how authentication works
-    public static final String CUSTOMER_ID = "demo-customer";
+    public static final String OWNER_ID = "demo-customer";
 
     public static final int DEFAULT_PAGE_SIZE = 10;
 
@@ -38,13 +38,12 @@ public class DataNodeController implements NodesApi{
 
         //Technically, the authorization is not needed as this point,
         // as the information it contains has been sessioned into SecurityContextHolder (if using Spring security)
-        //TODO: discuss with Jim how the original `customer` should be maintained...
+        //TODO: discuss with Jim how the original `owner` should be maintained...
         // proposal: resource owner is one `customer`, it can grant users with different scope of authority
 
-        //TODO: ask Jim if the `id` filed in the dos_nod object should be encoded?
 
-        //TODO: get customerId from security context holder
-        String customerId = CUSTOMER_ID;
+        //TODO: get ownerId from security context holder
+        String customerId = OWNER_ID;
         Ga4ghDataNode dataNode = dataNodeService.createNode(customerId, requestBody);
         return formResponseEntity(dataNode, HttpStatus.CREATED);
     }
@@ -75,10 +74,9 @@ public class DataNodeController implements NodesApi{
                                                               @ApiParam(value = "The number of entries to be retrieved.") @RequestParam(value = "page_size", required = false) Integer pageSize)
     {
 
-        //TODO: ask Jim if about the alias data-type... should be a Set or a simple JSON string?
 
-        //TODO: get customerId from security context holder
-        String customerId = CUSTOMER_ID;
+        //TODO: get ownerId from security context holder
+        String ownerId = OWNER_ID;
 
         com.dnastack.dos.registry.model.Page page;
 
@@ -105,7 +103,7 @@ public class DataNodeController implements NodesApi{
             description = "";
         }
 
-        Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(customerId, name, alias, description, pageable);
+        Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(ownerId, name, alias, description, pageable);
 
         Ga4ghDataNodesResponseDto ga4ghDataNodesResponseDto = new Ga4ghDataNodesResponseDto();
         if(dataNodesPage.hasContent()) {
