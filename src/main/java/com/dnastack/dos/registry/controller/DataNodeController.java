@@ -1,6 +1,8 @@
 package com.dnastack.dos.registry.controller;
 
+import com.dnastack.dos.registry.exception.InvalidPageTokenException;
 import com.dnastack.dos.registry.exception.ServiceException;
+import com.dnastack.dos.registry.model.DataNodePage;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.model.KeyValuePair;
 import com.dnastack.dos.registry.util.PageTokens;
@@ -17,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -85,35 +89,47 @@ public class DataNodeController implements NodesApi{
                                                               @ApiParam(value = "The number of entries to be retrieved.") @RequestParam(value = "page_size", required = false) Integer pageSize)
     {
 
-
-        com.dnastack.dos.registry.model.Page page;
-
-        try {
-            page = Objects.isNull(pageToken) ?
-                    new com.dnastack.dos.registry.model.Page(1) : PageTokens.fromCursor(pageToken);
-        } catch (Exception e){
-            throw new ServiceException("Page Token (" + pageToken + ") is not decode-able ");
-        }
-
-        if(pageSize==null){
-            pageSize = DEFAULT_PAGE_SIZE;
-        }
-
-        Pageable pageable = new PageRequest(page.getPageNumber(), pageSize);
+        DataNodePage dataNodePage = null;
 
         //form teh meta object
         Map<String, String> meta = null;
         if(metadata != null) {
             meta=metadata.stream()
-                .map(m -> {
-                    return gson.fromJson(m, KeyValuePair.class);
-                })
-                .collect(Collectors.toMap(KeyValuePair::getKey, KeyValuePair::getValue,
-                        (oldValue, newValue) -> oldValue,       // if same key, take the old key
-                        LinkedHashMap::new
-                ));
+                    .map(m -> {
+                        return gson.fromJson(m, KeyValuePair.class);
+                    })
+                    .collect(Collectors.toMap(KeyValuePair::getKey, KeyValuePair::getValue,
+                            (oldValue, newValue) -> oldValue,       // if same key, take the old key
+                            HashMap::new
+                    ));
         }
-        Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(name, alias, description, meta, pageable);
+
+        if(!StringUtils.isEmpty(pageToken)){ // with a cursor key from previous response
+            try {
+                dataNodePage = PageTokens.fromCursorToDataNodePage(pageToken);
+            } catch (Exception e){
+                throw new InvalidPageTokenException("Invalid page token: " + pageToken, e.getCause());
+            }
+
+            //page size can be re-specified
+            if (pageSize != null) {
+                Assert.isTrue(pageSize > 0, "Per page must be 1 or greater");
+                dataNodePage.setPageSize(pageSize.intValue());
+            }
+
+            //make sure user intend to use the cursor only for pagination
+            validatePageFromCursorAgainstInput(dataNodePage, name, alias, description, meta);
+
+        } else {
+
+            if (pageSize == null) {
+                pageSize = DEFAULT_PAGE_SIZE;
+            }
+
+            dataNodePage = new DataNodePage(0, pageSize, name, alias, description, meta);
+        }
+
+        Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(dataNodePage);
 
         Ga4ghDataNodesResponseDto ga4ghDataNodesResponseDto = new Ga4ghDataNodesResponseDto();
         if(dataNodesPage.hasContent()) {
@@ -124,11 +140,12 @@ public class DataNodeController implements NodesApi{
                             .collect(Collectors.toList())
             );
         } else {
+            //TODO: discuss with Jim if it makes sense if this returns 204 instead of this empty list
             ga4ghDataNodesResponseDto.setDosNodes(new ArrayList<>());
         }
 
         if(dataNodesPage.hasNext()) {
-            ga4ghDataNodesResponseDto.setNextPageToken(PageTokens.toCursor(page.next()));
+            ga4ghDataNodesResponseDto.setNextPageToken(PageTokens.toDataNodePageCursor(dataNodePage.next()));
         }
 
         return new ResponseEntity(ga4ghDataNodesResponseDto, HttpStatus.OK);
@@ -161,6 +178,38 @@ public class DataNodeController implements NodesApi{
         ga4ghDataNodeResponseDto.setDosNode(ConverterHelper.convertToDto(ga4ghDataNode));
 
         return new ResponseEntity(ga4ghDataNodeResponseDto, status);
+    }
+
+    private void validatePageFromCursorAgainstInput(DataNodePage dataNodePage,
+                                                    String name,
+                                                    String alias,
+                                                    String description,
+                                                    Map<String, String> meta){
+        try{
+
+            if(!StringUtils.isEmpty(name)) {
+                Assert.isTrue(dataNodePage.getName().equals(name), "name specified ("+ name
+                        + ") is different from the cursor (" + dataNodePage.getDescription()+")");
+            }
+
+            if(!StringUtils.isEmpty(alias)) {
+                Assert.isTrue(dataNodePage.getAlias().equals(alias), "alias specified ("+ alias
+                        + ") is different from the cursor (" + dataNodePage.getAlias()+")");
+            }
+
+            if(!StringUtils.isEmpty(description)) {
+                Assert.isTrue(dataNodePage.getDescription().equals(description), "description specified ("+ description
+                        + ") is different from the cursor (" + dataNodePage.getDescription()+")");
+            }
+
+            if(!CollectionUtils.isEmpty(meta)) {
+                Assert.isTrue(dataNodePage.getMeta().toString().equals(meta.toString()), "meta specified ("+ description
+                        + ") is different from the cursor (" + dataNodePage.getMeta().toString()+")");
+            }
+
+        } catch (Exception e) {
+            throw new InvalidPageTokenException(e.getMessage());
+        }
     }
 
 }

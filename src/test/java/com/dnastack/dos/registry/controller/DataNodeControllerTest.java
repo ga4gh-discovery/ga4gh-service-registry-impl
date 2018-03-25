@@ -478,12 +478,33 @@ public class DataNodeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.dos_nodes", isA(List.class)))
-                .andExpect(jsonPath("$.dos_nodes", hasSize(DataNodeController.DEFAULT_PAGE_SIZE)))
+                .andExpect(jsonPath("$.dos_nodes", hasSize(5)))
                 .andExpect(jsonPath("$.next_page_token").exists())
                 .andExpect(jsonPath("$.dos_nodes[0].name", containsString("demo_node_")))
                 .andReturn();
 
-        System.out.println(result.getResponse().getContentAsString());
+        System.out.println("RESULT: " + result.getResponse().getContentAsString());
+
+        HashMap<String, Object> map2 = mapper.readValue(result.getResponse().getContentAsByteArray(), typeRef);
+
+        String nextPageToken2 = (String) map2.get("next_page_token");
+
+        //reset the page size
+        MvcResult result2 = mockMvc.perform(
+                get(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosUser())
+                        .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
+                        .param("page_token", nextPageToken2)
+                        .param("page_size", "10")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dos_nodes", isA(List.class)))
+                .andExpect(jsonPath("$.dos_nodes", hasSize(10)))
+                .andExpect(jsonPath("$.next_page_token").exists())
+                .andExpect(jsonPath("$.dos_nodes[0].name", containsString("demo_node_")))
+                .andReturn();
+
+        System.out.println("RESULT2: " + result2.getResponse().getContentAsString());
 
     }
 
@@ -502,11 +523,11 @@ public class DataNodeControllerTest {
                 .andExpect(jsonPath("$.errors", isA(List.class)))
                 .andExpect(jsonPath("$.errors", hasSize(1)))
                 .andExpect(jsonPath("$.errors[0].code", is("E9999")))
-                .andExpect(jsonPath("$.errors[0].message", is("Page Token (SOMETHING_INVALID) is not decode-able ")))
+                .andExpect(jsonPath("$.errors[0].message", is("Invalid page token: SOMETHING_INVALID")))
                 .andExpect(jsonPath("$.errors[0].metadata", IsMapContaining.hasEntry("source", "INTERNAL")))
                 .andReturn();
 
-        System.out.println(result.getResponse().getContentAsString());
+        System.out.println("RESULT: " + result.getResponse().getContentAsString());
 
     }
 

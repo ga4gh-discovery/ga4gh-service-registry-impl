@@ -1,6 +1,6 @@
 package com.dnastack.dos.registry.util;
 
-import com.dnastack.dos.registry.model.Page;
+import com.dnastack.dos.registry.model.DataNodePage;
 
 /**
  * This models page_token to/from a encode String
@@ -13,11 +13,11 @@ public class PageTokens {
     private PageTokens() {
     }
 
-    public static Page fromCursor(String cursor) {
-        return (Page) Base64JsonCodec.decode(cursor, Page.class);
+    public static DataNodePage fromCursorToDataNodePage(String cursor) {
+        return (DataNodePage) Base64JsonCodec.decode(cursor, DataNodePage.class);
     }
 
-    public static String toCursor(Page page) {
+    public static String toDataNodePageCursor(DataNodePage page) {
         return Base64JsonCodec.encode(page);
     }
 }

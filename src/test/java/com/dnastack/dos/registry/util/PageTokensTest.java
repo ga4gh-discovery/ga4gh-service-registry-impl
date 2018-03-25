@@ -1,10 +1,9 @@
 package com.dnastack.dos.registry.util;
 
+import com.dnastack.dos.registry.model.DataNodePage;
 import com.dnastack.dos.registry.model.Page;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * This class servers as ...
@@ -16,26 +15,26 @@ public class PageTokensTest {
 
     @Test
     public void testEncode(){
-        Page page = new Page(1);
+        DataNodePage page = new DataNodePage(0, 10, null, null, null, null);
 
-        System.out.println(PageTokens.toCursor(page));
-        System.out.println(PageTokens.toCursor(page.next()));
+        System.out.println(PageTokens.toDataNodePageCursor(page));
+        System.out.println(PageTokens.toDataNodePageCursor(page.next()));
 
-        Assert.assertEquals(PageTokens.toCursor(page), PageTokens.toCursor(page));
-        Assert.assertNotEquals(PageTokens.toCursor(page), PageTokens.toCursor(page.next()));
+        Assert.assertEquals(PageTokens.toDataNodePageCursor(page), PageTokens.toDataNodePageCursor(page));
+        Assert.assertNotEquals(PageTokens.toDataNodePageCursor(page), PageTokens.toDataNodePageCursor(page.next()));
     }
 
     @Test
     public void testDecode(){
-        Page page = new Page(2);
-        String toCursor = PageTokens.toCursor(page);
+        DataNodePage page = new DataNodePage(1, 20, null, null, null, null);
+        String toCursor = PageTokens.toDataNodePageCursor(page.next());
         System.out.println(toCursor);
 
-        Page fromCursor = PageTokens.fromCursor(toCursor);
+        DataNodePage fromCursor = PageTokens.fromCursorToDataNodePage(toCursor);
 
         System.out.println(fromCursor.getPageNumber());
 
-        Assert.assertEquals(Integer.valueOf(2), fromCursor.getPageNumber());
+        Assert.assertEquals(2, fromCursor.getPageNumber());
     }
 
 }

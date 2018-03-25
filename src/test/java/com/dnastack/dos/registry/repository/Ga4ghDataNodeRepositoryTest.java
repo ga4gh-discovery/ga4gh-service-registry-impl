@@ -1,5 +1,6 @@
 package com.dnastack.dos.registry.repository;
 
+import com.dnastack.dos.registry.model.DataNodePage;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.google.gson.Gson;
 import org.junit.Assert;
@@ -224,7 +225,7 @@ public class Ga4ghDataNodeRepositoryTest {
     }
 
     @Test
-    public void testSpec() {
+    public void testQuerySpec() {
 
         // given
         final String customerId = "demo-customer-1";
@@ -252,9 +253,11 @@ public class Ga4ghDataNodeRepositoryTest {
             put("category", "cancer");
         }};
 
-        Page<Ga4ghDataNode> bySpecDefault = repository.findAll(new QueryDataNodesSpec(null,null,null, null), new PageRequest(0,10));
+        DataNodePage page = new DataNodePage(0, 10, null, null, null, null);
+        Page<Ga4ghDataNode> bySpecDefault = repository.findAll(new QueryDataNodesSpec(page), new PageRequest(0,10));
 
-        Page<Ga4ghDataNode> bySPec = repository.findAll(new QueryDataNodesSpec("","test1","", meta), new PageRequest(0,10));
+        DataNodePage pageSpec = new DataNodePage(0, 10, null, "test", null, meta);
+        Page<Ga4ghDataNode> bySPec = repository.findAll(new QueryDataNodesSpec(pageSpec), new PageRequest(0,10));
 
         System.out.println(bySPec);
     }

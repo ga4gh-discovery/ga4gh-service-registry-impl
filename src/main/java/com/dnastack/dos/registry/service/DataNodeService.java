@@ -5,6 +5,7 @@ import com.dnastack.dos.registry.controller.Ga4ghDataNodeUpdateRequestDto;
 import com.dnastack.dos.registry.exception.BusinessValidationException;
 import com.dnastack.dos.registry.exception.DataNodeNotFoundException;
 import com.dnastack.dos.registry.exception.DataNodeOwnershipException;
+import com.dnastack.dos.registry.model.DataNodePage;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
 import com.dnastack.dos.registry.repository.QueryDataNodesSpec;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -43,15 +45,18 @@ public class DataNodeService {
         this.repository = repository;
     }
 
-    public Page<Ga4ghDataNode> getNodes(String name, String alias, String description, Map<String, String> meta, Pageable pageable) {
+    public Page<Ga4ghDataNode> getNodes(DataNodePage dataNodePage) {
 
-        Assert.notNull(pageable, "Pageable cannot be null");
-        Assert.isTrue(pageable.getPageSize() > 0,
-                String.format("Page Size can not be less than 1. Received page size: %d", new Object[]{pageable.getPageSize()}));
-        Assert.isTrue(pageable.getPageNumber() > 0,
-                String.format("Page number can not be less than 1. Received page number: %d", new Object[]{pageable.getPageNumber()}));
+        Assert.notNull(dataNodePage, "dataNodePage cannot be null");
+        Assert.isTrue(dataNodePage.getPageSize() > 0,
+                String.format("Page Size can not be less than 1. Received page size: %d", new Object[]{dataNodePage.getPageSize()}));
+        Assert.isTrue(dataNodePage.getPageNumber() >= 0,
+                String.format("Page number can not be less than 0. Received page number: %d", new Object[]{dataNodePage.getPageNumber()}));
 
-        return repository.findAll(new QueryDataNodesSpec(name, alias, description, meta), pageable);
+        Pageable pageable = new PageRequest(dataNodePage.getPageNumber(), dataNodePage.getPageSize());
+
+        return repository.findAll(new QueryDataNodesSpec(dataNodePage),
+                            pageable);
 
     }
 

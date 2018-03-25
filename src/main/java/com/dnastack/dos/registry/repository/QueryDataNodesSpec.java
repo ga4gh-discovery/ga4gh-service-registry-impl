@@ -1,9 +1,11 @@
 package com.dnastack.dos.registry.repository;
 
 
+import com.dnastack.dos.registry.model.DataNodePage;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.*;
@@ -18,11 +20,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class QueryDataNodesSpec implements Specification<Ga4ghDataNode> {
 
-    private String name;
-    private String alias;
-    private String description;
-
-    private Map<String, String> meta;
+    private final DataNodePage dataNodePage;
 
     @Override
     public Predicate toPredicate(Root<Ga4ghDataNode> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
@@ -42,14 +40,14 @@ public class QueryDataNodesSpec implements Specification<Ga4ghDataNode> {
         query.orderBy(cb.asc(root.get("name")));
 
         //Predicate aliasPredicate = cb.isMember(alias, root.get("aliases"));
-        Predicate aliasPredicate = cb.like(root.get("aliases"), formatToLike(alias));
-        Predicate namePredicate = cb.like(root.get("name"), formatToLike(name));
-        Predicate descPredicate = cb.like(root.get("description"), formatToLike(description));
+        Predicate aliasPredicate = cb.like(root.get("aliases"), formatToLike(dataNodePage.getAlias()));
+        Predicate namePredicate = cb.like(root.get("name"), formatToLike(dataNodePage.getName()));
+        Predicate descPredicate = cb.like(root.get("description"), formatToLike(dataNodePage.getDescription()));
 
-        if(meta != null && meta.size()>0) {
+        if(!CollectionUtils.isEmpty(dataNodePage.getMeta())) {
 
             Predicate metaPredicate = null;
-            for(Map.Entry<String, String> entry : meta.entrySet()) {
+            for(Map.Entry<String, String> entry : dataNodePage.getMeta().entrySet()) {
                 Predicate keyPredicate = cb.equal(metaData.key(), entry.getKey());
                 Predicate valuePredicate = cb.equal(metaData.value(), entry.getValue());
 
