@@ -10,6 +10,10 @@ import com.dnastack.dos.registry.model.Notification;
  */
 public class DataNodeNotFoundException extends BaseException{
 
+    public DataNodeNotFoundException(String message) {
+        super(message, null);
+    }
+
     public DataNodeNotFoundException(String message, Throwable cause, Notification... errors) {
         super(message, cause, errors);
     }

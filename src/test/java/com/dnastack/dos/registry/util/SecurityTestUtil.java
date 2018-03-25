@@ -24,9 +24,9 @@ public class SecurityTestUtil {
                 .authorities(new SimpleGrantedAuthority("dos_owner"));
     }
 
-    public static RequestPostProcessor authRW() {
-        return user("user")
+    public static RequestPostProcessor authDosOwner2() {
+        return user("user2")
                 .password("password")
-                .authorities(new SimpleGrantedAuthority("dos_owner"), new SimpleGrantedAuthority("dos_user"));
+                .authorities(new SimpleGrantedAuthority("dos_owner"));
     }
 }

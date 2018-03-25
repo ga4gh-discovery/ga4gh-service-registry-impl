@@ -2,6 +2,7 @@ package com.dnastack.dos.registry.controller;
 
 import com.dnastack.dos.registry.exception.BusinessValidationException;
 import com.dnastack.dos.registry.exception.DataNodeNotFoundException;
+import com.dnastack.dos.registry.exception.DataNodeOwnershipException;
 import com.dnastack.dos.registry.exception.ServiceException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -65,11 +67,13 @@ public class DataNodeControllerAdvice {
 
 
     @ExceptionHandler({
-            AuthenticationCredentialsNotFoundException.class
+            AuthenticationCredentialsNotFoundException.class,
+            AccessDeniedException.class,
+            DataNodeOwnershipException.class
     })
-    ResponseEntity<ErrorDataResponseDto> handleAuthenticationCredentialsNotFoundException(AuthenticationCredentialsNotFoundException e) {
+    ResponseEntity<ErrorDataResponseDto> handleAuthorityException(RuntimeException e) {
         String faultGuid = UUID.randomUUID().toString();
-        final HttpStatus status = HttpStatus.UNAUTHORIZED;
+        final HttpStatus status = HttpStatus.FORBIDDEN;
         logError(e, faultGuid, status);
 
         return formResponse(status, formErrors("E4003", e.getMessage(), faultGuid, "SECURITY", null));

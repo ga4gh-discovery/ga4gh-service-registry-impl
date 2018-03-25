@@ -95,7 +95,7 @@ public class DataNodeControllerTest {
 
         String reqeustBody = mapper.writeValueAsString(requestDto);
 
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                 post(NODE_ENDPOINT)
                         .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
@@ -110,6 +110,7 @@ public class DataNodeControllerTest {
                 .andExpect(jsonPath("$.dos_node.meta_data", isA(Map.class)))
                 .andReturn();
 
+        System.out.println(result.getResponse().getContentAsString());
 
     }
 
@@ -190,12 +191,42 @@ public class DataNodeControllerTest {
     }
 
     @Test
+    public void createNodeTest_WithInvalidAuthority_ShouldReturn403() throws Exception {
+
+        Ga4ghDataNodeCreationRequestDto requestDto = new Ga4ghDataNodeCreationRequestDto();
+        requestDto.setName("test-test");
+        requestDto.setUrl("http://dnastack.com");
+        requestDto.setDescription("dummy desc");
+        requestDto.setMetaData(new HashMap<String, String>() {{
+            put("test-key", "test-value");
+        }});
+
+        String reqeustBody = mapper.writeValueAsString(requestDto);
+
+        MvcResult result = mockMvc.perform(
+                post(NODE_ENDPOINT)
+                        .with(SecurityTestUtil.authDosUser())
+                        .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reqeustBody))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors", isA(List.class)))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].code", is("E4003")))
+                .andExpect(jsonPath("$.errors[0].message", containsString("Access is denied")))
+                .andExpect(jsonPath("$.errors[0].metadata", IsMapContaining.hasEntry("source", "SECURITY")))
+                .andReturn();
+
+        System.out.println("RESULT: " + result.getResponse().getContentAsString());
+
+    }
+
+    @Test
     public void deleteNodeTest() throws Exception {
         String node_id = createANode("test_to_delete", "http://dummy-delete.org", "dummy one to delete");
 
         mockMvc.perform(
                 delete(NODE_ENDPOINT + "/" + node_id)
-                        .with(SecurityTestUtil.authDosOwner())
                         .with(SecurityTestUtil.authDosOwner())
                         .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -205,6 +236,50 @@ public class DataNodeControllerTest {
                 .andExpect(jsonPath("$.dos_node.url", isEmptyOrNullString()))
                 .andExpect(jsonPath("$.dos_node.description", isEmptyOrNullString()))
                 .andReturn();
+
+    }
+
+    @Test
+    public void deleteNodeTest_WithInvalidAuthority_ShouldReturn403() throws Exception {
+
+        String node_id = createANode("test_to_delete", "http://dummy-delete.org", "dummy one to delete");
+
+        MvcResult result = mockMvc.perform(
+                delete(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosUser())
+                        .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors", isA(List.class)))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].code", is("E4003")))
+                .andExpect(jsonPath("$.errors[0].message", containsString("Access is denied")))
+                .andExpect(jsonPath("$.errors[0].metadata", IsMapContaining.hasEntry("source", "SECURITY")))
+                .andReturn();
+
+        System.out.println("RESULT: " + result.getResponse().getContentAsString());
+
+    }
+
+    @Test
+    public void deleteNodeTest_WithoutOwnership_ShouldReturn403() throws Exception {
+
+        String node_id = createANode("test_to_delete", "http://dummy-delete.org", "dummy one to delete");
+
+        MvcResult result = mockMvc.perform(
+                delete(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosOwner2())
+                        .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors", isA(List.class)))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].code", is("E4003")))
+                .andExpect(jsonPath("$.errors[0].message", containsString("Operation can only be performed by its expected owner")))
+                .andExpect(jsonPath("$.errors[0].metadata", IsMapContaining.hasEntry("source", "SECURITY")))
+                .andReturn();
+
+        System.out.println("RESULT: " + result.getResponse().getContentAsString());
 
     }
 
@@ -498,7 +573,7 @@ public class DataNodeControllerTest {
     }
 
     @Test
-    public void updateNodeTest_WithEmptyRequestBody_ShouldReturn402() throws Exception {
+    public void updateNodeTest_WithEmptyRequestBody_ShouldReturn422() throws Exception {
         String node_id = createANode("test_to_update", "http://dummy-update.org", "dummy one to update");
 
         Ga4ghDataNodeUpdateRequestDto requestDto = new Ga4ghDataNodeUpdateRequestDto();
@@ -521,6 +596,73 @@ public class DataNodeControllerTest {
 
 
     }
+
+    @Test
+    public void updateNodeTest_WithInvalidAuthority_ShouldReturn403() throws Exception {
+
+        String node_id = createANode("test_to_update", "http://dummy-update.org", "dummy one to update");
+
+        Ga4ghDataNodeUpdateRequestDto requestDto = new Ga4ghDataNodeUpdateRequestDto();
+        requestDto.setName("test_to_update2");
+        requestDto.setDescription("dummy one to update2");
+        requestDto.setMetaData(new HashMap<String, String>() {{
+            put("test-key", "test-value");
+            put("test-key2", "test-value2");
+        }});
+
+        String reqeustBody = mapper.writeValueAsString(requestDto);
+
+        MvcResult result = mockMvc.perform(
+                put(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosUser())
+                        .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reqeustBody))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors", isA(List.class)))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].code", is("E4003")))
+                .andExpect(jsonPath("$.errors[0].message", containsString("Access is denied")))
+                .andExpect(jsonPath("$.errors[0].metadata", IsMapContaining.hasEntry("source", "SECURITY")))
+                .andReturn();
+
+        System.out.println("RESULT: " + result.getResponse().getContentAsString());
+
+    }
+
+    @Test
+    public void updateNodeTest_WithoutOwnership_ShouldReturn403() throws Exception {
+
+        String node_id = createANode("test_to_update", "http://dummy-update.org", "dummy one to update");
+
+        Ga4ghDataNodeUpdateRequestDto requestDto = new Ga4ghDataNodeUpdateRequestDto();
+        requestDto.setName("test_to_update2");
+        requestDto.setDescription("dummy one to update2");
+        requestDto.setMetaData(new HashMap<String, String>() {{
+            put("test-key", "test-value");
+            put("test-key2", "test-value2");
+        }});
+
+        String reqeustBody = mapper.writeValueAsString(requestDto);
+
+        MvcResult result = mockMvc.perform(
+                put(NODE_ENDPOINT + "/" + node_id)
+                        .with(SecurityTestUtil.authDosOwner2())
+                        .header(OAUTH_SIGNED_KEY, OAUTH_SIGNED_KEY_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reqeustBody))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.errors", isA(List.class)))
+                .andExpect(jsonPath("$.errors", hasSize(1)))
+                .andExpect(jsonPath("$.errors[0].code", is("E4003")))
+                .andExpect(jsonPath("$.errors[0].message", containsString("Operation can only be performed by its expected owner")))
+                .andExpect(jsonPath("$.errors[0].metadata", IsMapContaining.hasEntry("source", "SECURITY")))
+                .andReturn();
+
+        System.out.println("RESULT: " + result.getResponse().getContentAsString());
+
+    }
+
 
     public String createANode(String name, String url, String desc) throws Exception {
 

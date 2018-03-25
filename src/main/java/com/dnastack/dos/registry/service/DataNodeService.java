@@ -4,16 +4,15 @@ import com.dnastack.dos.registry.controller.Ga4ghDataNodeCreationRequestDto;
 import com.dnastack.dos.registry.controller.Ga4ghDataNodeUpdateRequestDto;
 import com.dnastack.dos.registry.exception.BusinessValidationException;
 import com.dnastack.dos.registry.exception.DataNodeNotFoundException;
+import com.dnastack.dos.registry.exception.DataNodeOwnershipException;
 import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
 import com.dnastack.dos.registry.repository.QueryDataNodesSpec;
 import com.dnastack.dos.registry.util.ConverterHelper;
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -44,9 +43,7 @@ public class DataNodeService {
         this.repository = repository;
     }
 
-    public Page<Ga4ghDataNode> getNodes(String name, String alias, String description, Map<String,String> meta, Pageable pageable) {
-
-        logger.debug("User principle: " + httpReq.getUserPrincipal());
+    public Page<Ga4ghDataNode> getNodes(String name, String alias, String description, Map<String, String> meta, Pageable pageable) {
 
         Assert.notNull(pageable, "Pageable cannot be null");
         Assert.isTrue(pageable.getPageSize() > 0,
@@ -54,18 +51,18 @@ public class DataNodeService {
         Assert.isTrue(pageable.getPageNumber() > 0,
                 String.format("Page number can not be less than 1. Received page number: %d", new Object[]{pageable.getPageNumber()}));
 
-        return repository.findAll(new QueryDataNodesSpec(name,alias,description,meta), pageable);
+        return repository.findAll(new QueryDataNodesSpec(name, alias, description, meta), pageable);
 
     }
 
-    public Ga4ghDataNode createNode(String customerId, Ga4ghDataNodeCreationRequestDto creationRequestDto) {
+    public Ga4ghDataNode createNode(String ownerId, Ga4ghDataNodeCreationRequestDto creationRequestDto) {
 
         Ga4ghDataNode dataNode = new Ga4ghDataNode();
 
         String id = UUID.randomUUID().toString();
         dataNode.setId(id);
 
-        dataNode.setOwnerId(customerId);
+        dataNode.setOwnerId(ownerId);
 
         //TODO: Ask Jim if we need to validate the uniqueness of node name
         ConverterHelper.convertFromDataNodeCreationRequestDto(dataNode, creationRequestDto);
@@ -76,7 +73,8 @@ public class DataNodeService {
 
     public Ga4ghDataNode deleteNode(String nodeId) {
 
-        validateDataNodeExistence(nodeId);
+        String currentUserId = httpReq.getUserPrincipal().getName();
+        validateDataNode(nodeId, currentUserId);
 
         repository.delete(nodeId);
 
@@ -89,14 +87,18 @@ public class DataNodeService {
 
     public Ga4ghDataNode getNodeById(String nodeId) {
 
-        validateDataNodeExistence(nodeId);
-
-        return repository.findOne(nodeId);
+        Ga4ghDataNode dataNode = repository.findOne(nodeId);
+        if (dataNode == null) {
+            String message = "Resource not found with nodeId=" + nodeId;
+            throw new DataNodeNotFoundException(message);
+        }
+        return dataNode;
     }
 
     public Ga4ghDataNode updateNode(String nodeId, Ga4ghDataNodeUpdateRequestDto updateRequestDto) {
 
-        validateDataNodeExistence(nodeId);
+        String currentUserId = httpReq.getUserPrincipal().getName();
+        validateDataNode(nodeId, currentUserId);
 
         Ga4ghDataNode dataNode = repository.findOne(nodeId);
         if (StringUtils.isEmpty(updateRequestDto.getName())
@@ -105,7 +107,7 @@ public class DataNodeService {
                 && (updateRequestDto.getAliases() == null || updateRequestDto.getAliases().size() <= 0)) {
             String message = "Nothing to update";
             //should return http 422
-            throw new BusinessValidationException(message, null, null);
+            throw new BusinessValidationException(message);
         }
 
         ConverterHelper.convertFromDataNodeUpdateRequestDto(dataNode, updateRequestDto);
@@ -114,11 +116,16 @@ public class DataNodeService {
         return dataNode;
     }
 
-    private void validateDataNodeExistence(String nodeId) {
-        boolean exists = repository.exists(nodeId);
-        if (!exists) {
+    private void validateDataNode(String nodeId, String currentUserId) {
+        Ga4ghDataNode dataNode = repository.findOne(nodeId);
+        if (dataNode == null) {
             String message = "Resource not found with nodeId=" + nodeId;
-            throw new DataNodeNotFoundException(message, null, null);
+            throw new DataNodeNotFoundException(message);
+        }
+
+        if (!currentUserId.equals(dataNode.getOwnerId())) {
+            String message = "Operation can only be performed by its expected owner";
+            throw new DataNodeOwnershipException(message);
         }
     }
 }

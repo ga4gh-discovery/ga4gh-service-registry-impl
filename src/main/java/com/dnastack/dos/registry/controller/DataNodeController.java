@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,9 +29,6 @@ import java.util.stream.Collectors;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class DataNodeController implements NodesApi{
 
-    //TODO: remove this field after discussion with Jim to finalize the way how authentication works
-    public static final String OWNER_ID = "demo-customer";
-
     public static final int DEFAULT_PAGE_SIZE = 10;
 
     private final static Gson gson = new Gson();
@@ -38,21 +36,22 @@ public class DataNodeController implements NodesApi{
     @Autowired
     private DataNodeService dataNodeService;
 
+    @Autowired
+    HttpServletRequest httpReq;
+
     @Override
     @PreAuthorize("hasAuthority('dos_owner')")
     public ResponseEntity<Ga4ghDataNodeResponseDto> createNode(@ApiParam(value = "The auth token" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,
                                                                @ApiParam(value = "Node creation request" ,required=true ) @Valid @RequestBody Ga4ghDataNodeCreationRequestDto requestBody)
     {
 
-        //Technically, the authorization is not needed as this point,
+        //Technically, the authorization is not needed at this point,
         // as the information it contains has been sessioned into SecurityContextHolder (if using Spring security)
         //TODO: discuss with Jim how the original `owner` should be maintained...
         // proposal: resource owner is one `customer`, it can grant users with different scope of authority
 
-
-        //TODO: get ownerId from security context holder
-        String customerId = OWNER_ID;
-        Ga4ghDataNode dataNode = dataNodeService.createNode(customerId, requestBody);
+        String ownerId = httpReq.getUserPrincipal().getName();
+        Ga4ghDataNode dataNode = dataNodeService.createNode(ownerId, requestBody);
         return formResponseEntity(dataNode, HttpStatus.CREATED);
     }
 
@@ -86,9 +85,6 @@ public class DataNodeController implements NodesApi{
                                                               @ApiParam(value = "The number of entries to be retrieved.") @RequestParam(value = "page_size", required = false) Integer pageSize)
     {
 
-
-        //TODO: get ownerId from security context holder
-        String ownerId = OWNER_ID;
 
         com.dnastack.dos.registry.model.Page page;
 
@@ -139,6 +135,7 @@ public class DataNodeController implements NodesApi{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('dos_owner')")
     public ResponseEntity<Ga4ghDataNodeResponseDto> updateNode(@ApiParam(value = "UUID of the data node to update",required=true ) @PathVariable("node_id") String nodeId,
                                                                @ApiParam(value = "The auth token" ,required=true) @RequestHeader(value="Authorization", required=true) String authorization,
                                                                @ApiParam(value = "Node update request" ,required=true )  @Valid @RequestBody Ga4ghDataNodeUpdateRequestDto requestBody)

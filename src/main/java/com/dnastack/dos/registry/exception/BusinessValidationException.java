@@ -13,6 +13,10 @@ import com.dnastack.dos.registry.model.Notification;
  */
 public class BusinessValidationException extends BaseException{
 
+    public BusinessValidationException(String message) {
+        super(message, null);
+    }
+
     public BusinessValidationException(String message, Throwable cause, Notification... errors) {
         super(message, cause, errors);
     }
