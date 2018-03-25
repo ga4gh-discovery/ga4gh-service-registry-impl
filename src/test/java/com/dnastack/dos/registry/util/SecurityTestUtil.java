@@ -15,18 +15,18 @@ public class SecurityTestUtil {
     public static RequestPostProcessor authDosUser() {
         return user("user")
                 .password("password")
-                .authorities(new SimpleGrantedAuthority("dos_user"));
+                .authorities(new SimpleGrantedAuthority("ROLE_dos_user"));
     }
 
     public static RequestPostProcessor authDosOwner() {
         return user("user")
                 .password("password")
-                .authorities(new SimpleGrantedAuthority("dos_owner"));
+                .authorities(new SimpleGrantedAuthority("ROLE_dos_owner"));
     }
 
     public static RequestPostProcessor authDosOwner2() {
         return user("user2")
                 .password("password")
-                .authorities(new SimpleGrantedAuthority("dos_owner"));
+                .authorities(new SimpleGrantedAuthority("ROLE_dos_owner"));
     }
 }

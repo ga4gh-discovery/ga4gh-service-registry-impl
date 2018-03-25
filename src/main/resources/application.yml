@@ -10,6 +10,7 @@ keycloak:
   bearer-only: true
   enable-basic-auth: false # basic auth is default true, we dont want that
   cors: true
+  use-resource-role-mappings: false
 
 spring:
   jpa:

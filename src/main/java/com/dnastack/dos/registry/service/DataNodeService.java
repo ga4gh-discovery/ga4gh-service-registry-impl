@@ -10,6 +10,7 @@ import com.dnastack.dos.registry.model.Ga4ghDataNode;
 import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
 import com.dnastack.dos.registry.repository.QueryDataNodesSpec;
 import com.dnastack.dos.registry.util.ConverterHelper;
+import com.dnastack.dos.registry.util.SecurityContextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -56,7 +56,7 @@ public class DataNodeService {
         Pageable pageable = new PageRequest(dataNodePage.getPageNumber(), dataNodePage.getPageSize());
 
         return repository.findAll(new QueryDataNodesSpec(dataNodePage),
-                            pageable);
+                pageable);
 
     }
 
@@ -78,7 +78,7 @@ public class DataNodeService {
 
     public Ga4ghDataNode deleteNode(String nodeId) {
 
-        String currentUserId = httpReq.getUserPrincipal().getName();
+        String currentUserId = SecurityContextUtil.getUserId();
         validateDataNode(nodeId, currentUserId);
 
         repository.delete(nodeId);
@@ -102,7 +102,8 @@ public class DataNodeService {
 
     public Ga4ghDataNode updateNode(String nodeId, Ga4ghDataNodeUpdateRequestDto updateRequestDto) {
 
-        String currentUserId = httpReq.getUserPrincipal().getName();
+        String currentUserId = SecurityContextUtil.getUserId();
+
         validateDataNode(nodeId, currentUserId);
 
         Ga4ghDataNode dataNode = repository.findOne(nodeId);
