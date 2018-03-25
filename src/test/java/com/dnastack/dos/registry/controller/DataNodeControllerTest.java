@@ -110,7 +110,7 @@ public class DataNodeControllerTest {
                 .andExpect(jsonPath("$.dos_node.meta_data", isA(Map.class)))
                 .andReturn();
 
-        System.out.println(result.getResponse().getContentAsString());
+        System.out.println("RESULT: " + result.getResponse().getContentAsString());
 
     }
 

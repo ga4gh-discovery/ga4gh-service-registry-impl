@@ -23,7 +23,9 @@ spring:
       jadira:
         usertype:
           autoRegisterUserTypes: true
-
+  jackson:
+      serialization:
+          write-dates-as-timestamps: false
 logging:
     level:
         org.springframework.ws.client.MessageTracing.sent: TRACE
