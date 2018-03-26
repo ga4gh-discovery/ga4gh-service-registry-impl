@@ -41,9 +41,6 @@ public class DataNodeController implements NodesApi {
     @Autowired
     private DataNodeService dataNodeService;
 
-    @Autowired
-    HttpServletRequest httpReq;
-
     @Override
     @PreAuthorize("hasAuthority('ROLE_dos_owner')")
     public ResponseEntity<Ga4ghDataNodeResponseDto> createNode(@ApiParam(value = "The auth token", required = true) @RequestHeader(value = "Authorization", required = true) String authorization,
@@ -123,7 +120,7 @@ public class DataNodeController implements NodesApi {
                 pageSize = DEFAULT_PAGE_SIZE;
             }
 
-            dataNodePage = new DataNodePage(0, pageSize, name, alias, description, meta);
+            dataNodePage = new DataNodePage(0, pageSize, name, alias, description, meta, null);
         }
 
         Page<Ga4ghDataNode> dataNodesPage = dataNodeService.getNodes(dataNodePage);

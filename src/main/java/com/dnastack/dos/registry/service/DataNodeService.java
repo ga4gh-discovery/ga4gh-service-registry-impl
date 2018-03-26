@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 /**
@@ -36,9 +35,6 @@ public class DataNodeService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Ga4ghDataNodeRepository repository;
-
-    @Autowired
-    HttpServletRequest httpReq;
 
     @Autowired
     public DataNodeService(Ga4ghDataNodeRepository repository) {

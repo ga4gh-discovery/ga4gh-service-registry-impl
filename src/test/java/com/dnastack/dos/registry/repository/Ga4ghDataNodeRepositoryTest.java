@@ -247,16 +247,120 @@ public class Ga4ghDataNodeRepositoryTest {
 
         });
 
+        IntStream.range(0,50).forEach(i -> {
+            String id = UUID.randomUUID().toString();
+            String name = "test_dos_node2-"+i;
+            String description = UUID.randomUUID().toString();
+            Ga4ghDataNode dataNode = new Ga4ghDataNode();
+            dataNode.setOwnerId(ownerId);
+            dataNode.setId(id);
+            dataNode.setName(name);
+            dataNode.setDescription(description);
+            Set<String> aliases = Stream.of("demo1", "demo2").collect(Collectors.toSet());
+            dataNode.setAliases(gson.toJson(aliases));
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("category", "cancer");
+            metadata.put("kind", "kids");
+            dataNode.setMetaData(metadata);
+
+            repository.save(dataNode);
+
+        });
+
         Map<String, String> meta = new HashMap<String, String>(){{
             put("category", "cancer");
         }};
 
-        DataNodePage page = new DataNodePage(0, 10, null, null, null, null);
-        Page<Ga4ghDataNode> bySpecDefault = repository.findAll(new QueryDataNodesSpec(page), new PageRequest(0,10));
+        DataNodePage page = new DataNodePage(0, 51, null, "demo", null, null, null);
+        Page<Ga4ghDataNode> bySpecDefault = repository.findAll(new QueryDataNodesSpec(page), new PageRequest(0,51));
+        Assert.assertEquals(50, bySpecDefault.getTotalElements());
+        Assert.assertTrue(bySpecDefault.isFirst());
+        Assert.assertTrue(bySpecDefault.isLast());
+        Assert.assertFalse(bySpecDefault.hasNext());
+        Assert.assertTrue(bySpecDefault.hasContent());
+        Assert.assertFalse(bySpecDefault.hasPrevious());
+        Assert.assertEquals(1, bySpecDefault.getTotalPages());
+        Assert.assertEquals(51, bySpecDefault.getSize());
+        Assert.assertEquals(50, bySpecDefault.getNumberOfElements());
 
-        DataNodePage pageSpec = new DataNodePage(0, 10, null, "test", null, meta);
-        Page<Ga4ghDataNode> bySPec = repository.findAll(new QueryDataNodesSpec(pageSpec), new PageRequest(0,10));
+        DataNodePage pageSpec = new DataNodePage(0, 51, null, "test", null, meta, null);
+        Page<Ga4ghDataNode> bySpec = repository.findAll(new QueryDataNodesSpec(pageSpec), new PageRequest(0,51));
+        Assert.assertEquals(50, bySpec.getTotalElements());
+        Assert.assertTrue(bySpec.isFirst());
+        Assert.assertTrue(bySpec.isLast());
+        Assert.assertFalse(bySpec.hasNext());
+        Assert.assertTrue(bySpec.hasContent());
+        Assert.assertFalse(bySpec.hasPrevious());
+        Assert.assertEquals(1, bySpec.getTotalPages());
+        Assert.assertEquals(51, bySpec.getSize());
+        Assert.assertEquals(50, bySpec.getNumberOfElements());
 
-        System.out.println(bySPec);
+        System.out.println(bySpec);
+    }
+
+    @Test
+    public void testQuerySpecWithNodeIds() {
+
+        // given
+        final String ownerId = "demo-customer-1";
+        IntStream.range(0,50).forEach(i -> {
+            String id = "uuid-"+i;
+            String name = "test_dos_node1-"+i;
+            String description = UUID.randomUUID().toString();
+            Ga4ghDataNode dataNode = new Ga4ghDataNode();
+            dataNode.setOwnerId(ownerId);
+            dataNode.setId(id);
+            dataNode.setName(name);
+            dataNode.setDescription(description);
+            Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
+            dataNode.setAliases(gson.toJson(aliases));
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("category", "cancer");
+            metadata.put("kind", "kids");
+            dataNode.setMetaData(metadata);
+
+            repository.save(dataNode);
+
+        });
+
+        IntStream.range(0,50).forEach(i -> {
+            String id = UUID.randomUUID().toString();
+            String name = "test_dos_node2-"+i;
+            String description = UUID.randomUUID().toString();
+            Ga4ghDataNode dataNode = new Ga4ghDataNode();
+            dataNode.setOwnerId(ownerId);
+            dataNode.setId(id);
+            dataNode.setName(name);
+            dataNode.setDescription(description);
+            Set<String> aliases = Stream.of("demo1", "demo2").collect(Collectors.toSet());
+            dataNode.setAliases(gson.toJson(aliases));
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("category", "cancer");
+            metadata.put("kind", "kids");
+            dataNode.setMetaData(metadata);
+
+            repository.save(dataNode);
+
+        });
+
+        List<String> ids = IntStream.range(0, 10)
+                .mapToObj(i -> {
+                    return "uuid-" + i;
+                })
+                .collect(Collectors.toList());
+
+        DataNodePage page = new DataNodePage(0, 11, null, null, null, null, ids);
+        Page<Ga4ghDataNode> bySpecWithIds = repository.findAll(new QueryDataNodesSpec(page), new PageRequest(0,11));
+        Assert.assertEquals(10, bySpecWithIds.getTotalElements());
+        Assert.assertTrue(bySpecWithIds.isFirst());
+        Assert.assertTrue(bySpecWithIds.isLast());
+        Assert.assertFalse(bySpecWithIds.hasNext());
+        Assert.assertTrue(bySpecWithIds.hasContent());
+        Assert.assertFalse(bySpecWithIds.hasPrevious());
+        Assert.assertEquals(1, bySpecWithIds.getTotalPages());
+        Assert.assertEquals(11, bySpecWithIds.getSize());
+        Assert.assertEquals(10, bySpecWithIds.getNumberOfElements());
+
+        System.out.println(bySpecWithIds);
     }
 }

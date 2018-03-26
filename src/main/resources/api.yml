@@ -776,14 +776,16 @@ definitions:
       - url
   SystemMetadata:
     type: object
-    additionalProperties: true
+    additionalProperties:
+      type: object
     description: |-
             OPTIONAL
             These values are reported by the underlying object store.
             A set of key-value pairs that represent system metadata about the object.
   UserMetadata:
     type: object
-    additionalProperties: true
+    additionalProperties:
+      type: object
     description: |-
             OPTIONAL
             A set of key-value pairs that represent metadata provided by the uploader.

@@ -1,7 +1,6 @@
 package com.dnastack.dos.registry.util;
 
 import com.dnastack.dos.registry.model.DataNodePage;
-import com.dnastack.dos.registry.model.Page;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,7 +14,7 @@ public class PageTokensTest {
 
     @Test
     public void testEncode(){
-        DataNodePage page = new DataNodePage(0, 10, null, null, null, null);
+        DataNodePage page = new DataNodePage(0, 10, null, null, null, null, null);
 
         System.out.println(PageTokens.toDataNodePageCursor(page));
         System.out.println(PageTokens.toDataNodePageCursor(page.next()));
@@ -26,7 +25,7 @@ public class PageTokensTest {
 
     @Test
     public void testDecode(){
-        DataNodePage page = new DataNodePage(1, 20, null, null, null, null);
+        DataNodePage page = new DataNodePage(1, 20, null, null, null, null, null);
         String toCursor = PageTokens.toDataNodePageCursor(page.next());
         System.out.println(toCursor);
 

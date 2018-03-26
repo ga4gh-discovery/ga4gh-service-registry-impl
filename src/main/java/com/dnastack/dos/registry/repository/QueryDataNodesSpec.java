@@ -9,6 +9,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,10 +41,15 @@ public class QueryDataNodesSpec implements Specification<Ga4ghDataNode> {
         query.distinct(true);
         query.orderBy(cb.asc(root.get("name")));
 
+        List<Predicate> predicates = new ArrayList<>();
         //Predicate aliasPredicate = cb.isMember(alias, root.get("aliases"));
-        Predicate aliasPredicate = cb.like(root.get("aliases"), formatToLike(dataNodePage.getAlias()));
-        Predicate namePredicate = cb.like(root.get("name"), formatToLike(dataNodePage.getName()));
-        Predicate descPredicate = cb.like(root.get("description"), formatToLike(dataNodePage.getDescription()));
+        predicates.add(cb.like(root.get("aliases"), formatToLike(dataNodePage.getAlias())));
+        predicates.add(cb.like(root.get("name"), formatToLike(dataNodePage.getName())));
+        predicates.add(cb.like(root.get("description"), formatToLike(dataNodePage.getDescription())));
+
+        if(!CollectionUtils.isEmpty(dataNodePage.getNodeIds())){
+            predicates.add(root.get("id").in(dataNodePage.getNodeIds()));
+        }
 
         if(!CollectionUtils.isEmpty(dataNodePage.getMeta())) {
 
@@ -54,11 +61,11 @@ public class QueryDataNodesSpec implements Specification<Ga4ghDataNode> {
                 metaPredicate = cb.and(keyPredicate, valuePredicate);
             }
 
-            return cb.and(namePredicate, aliasPredicate, descPredicate, metaPredicate);
+            predicates.add(metaPredicate);
 
-        } else {
-            return cb.and(namePredicate, aliasPredicate, descPredicate);
         }
+
+        return cb.and(predicates.toArray(new Predicate[0]));
     }
 
     private String formatToLike(String input) {
