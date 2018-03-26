@@ -1,13 +1,11 @@
 package com.dnastack.dos.registry.controller;
 
 import com.dnastack.dos.registry.exception.InvalidPageTokenException;
-import com.dnastack.dos.registry.model.DataNodePage;
-import com.dnastack.dos.registry.model.DataObjectPage;
-import com.dnastack.dos.registry.model.Ga4ghDataNode;
-import com.dnastack.dos.registry.model.Ga4ghDataObjectOnNode;
+import com.dnastack.dos.registry.model.*;
 import com.dnastack.dos.registry.service.DataNodeService;
 import com.dnastack.dos.registry.service.DataObjectService;
 import com.dnastack.dos.registry.util.PageTokens;
+import com.google.gson.Gson;
 import io.swagger.annotations.ApiParam;
 import org.joda.time.DateTime;
 import org.modelmapper.ModelMapper;
@@ -25,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +35,8 @@ public class DataObjectsController implements DataobjectsApi {
 
     private static final int DEFAULT_PAGE_SIZE = 50;
     private static final int DEFAULT_CURRENT_NODEPOOL_SIZE = 5;
+
+    private final static Gson gson = new Gson();
 
     @Autowired
     private DataObjectService dataObjectService;
@@ -60,6 +61,7 @@ public class DataObjectsController implements DataobjectsApi {
             @ApiParam(value = "A keyword to search in the field of `description` from data node.") @RequestParam(value = "node_description", required = false) String nodeDescription,
             @ApiParam(value = "A keyword to search in the field of `description` from data object.") @RequestParam(value = "dos_description", required = false) String dosDescription,
             @ApiParam(value = "A keyword to search in the field of `aliases` from data node.") @RequestParam(value = "node_alias", required = false) String nodeAlias,
+            @ApiParam(value = "Query data nodes by specifying a list of <key, value> pairs AS STRING type, to match against the meta_date field of the data nodes. NOTE: as for now, OpenAPI does not support object as query parameter properly, this is a work-around solution until it support it!") @RequestParam(value = "node_metadata", required = false) List<String> nodeMetadata,
             @ApiParam(value = "A keyword to search in the field of `aliases` from data object.") @RequestParam(value = "dos_alias", required = false) String dosAlias,
             @ApiParam(value = "A combination of `type,value` pair to search in the field of `chechsum` from data object.") @RequestParam(value = "dos_checksum", required = false) String dosChecksum,
             @ApiParam(value = "query data objects by specific creation date range lower bound") @RequestParam(value = "dos_date_created_from", required = false) DateTime dosDateCreatedFrom,
@@ -92,9 +94,18 @@ public class DataObjectsController implements DataobjectsApi {
                 pageSize = DEFAULT_PAGE_SIZE;
             }
 
-            //TODO: add dosMeta to the api
-            Map<String, String> dosMeta = null;
-            DataNodePage dataNodePage = new DataNodePage(0, DEFAULT_CURRENT_NODEPOOL_SIZE, dosName, dosAlias, dosDescription, dosMeta, nodeIds);
+            Map<String, String> nodeMeta = null;
+            if (nodeMetadata != null) {
+                nodeMeta = nodeMetadata.stream()
+                        .map(m -> {
+                            return gson.fromJson(m, KeyValuePair.class);
+                        })
+                        .collect(Collectors.toMap(KeyValuePair::getKey, KeyValuePair::getValue,
+                                (oldValue, newValue) -> oldValue,       // if same key, take the old key
+                                HashMap::new
+                        ));
+            }
+            DataNodePage dataNodePage = new DataNodePage(0, DEFAULT_CURRENT_NODEPOOL_SIZE, nodeName, nodeAlias, nodeDescription, nodeMeta, nodeIds);
             Page<Ga4ghDataNode> currentNodePool = dataNodeService.getNodes(dataNodePage);
             if (currentNodePool == null || !currentNodePool.hasContent() || currentNodePool.getTotalPages() <= 0) {
                 //TODO: discuss with Jim if it makes sense if this returns 204 instead of this empty list

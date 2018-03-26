@@ -399,6 +399,18 @@ paths:
           description: A keyword to search in the field of `aliases` from data node.
           type: string
           required: false
+        - name: node_metadata
+          in: query
+          description: >-
+            Query data nodes by specifying a list of <key, value> pairs AS STRING type,
+            to match against the meta_date field of the data nodes.
+            NOTE: as for now, OpenAPI does not support object as query parameter properly, this is a work-around solution until it support it!
+          type: array
+          required: false
+          collectionFormat: pipes
+          items:
+            type: string
+            x-example: {"key":"category", "value": "cancer"}
         - name: dos_alias
           in: query
           description: A keyword to search in the field of `aliases` from data object.

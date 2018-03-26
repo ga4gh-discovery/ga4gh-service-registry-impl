@@ -363,4 +363,45 @@ public class Ga4ghDataNodeRepositoryTest {
 
         System.out.println(bySpecWithIds);
     }
+
+    @Test
+    public void testQuerySpec_expectNoRecords() {
+
+        // given
+        final String ownerId = "demo-customer-1";
+        IntStream.range(0,50).forEach(i -> {
+            String id = "uuid-"+i;
+            String name = "test_dos_node1-"+i;
+            String description = UUID.randomUUID().toString();
+            Ga4ghDataNode dataNode = new Ga4ghDataNode();
+            dataNode.setOwnerId(ownerId);
+            dataNode.setId(id);
+            dataNode.setName(name);
+            dataNode.setDescription(description);
+            Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
+            dataNode.setAliases(gson.toJson(aliases));
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("category", "cancer");
+            metadata.put("kind", "kids");
+            dataNode.setMetaData(metadata);
+
+            repository.save(dataNode);
+
+        });
+
+        DataNodePage page = new DataNodePage(0, 11, "NON_EXIST", null, null, null, null);
+        Page<Ga4ghDataNode> bySpec = repository.findAll(new QueryDataNodesSpec(page), new PageRequest(0,11));
+        Assert.assertEquals(0, bySpec.getTotalElements());
+        Assert.assertTrue(bySpec.isFirst());
+        Assert.assertTrue(bySpec.isLast());
+        Assert.assertFalse(bySpec.hasNext());
+        Assert.assertFalse(bySpec.hasContent());
+        Assert.assertFalse(bySpec.hasPrevious());
+        Assert.assertEquals(0, bySpec.getTotalPages());
+        Assert.assertEquals(0, bySpec.getContent().size());
+        Assert.assertEquals(11, bySpec.getSize());
+        Assert.assertEquals(0, bySpec.getNumberOfElements());
+
+        System.out.println(bySpec);
+    }
 }
