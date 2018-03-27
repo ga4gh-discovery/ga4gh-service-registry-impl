@@ -22,26 +22,28 @@ import java.util.List;
 @Builder
 public class PageExecutionContext {
 
-    @JsonProperty("current_nodepool_next_page_number")
-    private int currentNodePoolNextPageNumber;
+    @JsonProperty("current_nodepool_next_page_token")
+    // null values of this field indicates no more node available
+    private String currentNodePoolNextPageToken;
     @JsonProperty("current_nodepool_ids")
     private List<String> currentNodePoolIds;
     @JsonProperty("current_node_id")
     private String currentNodeId;
     @JsonProperty("current_node_offset")
+    //should always be 0 in the current implementation
     private int currentNodeOffset;
     @JsonProperty("current_node_page_token")
     private String currentNodePageToken;
 
     @JsonCreator
     public PageExecutionContext(
-            @JsonProperty("current_nodepool_next_page_number") int currentNodePoolNextPageNumber,
+            @JsonProperty("current_nodepool_next_page_token") String currentNodePoolNextPageToken,
             @JsonProperty("current_nodepool_ids") List<String> currentNodePoolIds,
             @JsonProperty("current_node_id") String currentNodeId,
             @JsonProperty("current_node_offset") int currentNodeOffset,
             @JsonProperty("current_node_page_token") String currentNodePageToken) {
 
-        this.currentNodePoolNextPageNumber = currentNodePoolNextPageNumber;
+        this.currentNodePoolNextPageToken = currentNodePoolNextPageToken;
         this.currentNodePoolIds = currentNodePoolIds;
         this.currentNodeId = currentNodeId;
         this.currentNodeOffset = currentNodeOffset;

@@ -46,13 +46,13 @@ public class PageTokensTest {
     public void testEncodeDataObjectsPage(){
 
 
-        int currentNodePoolNextPageNumber = 1;
         List<String> currentNodePoolIds = Arrays.asList("1","2","3","4","5");
         String currentNodeId = "1";
         int currentNodeOffset = 0;
         String currentNodePageToken = "";
+        DataNodePage dataNodePage = new DataNodePage(0, 10, "tes", "est", "demo", null, null);
         PageExecutionContext pageExecutionContext
-                = new PageExecutionContext(currentNodePoolNextPageNumber,
+                = new PageExecutionContext(PageTokens.toDataNodePageCursor(dataNodePage.next()),
                 currentNodePoolIds,
                 currentNodeId,
                 currentNodeOffset,
@@ -83,8 +83,9 @@ public class PageTokensTest {
         String currentNodeId = "1";
         int currentNodeOffset = 0;
         String currentNodePageToken = "";
+        DataNodePage dataNodePage = new DataNodePage(0, 10, "tes", "est", "demo", null, null);
         PageExecutionContext pageExecutionContext
-                = new PageExecutionContext(currentNodePoolNextPageNumber,
+                = new PageExecutionContext(PageTokens.toDataNodePageCursor(dataNodePage.next()),
                 currentNodePoolIds,
                 currentNodeId,
                 currentNodeOffset,
@@ -110,7 +111,7 @@ public class PageTokensTest {
         Assert.assertNotNull(fromCursorToDataObjectPage.getPageExecutionContext());
         Assert.assertEquals(currentNodeOffset, fromCursorToDataObjectPage.getPageExecutionContext().getCurrentNodeOffset());
         Assert.assertEquals(currentNodeId, fromCursorToDataObjectPage.getPageExecutionContext().getCurrentNodeId());
-        Assert.assertEquals(currentNodePoolNextPageNumber, fromCursorToDataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageNumber());
+        Assert.assertNotNull(fromCursorToDataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageToken());
         Assert.assertEquals(currentNodePoolIds, fromCursorToDataObjectPage.getPageExecutionContext().getCurrentNodePoolIds());
         Assert.assertEquals(currentNodePageToken, fromCursorToDataObjectPage.getPageExecutionContext().getCurrentNodePageToken());
 

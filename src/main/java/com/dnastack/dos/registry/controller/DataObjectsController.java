@@ -2,10 +2,12 @@ package com.dnastack.dos.registry.controller;
 
 import com.dnastack.dos.registry.exception.PageExecutionContextException;
 import com.dnastack.dos.registry.exception.InvalidPageTokenException;
+import com.dnastack.dos.registry.exception.ServiceException;
 import com.dnastack.dos.registry.execution.PageExecutionContext;
 import com.dnastack.dos.registry.model.*;
 import com.dnastack.dos.registry.service.DataNodeService;
 import com.dnastack.dos.registry.service.DataObjectService;
+import com.dnastack.dos.registry.util.Base64JsonCodec;
 import com.dnastack.dos.registry.util.PageTokens;
 import com.google.gson.Gson;
 import io.swagger.annotations.ApiParam;
@@ -121,15 +123,16 @@ public class DataObjectsController implements DataobjectsApi {
                 currentNodePool = dataNodeService.getNodes(dataNodePage);
             } catch (Exception e) {
                 logger.error("Error during invoking dataNodeService", e);
+                throw new ServiceException("Error during invoking dataNodeService", e.getCause());
             }
-
             if (currentNodePool == null || !currentNodePool.hasContent() || currentNodePool.getTotalPages() <= 0) {
                 //TODO: discuss with Jim if it makes sense if this returns 204 instead of this empty list
                 ga4ghDataObjectsResponseDto.setDosObjects(new ArrayList<>());
                 return new ResponseEntity(ga4ghDataObjectsResponseDto, HttpStatus.OK);
             }
+
             //initialize the current node pool
-            int currentNodePoolNextPageNumber = dataNodePage.getPageNumber() + 1;
+            String currentNodePoolNextPageToken = currentNodePool.isLast() ? null : PageTokens.toDataNodePageCursor(dataNodePage.next());
             List<String> currentNodePoolIds = currentNodePool.getContent().stream()
                     .map(Ga4ghDataNode::getId)
                     .collect(Collectors.toList());
@@ -142,7 +145,7 @@ public class DataObjectsController implements DataobjectsApi {
 
             //TODO: discuss with Jim about the best practise of holding this context. In a session? or in a page token?
             PageExecutionContext pageExecutionContext
-                    = new PageExecutionContext(currentNodePoolNextPageNumber,
+                    = new PageExecutionContext(currentNodePoolNextPageToken,
                                                 currentNodePoolIds,
                                                 currentNodeId,
                                                 currentNodeOffset,
