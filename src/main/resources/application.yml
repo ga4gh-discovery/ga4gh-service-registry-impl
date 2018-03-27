@@ -35,3 +35,10 @@ logging:
         org.springframework.web.client.RestTemplate: DEBUG
         org.keycloak.adapters.springsecurity: TRACE
         com.dnastack.dos.registry: DEBUG
+
+service:
+    nodes:
+        default_page_size: 10
+    objects:
+        default_page_size: 50
+        default_pool_size: 5

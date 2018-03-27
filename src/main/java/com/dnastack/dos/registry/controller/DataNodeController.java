@@ -11,6 +11,7 @@ import com.dnastack.dos.registry.util.SecurityContextUtil;
 import com.google.gson.Gson;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +34,8 @@ import java.util.stream.Collectors;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class DataNodeController implements NodesApi {
 
-    public static final int DEFAULT_PAGE_SIZE = 10;
+    @Value("${service.nodes.default_page_size:10}")
+    private int defaultPageSize;
 
     private final static Gson gson = new Gson();
 
@@ -117,7 +118,7 @@ public class DataNodeController implements NodesApi {
         } else {
 
             if (pageSize == null) {
-                pageSize = DEFAULT_PAGE_SIZE;
+                pageSize = defaultPageSize;
             }
 
             dataNodePage = new DataNodePage(0, pageSize, name, alias, description, meta, null);

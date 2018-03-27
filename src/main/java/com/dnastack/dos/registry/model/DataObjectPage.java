@@ -1,5 +1,6 @@
 package com.dnastack.dos.registry.model;
 
+import com.dnastack.dos.registry.execution.PageExecutionContext;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,11 +28,11 @@ public class DataObjectPage {
     //pageSize can be reset
     @JsonProperty("page_size")
     private int pageSize;
-    //    @JsonProperty("node_ids")
+//    @JsonProperty("node_ids")
 //    private final List<String> nodeIds;
     @JsonProperty("dos_ids")
     private final List<String> dosIds;
-    //    @JsonProperty("node_name")
+//    @JsonProperty("node_name")
 //    private final String nodeName;
 //    @JsonProperty("node_meta")
 //    private final Map<String, String> nodeMeta;
@@ -41,11 +42,11 @@ public class DataObjectPage {
     private final String dosVersion;
     @JsonProperty("dos_mime_type")
     private final String dosMimeType;
-    //    @JsonProperty("node_description")
+//    @JsonProperty("node_description")
 //    private final String nodeDescription;
     @JsonProperty("dos_description")
     private final String dosDescription;
-    //    @JsonProperty("node_alias")
+//    @JsonProperty("node_alias")
 //    private final String nodeAlias;
     @JsonProperty("dos_alias")
     private final String dosAlias;
@@ -60,16 +61,8 @@ public class DataObjectPage {
     @JsonProperty("dos_date_updated_to")
     private final DateTime dosDateUpdatedTo;
 
-    @JsonProperty("current_nodepool_next_page_token")
-    private String currentNodePoolNextPageToken;
-    @JsonProperty("current_nodepool_ids")
-    private List<String> currentNodePoolIds;
-    @JsonProperty("current_node_id")
-    private String currentNodeId;
-    @JsonProperty("current_node_offset")
-    private int currentNodeOffset;
-    @JsonProperty("current_node_page_token")
-    private String currentNodePageToken;
+    @JsonProperty("page_execution_context")
+    private PageExecutionContext pageExecutionContext;
 
     @JsonCreator
     public DataObjectPage(
@@ -91,11 +84,7 @@ public class DataObjectPage {
             @JsonProperty("dos_date_created_to") DateTime dosDateCreatedTo,
             @JsonProperty("dos_date_updated_from") DateTime dosDateUpdatedFrom,
             @JsonProperty("dos_date_updated_to") DateTime dosDateUpdatedTo,
-            @JsonProperty("current_nodepool_next_page_token") String currentNodePoolPageToken,
-            @JsonProperty("current_nodepool_ids") List<String> currentNodePoolIds,
-            @JsonProperty("current_node_id") String currentNodeId,
-            @JsonProperty("current_node_offset") int currentNodeOffset,
-            @JsonProperty("current_node_page_token") String currentNodePageToken) {
+            @JsonProperty("page_execution_context") PageExecutionContext pageExecutionContext) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         //this.nodeIds = nodeIds;
@@ -114,11 +103,7 @@ public class DataObjectPage {
         this.dosDateCreatedTo = dosDateCreatedTo;
         this.dosDateUpdatedFrom = dosDateUpdatedFrom;
         this.dosDateUpdatedTo = dosDateUpdatedTo;
-        this.currentNodePageToken = currentNodePoolPageToken;
-        this.currentNodePoolIds = currentNodePoolIds;
-        this.currentNodeId = currentNodeId;
-        this.currentNodeOffset = currentNodeOffset;
-        this.currentNodePageToken = currentNodePageToken;
+        this.pageExecutionContext = pageExecutionContext;
     }
 
     @JsonIgnore
@@ -142,11 +127,7 @@ public class DataObjectPage {
                 this.dosDateCreatedTo,
                 this.dosDateUpdatedFrom,
                 this.dosDateUpdatedTo,
-                this.currentNodePageToken,
-                this.currentNodePoolIds,
-                this.currentNodeId,
-                this.currentNodeOffset,
-                this.currentNodePageToken);
+                this.pageExecutionContext);
     }
 
 }

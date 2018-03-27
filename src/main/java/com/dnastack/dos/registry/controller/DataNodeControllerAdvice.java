@@ -1,9 +1,6 @@
 package com.dnastack.dos.registry.controller;
 
-import com.dnastack.dos.registry.exception.BusinessValidationException;
-import com.dnastack.dos.registry.exception.DataNodeNotFoundException;
-import com.dnastack.dos.registry.exception.DataNodeOwnershipException;
-import com.dnastack.dos.registry.exception.ServiceException;
+import com.dnastack.dos.registry.exception.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +76,7 @@ public class DataNodeControllerAdvice {
         return formResponse(status, formErrors("E4003", e.getMessage(), faultGuid, "SECURITY", null));
     }
 
-    @ExceptionHandler({Exception.class, ServiceException.class})
+    @ExceptionHandler({Exception.class, ServiceException.class, PageExecutionContextException.class})
     ResponseEntity<ErrorDataResponseDto> handleAnyException(Exception e) throws Exception {
         String faultGuid = UUID.randomUUID().toString();
         final HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;

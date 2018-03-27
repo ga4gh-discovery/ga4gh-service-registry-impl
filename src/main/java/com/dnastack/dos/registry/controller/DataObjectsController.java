@@ -1,6 +1,8 @@
 package com.dnastack.dos.registry.controller;
 
+import com.dnastack.dos.registry.exception.PageExecutionContextException;
 import com.dnastack.dos.registry.exception.InvalidPageTokenException;
+import com.dnastack.dos.registry.execution.PageExecutionContext;
 import com.dnastack.dos.registry.model.*;
 import com.dnastack.dos.registry.service.DataNodeService;
 import com.dnastack.dos.registry.service.DataObjectService;
@@ -9,7 +11,10 @@ import com.google.gson.Gson;
 import io.swagger.annotations.ApiParam;
 import org.joda.time.DateTime;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +38,13 @@ import java.util.stream.Collectors;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class DataObjectsController implements DataobjectsApi {
 
-    private static final int DEFAULT_PAGE_SIZE = 50;
-    private static final int DEFAULT_CURRENT_NODEPOOL_SIZE = 5;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Value("${service.objects.default_page_size:50}")
+    private int defaultPageSize;
+
+    @Value("${service.objects.default_pool_size:5}")
+    private int defaultPoolSize;
 
     private final static Gson gson = new Gson();
 
@@ -91,7 +101,7 @@ public class DataObjectsController implements DataobjectsApi {
         } else {
 
             if (pageSize == null) {
-                pageSize = DEFAULT_PAGE_SIZE;
+                pageSize = defaultPageSize;
             }
 
             Map<String, String> nodeMeta = null;
@@ -105,30 +115,43 @@ public class DataObjectsController implements DataobjectsApi {
                                 HashMap::new
                         ));
             }
-            DataNodePage dataNodePage = new DataNodePage(0, DEFAULT_CURRENT_NODEPOOL_SIZE, nodeName, nodeAlias, nodeDescription, nodeMeta, nodeIds);
-            Page<Ga4ghDataNode> currentNodePool = dataNodeService.getNodes(dataNodePage);
+            DataNodePage dataNodePage = new DataNodePage(0, defaultPoolSize, nodeName, nodeAlias, nodeDescription, nodeMeta, nodeIds);
+            Page<Ga4ghDataNode> currentNodePool = null;
+            try {
+                currentNodePool = dataNodeService.getNodes(dataNodePage);
+            } catch (Exception e) {
+                logger.error("Error during invoking dataNodeService", e);
+            }
+
             if (currentNodePool == null || !currentNodePool.hasContent() || currentNodePool.getTotalPages() <= 0) {
                 //TODO: discuss with Jim if it makes sense if this returns 204 instead of this empty list
                 ga4ghDataObjectsResponseDto.setDosObjects(new ArrayList<>());
                 return new ResponseEntity(ga4ghDataObjectsResponseDto, HttpStatus.OK);
             }
             //initialize the current node pool
-            String currentNodePoolNextPageToken = PageTokens.toDataNodePageCursor(dataNodePage.next());
+            int currentNodePoolNextPageNumber = dataNodePage.getPageNumber() + 1;
             List<String> currentNodePoolIds = currentNodePool.getContent().stream()
                     .map(Ga4ghDataNode::getId)
                     .collect(Collectors.toList());
             String currentNodeId = currentNodePool.getContent().stream()
                     .map(Ga4ghDataNode::getId)
                     .findFirst()
-                    .orElse("");
+                    .orElseThrow(() -> new PageExecutionContextException("No data node is found!"));
             int currentNodeOffset = 0;
             String currentNodePageToken = "";
+
+            //TODO: discuss with Jim about the best practise of holding this context. In a session? or in a page token?
+            PageExecutionContext pageExecutionContext
+                    = new PageExecutionContext(currentNodePoolNextPageNumber,
+                                                currentNodePoolIds,
+                                                currentNodeId,
+                                                currentNodeOffset,
+                                                currentNodePageToken);
 
             dataObjectPage = new DataObjectPage(0, pageSize, dosIds, dosName,
                     dosVersion, dosMimeType, dosDescription, dosAlias, dosChecksum,
                     dosDateCreatedFrom, dosDateCreatedTo, dosDateUpdatedFrom, dosDateUpdatedTo,
-                    currentNodePoolNextPageToken, currentNodePoolIds,
-                    currentNodeId, currentNodeOffset, currentNodePageToken);
+                    pageExecutionContext);
         }
 
         Page<Ga4ghDataObjectOnNode> dataObjectsPage = dataObjectService.getDataObjects(dataObjectPage);

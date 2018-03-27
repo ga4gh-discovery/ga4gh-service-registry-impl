@@ -4,7 +4,6 @@ import com.dnastack.dos.registry.util.SecurityTestUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.collection.IsMapContaining;
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -381,7 +380,7 @@ public class DataNodeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.dos_nodes", isA(List.class)))
-                .andExpect(jsonPath("$.dos_nodes", hasSize(DataNodeController.DEFAULT_PAGE_SIZE))) // default page size
+                .andExpect(jsonPath("$.dos_nodes", hasSize(10))) // default page size
                 .andExpect(jsonPath("$.next_page_token").exists())
                 .andExpect(jsonPath("$.dos_nodes[0].name", containsString("demo_node_")))
                 .andReturn();
