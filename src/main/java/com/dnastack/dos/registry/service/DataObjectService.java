@@ -5,6 +5,7 @@ import com.dnastack.dos.registry.exception.ServiceException;
 import com.dnastack.dos.registry.execution.PageExecutionContext;
 import com.dnastack.dos.registry.model.*;
 import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
+import com.dnastack.dos.registry.util.PageExecutionContextHelper;
 import com.dnastack.dos.registry.util.PageTokens;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * This is the service to perform CRUD operations on DOS service node
+ * This is the service to perform GET operations on actual DOS service node
  *
  * @Author: marchuang <br/>
  * @since: 1.0.0 <br/>
@@ -48,7 +50,8 @@ public class DataObjectService {
         List<Ga4ghDataObjectOnNode> dataObjectsForPage = new ArrayList<>();
 
         int remainingCountForPage = dataObjectPage.getPageSize();
-        while(!dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().isEmpty()
+        while(dataObjectPage.getPageExecutionContext() != null
+                && !CollectionUtils.isEmpty(dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds())
                 && remainingCountForPage > 0) {
 
             List<String> currentNodePoolIds = dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds();
@@ -96,13 +99,13 @@ public class DataObjectService {
 
                     remainingCountForPage = 0; // exit loop
                 } else if (currentDataObjects.size() > remainingCountForPage){
+                    //NOTE: this situation should NOT happen in the current implementation
                     addRecordsToPage(dataObjectsForPage, currentDataObjects, remainingCountForPage, currentNodeId);
                     //stays on this current node for next page
                     dataObjectPage.getPageExecutionContext().setCurrentNodeOffset(remainingCountForPage);
 
                     remainingCountForPage = 0; // exit loop
                 } else {
-                    //NOTE: this situation should NOT happen in the current implementation
                     addRecordsToPage(dataObjectsForPage, currentDataObjects, currentDataObjects.size(), currentNodeId);
                     if(nextPageToken != null) {
                         // it means this data node has more records to retrieve
@@ -126,40 +129,9 @@ public class DataObjectService {
                 //get node node pool
 
                 DataNodePage dataNodePage = PageTokens.fromCursorToDataNodePage(dataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageToken());
-                Page<Ga4ghDataNode> currentNodePool = null;
-                try {
-                    currentNodePool = dataNodeService.getNodes(dataNodePage);
-                } catch (Exception e) {
-                    logger.error("Error during invoking dataNodeService", e);
-                    throw new ServiceException("Error during invoking dataNodeService", e.getCause());
-                }
+                PageExecutionContext pageExecutionContext = PageExecutionContextHelper.formPageExecutionContext(dataNodeService, dataNodePage);
 
-                if(currentNodePool.hasContent()){
-
-                    dataObjectPage.getPageExecutionContext();
-                    //reset the page execution context
-                    //initialize the current node pool
-                    String currentNodePoolNextPageToken = currentNodePool.isLast() ? null : PageTokens.toDataNodePageCursor(dataNodePage.next());
-                    currentNodePoolIds = currentNodePool.getContent().stream()
-                            .map(Ga4ghDataNode::getId)
-                            .collect(Collectors.toList());
-                    currentNodeId = currentNodePool.getContent().stream()
-                            .map(Ga4ghDataNode::getId)
-                            .findFirst()
-                            .orElseThrow(() -> new PageExecutionContextException("No data node is found!"));
-                    int currentNodeOffset = 0;
-                    String currentNodePageToken = "";
-
-                    PageExecutionContext pageExecutionContext
-                            = new PageExecutionContext(currentNodePoolNextPageToken,
-                            currentNodePoolIds,
-                            currentNodeId,
-                            currentNodeOffset,
-                            currentNodePageToken);
-
-                    dataObjectPage.setPageExecutionContext(pageExecutionContext);
-
-                }
+                dataObjectPage.setPageExecutionContext(pageExecutionContext);
             }
         }
 

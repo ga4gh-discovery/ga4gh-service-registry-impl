@@ -8,6 +8,7 @@ import com.dnastack.dos.registry.model.*;
 import com.dnastack.dos.registry.service.DataNodeService;
 import com.dnastack.dos.registry.service.DataObjectService;
 import com.dnastack.dos.registry.util.Base64JsonCodec;
+import com.dnastack.dos.registry.util.PageExecutionContextHelper;
 import com.dnastack.dos.registry.util.PageTokens;
 import com.google.gson.Gson;
 import io.swagger.annotations.ApiParam;
@@ -118,38 +119,16 @@ public class DataObjectsController implements DataobjectsApi {
                         ));
             }
             DataNodePage dataNodePage = new DataNodePage(0, defaultPoolSize, nodeName, nodeAlias, nodeDescription, nodeMeta, nodeIds);
-            Page<Ga4ghDataNode> currentNodePool = null;
-            try {
-                currentNodePool = dataNodeService.getNodes(dataNodePage);
-            } catch (Exception e) {
-                logger.error("Error during invoking dataNodeService", e);
-                throw new ServiceException("Error during invoking dataNodeService", e.getCause());
-            }
-            if (currentNodePool == null || !currentNodePool.hasContent() || currentNodePool.getTotalPages() <= 0) {
+
+            //initialize the current node pool
+            //TODO: discuss with Jim about the best practise of holding this context. In a session? or in a page token?
+            PageExecutionContext pageExecutionContext
+                    = PageExecutionContextHelper.formPageExecutionContext(dataNodeService, dataNodePage);
+            if (pageExecutionContext == null) {
                 //TODO: discuss with Jim if it makes sense if this returns 204 instead of this empty list
                 ga4ghDataObjectsResponseDto.setDosObjects(new ArrayList<>());
                 return new ResponseEntity(ga4ghDataObjectsResponseDto, HttpStatus.OK);
             }
-
-            //initialize the current node pool
-            String currentNodePoolNextPageToken = currentNodePool.isLast() ? null : PageTokens.toDataNodePageCursor(dataNodePage.next());
-            List<String> currentNodePoolIds = currentNodePool.getContent().stream()
-                    .map(Ga4ghDataNode::getId)
-                    .collect(Collectors.toList());
-            String currentNodeId = currentNodePool.getContent().stream()
-                    .map(Ga4ghDataNode::getId)
-                    .findFirst()
-                    .orElseThrow(() -> new PageExecutionContextException("No data node is found!"));
-            int currentNodeOffset = 0;
-            String currentNodePageToken = "";
-
-            //TODO: discuss with Jim about the best practise of holding this context. In a session? or in a page token?
-            PageExecutionContext pageExecutionContext
-                    = new PageExecutionContext(currentNodePoolNextPageToken,
-                                                currentNodePoolIds,
-                                                currentNodeId,
-                                                currentNodeOffset,
-                                                currentNodePageToken);
 
             dataObjectPage = new DataObjectPage(0, pageSize, dosIds, dosName,
                     dosVersion, dosMimeType, dosDescription, dosAlias, dosChecksum,
