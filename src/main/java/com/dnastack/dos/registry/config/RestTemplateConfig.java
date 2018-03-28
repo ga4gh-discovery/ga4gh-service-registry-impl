@@ -29,13 +29,13 @@ public class RestTemplateConfig {
 
     // SSLContext which enables trust in CA signed certificates.
     //@Autowired
-    private SSLContext bnsCertificatesTrustingSslContext;
+    private SSLContext certificatesTrustingSslContext;
 
     @Bean
     public RestTemplate objectsServiceRestTemplate(RestTemplateBuilder builder) throws Exception {
 
         HttpClient httpClient = HttpClientBuilder.create()
-                //.setSSLContext(bnsCertificatesTrustingSslContext)
+                //.setSSLContext(certificatesTrustingSslContext)
                 //.setMaxConnTotal(objectsServiceMaxTotal)
                 //.setMaxConnPerRoute(objectsServiceMaxPerRoute)
                 //.setConnectionTimeToLive(objectsServiceConnlToLiveTimeout, TimeUnit.SECONDS)
