@@ -42,3 +42,7 @@ service:
     objects:
         default_page_size: 50
         default_pool_size: 5
+        timeout:
+          connection-request: 20000
+          connection:         50000
+          read:               25000

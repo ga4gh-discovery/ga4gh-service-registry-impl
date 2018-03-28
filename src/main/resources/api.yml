@@ -358,7 +358,9 @@ paths:
             type: string
         - name: dos_ids
           in: query
-          description: query data objects by specifying a list of comma separated dos_ids
+          description: >-
+            query data objects by specifying a list of comma separated dos_ids
+            NOTE: current not supported in the dos-schema spec
           type: array
           required: false
           collectionFormat: csv
@@ -371,27 +373,36 @@ paths:
           required: false
         - name: dos_name
           in: query
-          description: A keyword to search in the field of `name` from data object.
+          description: >-
+            If provided will only return Data Objects with the given `name`.
+            NOTE: current not supported in the dos-schema spec
           type: string
           required: false
         - name: dos_version
           in: query
-          description: A keyword to search in the field of `version` from data object.
+          description: >-
+            If provided will only return Data Objects with the given `version`.
+            NOTE: current not supported in the dos-schema spec
           type: string
           required: false
         - name: dos_mime_type
           in: query
-          description: query data objects by specific mime_type to match the value in the field of `mime_type` from data object.
+          description: >-
+            If provided will only return Data Objects with the given `mime_type`.
+            NOTE: current not supported in the dos-schema spec
           type: string
           required: false
         - name: node_description
           in: query
-          description: A keyword to search in the field of `description` from data node.
+          description: >-
+            A keyword to search in the field of `description` from data node.
           type: string
           required: false
         - name: dos_description
           in: query
-          description: A keyword to search in the field of `description` from data object.
+          description: >-
+            A keyword to search in the field of `description` from data object.
+            NOTE: current not supported in the dos-schema spec
           type: string
           required: false
         - name: node_alias
@@ -413,46 +424,68 @@ paths:
             x-example: {"key":"category", "value": "cancer"}
         - name: dos_alias
           in: query
-          description: A keyword to search in the field of `aliases` from data object.
+          description: >-
+            If provided will only return Data Objects with the given alias.
+          type: string
+          required: false
+        - name: dos_url
+          in: query
+          description: >-
+            If provided will return only Data Objects with a that URL matches
+            this string.
           type: string
           required: false
         - name: dos_checksum
           in: query
-          description: A combination of `type,value` pair to search in the field of `chechsum` from data object.
+          description: >-
+            The hexlified checksum that one would like to match on.
           type: string
           required: false
         - name: dos_date_created_from
           in: query
-          description: query data objects by specific creation date range lower bound
+          description: >-
+            query data objects by specific creation date range lower bound
+            NOTE: current not supported in the dos-schema spec
           type: string
           format: date-time
           required: false
         - name: dos_date_created_to
           in: query
-          description: query data objects by specific creation date range upper bound
+          description: >-
+            query data objects by specific creation date range upper bound
+            NOTE: current not supported in the dos-schema spec
           type: string
           format: date-time
           required: false
         - name: dos_date_updated_from
           in: query
-          description: query data objects by specific updated date range lower bound
+          description: >-
+            query data objects by specific updated date range lower bound
+            NOTE: current not supported in the dos-schema spec
           type: string
           format: date-time
           required: false
         - name: dos_date_updated_to
           in: query
-          description: query data objects by specific updated date range upper bound
+          description: >-
+            query data objects by specific updated date range upper bound
+            NOTE: current not supported in the dos-schema spec
           type: string
           format: date-time
           required: false
         - name: page_token
           in: query
-          description: Page token to identify the record to start retrieval from.
+          description: >-
+            The continuation token, which is used to page through large result sets.
+            To get the next page of results, set this parameter to the value of
+            `next_page_token` from the previous response.
           type: string
           required: false
         - name: page_size
           in: query
-          description: The number of entries to be retrieved.
+          description: >-
+            Specifies the maximum number of results to return in a single page.
+            If unspecified, a system default will be used.
           type: integer
           required: false
       responses:
@@ -788,16 +821,14 @@ definitions:
       - url
   SystemMetadata:
     type: object
-    additionalProperties:
-      type: object
+    additionalProperties: true
     description: |-
             OPTIONAL
             These values are reported by the underlying object store.
             A set of key-value pairs that represent system metadata about the object.
   UserMetadata:
     type: object
-    additionalProperties:
-      type: object
+    additionalProperties: true
     description: |-
             OPTIONAL
             A set of key-value pairs that represent metadata provided by the uploader.

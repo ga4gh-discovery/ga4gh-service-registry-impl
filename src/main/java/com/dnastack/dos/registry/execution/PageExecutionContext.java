@@ -34,6 +34,8 @@ public class PageExecutionContext {
     private int currentNodeOffset;
     @JsonProperty("current_node_page_token")
     private String currentNodePageToken;
+    @JsonIgnore
+    private int remainingCountForPage;
 
     @JsonCreator
     public PageExecutionContext(

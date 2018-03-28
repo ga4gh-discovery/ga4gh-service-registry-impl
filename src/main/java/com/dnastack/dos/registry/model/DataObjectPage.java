@@ -50,6 +50,8 @@ public class DataObjectPage {
 //    private final String nodeAlias;
     @JsonProperty("dos_alias")
     private final String dosAlias;
+    @JsonProperty("dos_url")
+    private final String dosUrl;
     @JsonProperty("dos_checksum")
     private final String dosChecksum;
     @JsonProperty("dos_date_created_from")
@@ -79,6 +81,7 @@ public class DataObjectPage {
             @JsonProperty("dos_description") String dosDescription,
             //@JsonProperty("node_alias") String nodeAlias,
             @JsonProperty("dos_alias") String dosAlias,
+            @JsonProperty("dos_url") String dosUrl,
             @JsonProperty("dos_checksum") String dosChecksum,
             @JsonProperty("dos_date_created_from") DateTime dosDateCreatedFrom,
             @JsonProperty("dos_date_created_to") DateTime dosDateCreatedTo,
@@ -98,6 +101,7 @@ public class DataObjectPage {
         this.dosDescription = dosDescription;
         //this.nodeAlias = nodeAlias;
         this.dosAlias = dosAlias;
+        this.dosUrl = dosUrl;
         this.dosChecksum = dosChecksum;
         this.dosDateCreatedFrom = dosDateCreatedFrom;
         this.dosDateCreatedTo = dosDateCreatedTo;
@@ -122,6 +126,7 @@ public class DataObjectPage {
                 this.dosDescription,
                 //this.nodeAlias,
                 this.dosAlias,
+                this.dosUrl,
                 this.dosChecksum,
                 this.dosDateCreatedFrom,
                 this.dosDateCreatedTo,

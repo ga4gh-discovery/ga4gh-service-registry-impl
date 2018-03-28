@@ -1,12 +1,13 @@
 package com.dnastack.dos.registry.service;
 
-import com.dnastack.dos.registry.exception.PageExecutionContextException;
-import com.dnastack.dos.registry.exception.ServiceException;
+import com.dnastack.dos.registry.downstream.dto.ListDataObjectsResponseDto;
+import com.dnastack.dos.registry.downstream.passthru.PassThruDataClient;
 import com.dnastack.dos.registry.execution.PageExecutionContext;
 import com.dnastack.dos.registry.model.*;
 import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
 import com.dnastack.dos.registry.util.PageExecutionContextHelper;
 import com.dnastack.dos.registry.util.PageTokens;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,14 @@ public class DataObjectService {
     @Autowired
     private DataNodeService dataNodeService;
 
-    public Page<Ga4ghDataObjectOnNode> getDataObjects(DataObjectPage dataObjectPage) {
+    @Autowired
+    private PassThruDataClient passThruDataClient;
+
+    //Tihs is the model to dto converter
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public List<Ga4ghDataObjectOnNode> getDataObjects(DataObjectPage dataObjectPage) {
 
         Assert.notNull(dataObjectPage, "dataObjectPage cannot be null");
         Assert.isTrue(dataObjectPage.getPageSize() > 0,
@@ -69,16 +77,19 @@ public class DataObjectService {
                 /*
                  * 1. Get the current DataNode and query for data objects:
                  */
-                String url = dataNode.getUrl();
-                String pageToken = dataObjectPage.getPageExecutionContext().getCurrentNodePageToken();
+                String dataObjectsNodeUrl = dataNode.getUrl();
                 //NOTE: please use remainingCountForPage as page size!
-                //TODO: make the rest call to the actual data node url in a separate private method
+                dataObjectPage.getPageExecutionContext().setRemainingCountForPage(remainingCountForPage);
+                passThruDataClient.setDataObjectsNodeURL(dataObjectsNodeUrl);
+                passThruDataClient.setDataObjectPage(dataObjectPage);
+                ListDataObjectsResponseDto dataObjectsResponseDto = passThruDataClient.getDataObjects();
 
-                //TODO: use real data from the actual rest call
-                List<Ga4ghDataObject> currentDataObjects = new ArrayList<>();
-                String nextPageToken = "eyjWvae...";
+                List<Ga4ghDataObject> currentDataObjects =
+                        dataObjectsResponseDto.getDataObjects().stream()
+                            .map(data -> modelMapper.map(data, Ga4ghDataObject.class))
+                            .collect(Collectors.toList());
+                String nextPageToken = dataObjectsResponseDto.getNextPageToken();
 
-                //TODO: add logic to handle empty list or error cases
                 if(currentDataObjects.size()==0){
                     //move on to the next node
                     dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().remove(currentNodeId);
@@ -135,15 +146,7 @@ public class DataObjectService {
             }
         }
 
-        /*
-         * 4. In the end, beautify the page object to indicate whether there're more pages or not.
-         */
-        if(!dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().isEmpty()){
-            logger.info("has more pages...");
-            //TODO: set the next page token
-        }
-
-        return null;
+        return dataObjectsForPage;
 
     }
 

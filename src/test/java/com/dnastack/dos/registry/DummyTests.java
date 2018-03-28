@@ -1,5 +1,9 @@
 package com.dnastack.dos.registry;
 
+import com.dnastack.dos.registry.downstream.dto.ChecksumRequestDto;
+import com.dnastack.dos.registry.downstream.dto.ListDataObjectsRequestDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,6 +57,24 @@ public class DummyTests {
         List list1 = objGson.fromJson(s, List.class);
 
         System.out.println(list1);
+    }
+
+    @Test
+    public void testJacksonJson() throws JsonProcessingException {
+        //map dataObjectPage to ListDataObjectsRequestDto
+        ListDataObjectsRequestDto listDataObjectsRequestDto = new ListDataObjectsRequestDto();
+        listDataObjectsRequestDto.setUrl("urlll");
+        listDataObjectsRequestDto.setAlias("abc");
+        listDataObjectsRequestDto.setPageSize(10);
+        listDataObjectsRequestDto.setPageToken("ABEFEEF");
+
+        ChecksumRequestDto checksumRequestDto = new ChecksumRequestDto();
+        checksumRequestDto.setChecksum("chhchehcheh");
+        listDataObjectsRequestDto.setChecksum(checksumRequestDto);
+        ObjectMapper mapperObj = new ObjectMapper();
+        String jsonListDataObjectsRequestDto = mapperObj.writeValueAsString(listDataObjectsRequestDto);
+
+        System.out.println(jsonListDataObjectsRequestDto);
     }
 
 }
