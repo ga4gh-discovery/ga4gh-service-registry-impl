@@ -157,6 +157,9 @@ public class DataObjectControllerTest {
                 .andExpect(jsonPath("$.dos_objects", isA(List.class)))
                 .andExpect(jsonPath("$.dos_objects", hasSize(5))) //default page size
                 .andExpect(jsonPath("$.next_page_token").exists())
+                .andExpect(jsonPath("$.dos_objects[0].id", is("abc-0")))
+                .andExpect(jsonPath("$.dos_objects[0].name", is("set0-name-0")))
+                .andExpect(jsonPath("$.dos_objects[0].aliases", contains("set0-test-0")))
                 .andReturn();
 
         System.out.println(result.getResponse().getContentAsString());

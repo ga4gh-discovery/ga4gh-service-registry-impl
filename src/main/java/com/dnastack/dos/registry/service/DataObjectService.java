@@ -108,6 +108,7 @@ public class DataObjectService {
                     remainingCountForPage = 0; // exit loop
                 } else if (currentDataObjects.size() > remainingCountForPage) {
                     //NOTE: this situation should NOT happen in the current implementation
+                    //For mock testing and future support, this situation might happen
                     addRecordsToPage(dataObjectsForPage, currentDataObjects, remainingCountForPage, currentNodeId);
                     //stays on this current node for next page
                     dataObjectPage.getPageExecutionContext().setCurrentNodeOffset(remainingCountForPage);
@@ -146,7 +147,9 @@ public class DataObjectService {
     private void addRecordsToPage(List<Ga4ghDataObjectOnNode> dataObjectsForPage, List<Ga4ghDataObject> currentDataObjects, int offset, String currentNodeId) {
 
         IntStream.range(0, offset).forEach(i -> {
-            dataObjectsForPage.add(new Ga4ghDataObjectOnNode(currentNodeId, currentDataObjects.get(i)));
+            Ga4ghDataObjectOnNode ga4ghDataObjectOnNode = modelMapper.map(currentDataObjects.get(i), Ga4ghDataObjectOnNode.class);
+            ga4ghDataObjectOnNode.setNodeId(currentNodeId);
+            dataObjectsForPage.add(ga4ghDataObjectOnNode);
         });
 
     }
