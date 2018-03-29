@@ -34,7 +34,7 @@ public class PageExecutionContext {
     private int currentNodeOffset;
     @JsonProperty("current_node_page_token")
     private String currentNodePageToken;
-    @JsonIgnore
+    @JsonProperty("remaining_count_for_page")
     private int remainingCountForPage;
 
     @JsonCreator
@@ -43,13 +43,15 @@ public class PageExecutionContext {
             @JsonProperty("current_nodepool_ids") List<String> currentNodePoolIds,
             @JsonProperty("current_node_id") String currentNodeId,
             @JsonProperty("current_node_offset") int currentNodeOffset,
-            @JsonProperty("current_node_page_token") String currentNodePageToken) {
+            @JsonProperty("current_node_page_token") String currentNodePageToken,
+            @JsonProperty("remaining_count_for_page") int remainingCountForPage) {
 
         this.currentNodePoolNextPageToken = currentNodePoolNextPageToken;
         this.currentNodePoolIds = currentNodePoolIds;
         this.currentNodeId = currentNodeId;
         this.currentNodeOffset = currentNodeOffset;
         this.currentNodePageToken = currentNodePageToken;
+        this.remainingCountForPage = remainingCountForPage;
     }
 
 }

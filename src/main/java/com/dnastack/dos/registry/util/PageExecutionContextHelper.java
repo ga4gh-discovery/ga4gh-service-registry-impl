@@ -42,7 +42,8 @@ public class PageExecutionContextHelper {
                     currentNodePoolIds,
                     currentNodeId,
                     currentNodeOffset,
-                    currentNodePageToken);
+                    currentNodePageToken,
+                    0);
 
             return pageExecutionContext;
 

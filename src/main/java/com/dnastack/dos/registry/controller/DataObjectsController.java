@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -65,7 +64,7 @@ public class DataObjectsController implements DataobjectsApi {
     @Override
     @PreAuthorize("hasAuthority('ROLE_dos_user')")
     public ResponseEntity<Ga4ghDataObjectsResponseDto> getDataobjects(
-            @ApiParam(value = "The auth token" ) @RequestHeader(value="Authorization", required=false) String authorization,
+            @ApiParam(value = "The auth token") @RequestHeader(value = "Authorization", required = false) String authorization,
             @ApiParam(value = "query data objects by specifying a list of comma separated node_ids") @RequestParam(value = "node_ids", required = false) List<String> nodeIds,
             @ApiParam(value = "query data objects by specifying a list of comma separated dos_ids NOTE: current not supported in the dos-schema spec") @RequestParam(value = "dos_ids", required = false) List<String> dosIds,
             @ApiParam(value = "A keyword to search in the field of `name` from data node.") @RequestParam(value = "node_name", required = false) String nodeName,
@@ -154,8 +153,8 @@ public class DataObjectsController implements DataobjectsApi {
             ga4ghDataObjectsResponseDto.setDosObjects(new ArrayList<>());
         }
 
-        if (dataObjectPage.getPageExecutionContext()!=null
-                && CollectionUtils.isEmpty(dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds())) {
+        if (dataObjectPage.getPageExecutionContext() != null
+                && !CollectionUtils.isEmpty(dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds())) {
             ga4ghDataObjectsResponseDto.setNextPageToken(PageTokens.toDataObjectPageCursor(dataObjectPage.next()));
         }
 

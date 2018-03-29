@@ -1,0 +1,305 @@
+{
+  "data_objects": [
+    {
+      "id": "abc-0",
+      "name": "set0-name-0",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d79da8eacb6bdaa8a8",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-0"
+      ]
+    },
+    {
+      "id": "abc-1",
+      "name": "set0-name-1",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d79da8eacb6bdaa810",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-1"
+      ]
+    },
+    {
+      "id": "abc-2",
+      "name": "set0-name-2",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d79da8eacb6bdaa809",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-2"
+      ]
+    },
+    {
+      "id": "abc-3",
+      "name": "set0-name-3",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d79da8eacb6bdaa808",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-3"
+      ]
+    },
+    {
+      "id": "abc-4",
+      "name": "set0-name-4",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d79da8eacb6bdaa8a7",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-4"
+      ]
+    },
+    {
+      "id": "abc-5",
+      "name": "set0-name-5",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d79da8eacb6bdaa8b8",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-5"
+      ]
+    },
+    {
+      "id": "abc-6",
+      "name": "set0-name-6",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d79da8eacb6bdbb8a8",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-6"
+      ]
+    },
+    {
+      "id": "abc-7",
+      "name": "set0-name-7",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d79da8cb6bdaa8a8",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-7"
+      ]
+    },
+    {
+      "id": "abc-8",
+      "name": "set0-name-8",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff634c139d79da8eacb6bdaa8a8",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-8"
+      ]
+    },
+    {
+      "id": "abc-9",
+      "name": "set0-name-9",
+      "size": "16",
+      "created": "2018-03-29T03:46:10.839Z",
+      "updated": "2018-03-29T03:46:10.839Z",
+      "version": "string",
+      "mime_type": "application/json",
+      "checksums": [
+        {
+          "checksum": "43ff63f594c139d7a8eacb6bdaa8a8",
+          "type": "md5"
+        }
+      ],
+      "urls": [
+        {
+          "url": "http://example.com/abc",
+          "system_metadata": {
+            "additionalProp1": {}
+          },
+          "user_metadata": {
+            "additionalProp1": {}
+          }
+        }
+      ],
+      "description": "a sample dos",
+      "aliases": [
+        "set0-test-9"
+      ]
+    }
+  ],
+  "next_page_token": null
+}

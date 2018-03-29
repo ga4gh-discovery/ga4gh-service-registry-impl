@@ -56,14 +56,15 @@ public class PageTokensTest {
                 currentNodePoolIds,
                 currentNodeId,
                 currentNodeOffset,
-                currentNodePageToken);
+                currentNodePageToken,
+                0);
 
         List<String> dosIds = Arrays.asList("aa","bb","cc");
         String dosName = "test";
         String dosDescription = "demo";
         String dosAlias = "tst";
         DataObjectPage dataObjectPage = new DataObjectPage(0, 10, dosIds, dosName,
-                null, null, dosDescription, dosAlias, null,
+                null, null, dosDescription, dosAlias, null, null,
                 null, null, null, null,
                 pageExecutionContext);
 
@@ -89,14 +90,15 @@ public class PageTokensTest {
                 currentNodePoolIds,
                 currentNodeId,
                 currentNodeOffset,
-                currentNodePageToken);
+                currentNodePageToken,
+                0);
 
         List<String> dosIds = Arrays.asList("aa","bb","cc");
         String dosName = "test";
         String dosDescription = "demo";
         String dosAlias = "tst";
         DataObjectPage dataObjectPage = new DataObjectPage(0, 10, dosIds, dosName,
-                null, null, dosDescription, dosAlias, null,
+                null, null, dosDescription, dosAlias, null, null,
                 null, null, null, null,
                 pageExecutionContext);
         String toDataObjectPageCursor = PageTokens.toDataObjectPageCursor(dataObjectPage.next());

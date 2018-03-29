@@ -11,7 +11,6 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -58,7 +57,7 @@ public class DataObjectService {
         List<Ga4ghDataObjectOnNode> dataObjectsForPage = new ArrayList<>();
 
         int remainingCountForPage = dataObjectPage.getPageSize();
-        while(dataObjectPage.getPageExecutionContext() != null
+        while (dataObjectPage.getPageExecutionContext() != null
                 && !CollectionUtils.isEmpty(dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds())
                 && remainingCountForPage > 0) {
 
@@ -66,13 +65,13 @@ public class DataObjectService {
             Assert.notEmpty(currentNodePoolIds, "current node pool cannot be empty!");
             String currentNodeId = dataObjectPage.getPageExecutionContext().getCurrentNodeId();
             Assert.notNull(currentNodeId, "current node cannot be null!");
-            Assert.isTrue(currentNodePoolIds.contains(currentNodeId), "current node cannot be a member of currentNodePoolIds!");
+            Assert.isTrue(currentNodePoolIds.contains(currentNodeId), "current node must be a member of currentNodePoolIds!");
 
             Ga4ghDataNode dataNode = repository.findOne(currentNodeId);
             if (dataNode == null) {
                 //in case the data node was deleted during the execution of this request
                 //move on to the next node
-                dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().remove(currentNodeId);
+                moveToNextNode(dataObjectPage);
             } else {
                 /*
                  * 1. Get the current DataNode and query for data objects:
@@ -86,30 +85,28 @@ public class DataObjectService {
 
                 List<Ga4ghDataObject> currentDataObjects =
                         dataObjectsResponseDto.getDataObjects().stream()
-                            .map(data -> modelMapper.map(data, Ga4ghDataObject.class))
-                            .collect(Collectors.toList());
+                                .map(data -> modelMapper.map(data, Ga4ghDataObject.class))
+                                .collect(Collectors.toList());
                 String nextPageToken = dataObjectsResponseDto.getNextPageToken();
-
-                if(currentDataObjects.size()==0){
-                    //move on to the next node
-                    dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().remove(currentNodeId);
-                }
 
                 /*
                  * 2. Check if there're enough data objects to form the page
                  */
-                if(currentDataObjects.size() == remainingCountForPage){
+                if (currentDataObjects.size() == 0) {
+                    //move on to the next node
+                    moveToNextNode(dataObjectPage);
+                } else if (currentDataObjects.size() == remainingCountForPage) {
                     // just enough to form this current page
                     addRecordsToPage(dataObjectsForPage, currentDataObjects, remainingCountForPage, currentNodeId);
-                    if(nextPageToken != null) {
+                    if (nextPageToken != null) {
                         dataObjectPage.getPageExecutionContext().setCurrentNodePageToken(nextPageToken);
                     } else {
                         //move on to the next node
-                        dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().remove(currentNodeId);
+                        moveToNextNode(dataObjectPage);
                     }
 
                     remainingCountForPage = 0; // exit loop
-                } else if (currentDataObjects.size() > remainingCountForPage){
+                } else if (currentDataObjects.size() > remainingCountForPage) {
                     //NOTE: this situation should NOT happen in the current implementation
                     addRecordsToPage(dataObjectsForPage, currentDataObjects, remainingCountForPage, currentNodeId);
                     //stays on this current node for next page
@@ -118,12 +115,12 @@ public class DataObjectService {
                     remainingCountForPage = 0; // exit loop
                 } else {
                     addRecordsToPage(dataObjectsForPage, currentDataObjects, currentDataObjects.size(), currentNodeId);
-                    if(nextPageToken != null) {
+                    if (nextPageToken != null) {
                         // it means this data node has more records to retrieve
                         dataObjectPage.getPageExecutionContext().setCurrentNodePageToken(nextPageToken);
                     } else {
                         //move on to the next node
-                        dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().remove(currentNodeId);
+                        moveToNextNode(dataObjectPage);
                     }
 
                     remainingCountForPage = remainingCountForPage - currentDataObjects.size();
@@ -135,14 +132,10 @@ public class DataObjectService {
              * 3. reset the page execution context if the node pool is empty by reaching this point
              */
 
-            if(dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().isEmpty()
-                    && dataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageToken() != null){
+            if (dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().isEmpty()
+                    && dataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageToken() != null) {
                 //get node node pool
-
-                DataNodePage dataNodePage = PageTokens.fromCursorToDataNodePage(dataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageToken());
-                PageExecutionContext pageExecutionContext = PageExecutionContextHelper.formPageExecutionContext(dataNodeService, dataNodePage);
-
-                dataObjectPage.setPageExecutionContext(pageExecutionContext);
+                moveToNextNodePool(dataObjectPage, remainingCountForPage);
             }
         }
 
@@ -150,10 +143,30 @@ public class DataObjectService {
 
     }
 
-    private void addRecordsToPage(List<Ga4ghDataObjectOnNode> dataObjectsForPage, List<Ga4ghDataObject> currentDataObjects, int offset, String currentNodeId){
+    private void addRecordsToPage(List<Ga4ghDataObjectOnNode> dataObjectsForPage, List<Ga4ghDataObject> currentDataObjects, int offset, String currentNodeId) {
 
-        IntStream.range(0,offset).forEach(i -> {dataObjectsForPage.add(new Ga4ghDataObjectOnNode(currentNodeId, currentDataObjects.get(i)));});
+        IntStream.range(0, offset).forEach(i -> {
+            dataObjectsForPage.add(new Ga4ghDataObjectOnNode(currentNodeId, currentDataObjects.get(i)));
+        });
 
+    }
+
+    private void moveToNextNode(DataObjectPage dataObjectPage) {
+        String currentNodeId = dataObjectPage.getPageExecutionContext().getCurrentNodeId();
+        dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().remove(currentNodeId);
+        if (!dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().isEmpty()) {
+            dataObjectPage.getPageExecutionContext().setCurrentNodeId(dataObjectPage.getPageExecutionContext().getCurrentNodePoolIds().get(0));
+        } else {
+            dataObjectPage.getPageExecutionContext().setCurrentNodeId(null);
+        }
+    }
+
+    private void moveToNextNodePool(DataObjectPage dataObjectPage, int remainingCountForPage) {
+        DataNodePage dataNodePage = PageTokens.fromCursorToDataNodePage(dataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageToken());
+        PageExecutionContext pageExecutionContext = PageExecutionContextHelper.formPageExecutionContext(dataNodeService, dataNodePage);
+        pageExecutionContext.setRemainingCountForPage(remainingCountForPage);
+
+        dataObjectPage.setPageExecutionContext(pageExecutionContext);
     }
 
 }
