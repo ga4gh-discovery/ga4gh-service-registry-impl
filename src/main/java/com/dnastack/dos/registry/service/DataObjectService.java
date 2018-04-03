@@ -29,6 +29,8 @@ import java.util.stream.IntStream;
 @Service
 public class DataObjectService {
 
+    public static final String CONTEXT_URL = "/ga4gh/dos/v1/dataobjects/list";
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -76,7 +78,7 @@ public class DataObjectService {
                 /*
                  * 1. Get the current DataNode and query for data objects:
                  */
-                String dataObjectsNodeUrl = dataNode.getUrl();
+                String dataObjectsNodeUrl = dataNode.getUrl()+CONTEXT_URL;
                 //NOTE: please use remainingCountForPage as page size!
                 dataObjectPage.getPageExecutionContext().setRemainingCountForPage(remainingCountForPage);
                 passThruDataClient.setDataObjectsNodeURL(dataObjectsNodeUrl);

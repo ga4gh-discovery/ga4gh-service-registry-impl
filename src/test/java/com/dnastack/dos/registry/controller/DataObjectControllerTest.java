@@ -1,6 +1,8 @@
 package com.dnastack.dos.registry.controller;
 
 import com.dnastack.dos.registry.downstream.passthru.PassThruDataClient;
+import com.dnastack.dos.registry.service.DataNodeService;
+import com.dnastack.dos.registry.service.DataObjectService;
 import com.dnastack.dos.registry.util.SecurityTestUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -107,7 +109,7 @@ public class DataObjectControllerTest {
 
         //set up the mocks
         this.mockRestServiceServer
-                .expect(ExpectedCount.manyTimes(), requestTo(dosNodeUrl))
+                .expect(ExpectedCount.manyTimes(), requestTo(dosNodeUrl+DataObjectService.CONTEXT_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(this.set0, MediaType.APPLICATION_JSON_UTF8));
 
@@ -142,7 +144,7 @@ public class DataObjectControllerTest {
 
         //set up the mocks
         this.mockRestServiceServer
-                .expect(ExpectedCount.manyTimes(), requestTo(dosNodeUrl))
+                .expect(ExpectedCount.manyTimes(), requestTo(dosNodeUrl+DataObjectService.CONTEXT_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(this.set0, MediaType.APPLICATION_JSON_UTF8));
 
@@ -186,7 +188,7 @@ public class DataObjectControllerTest {
 
         //set up the mocks
         this.mockRestServiceServer
-                .expect(ExpectedCount.manyTimes(), requestTo(dosNodeUrl))
+                .expect(ExpectedCount.manyTimes(), requestTo(dosNodeUrl+DataObjectService.CONTEXT_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withSuccess(this.set0, MediaType.APPLICATION_JSON_UTF8));
 
