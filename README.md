@@ -1,4 +1,4 @@
-# Beacon Service Registry 
+# Service Registry 
 
 ## Overview
 RESTful APIs to facilitate registry services for underlying service nodes (e.g., Beacon node, GA4GH DOS node etc.)
@@ -22,6 +22,3 @@ RESTful APIs to facilitate registry services for underlying service nodes (e.g.,
 Remote debug:
 
     ./gradlew bootRun  -Dspring.profiles.active=local --debug-jvm
-
-
-#### Operation
