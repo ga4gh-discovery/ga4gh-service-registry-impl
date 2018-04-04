@@ -1,13 +1,13 @@
 swagger: '2.0'
 info:
-  description: Beacon registry service, which supports GA4GH Data-Object-Service node
+  description: GA4GH service registry
   version: 1.0.0
-  title: Beacon Service Regsitry
+  title: GA4GH Service Registry
   termsOfService: TBD
   contact:
-    name: OICR API Design Team
+    name: OICR
   license:
-    name: Beacon Service Registry
+    name: GA4GH Service Registry
 basePath: /ga4gh/registry/v1
 paths:
   /nodes:
@@ -98,7 +98,7 @@ paths:
             $ref: '#/definitions/ErrorDataResponse'
     post:
       tags:
-        - Create a service node 
+        - Create a service node
       summary: Create a service node (e.g., Beacon node, GA4GH DOS node etc.)
       description: >-
         Add/Create a service node, owned by the user.
@@ -331,10 +331,10 @@ paths:
   /dataobjects:
     get:
       tags:
-        - Retrieve Ga4gh Data-Object-Service (DOS) object list
-      summary: Retrieve a list of Ga4gh DOS objects by searching all the service nodes eligible
+        - Retrieve GA4GH DOS object list
+      summary: Retrieve a list of GA4GH DOS objects by searching all the services eligible
       description: >-
-        Provide a collection of Ga4gh DOS objects by searching all the service nodes eligible.
+        Provide a collection of GA4GH DOS objects by searching all the services eligible.
       operationId: get_dataobjects
       produces:
         - application/json
@@ -592,7 +592,7 @@ definitions:
           OPTIONAL
           A human readable general description of this service node.
       service_type:
-        $ref: '#/definitions/ServiceNodeTypeEnum'    
+        $ref: '#/definitions/ServiceNodeTypeEnum'
     required:
         - url
   ServiceNodeUpdateRequest:
@@ -687,7 +687,7 @@ definitions:
         title: >-
           OPTIONAL
           A list of strings that can be used to find this service node
-          to make it more discoverable. 
+          to make it more discoverable.
       service_type:
         $ref: '#/definitions/ServiceNodeTypeEnum'
     required:
@@ -700,7 +700,7 @@ definitions:
       By default, it assumes to be DOS type if not specified.
     enum:
       - DOS
-      - BEACON       
+      - BEACON
   Ga4ghDataObjectOnNode:
     type: object
     title: 'Data Object from a service node: a file, API or other resource'
