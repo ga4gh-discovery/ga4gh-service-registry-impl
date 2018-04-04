@@ -59,7 +59,7 @@ public class WebSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         http
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/ga4gh/registry/dos/v1/**")
+            .antMatchers("/ga4gh/registry/v1/**")
             .hasRole("dos_user")
             .anyRequest()
             .permitAll();

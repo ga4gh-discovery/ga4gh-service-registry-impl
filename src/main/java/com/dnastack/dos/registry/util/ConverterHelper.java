@@ -1,16 +1,17 @@
 package com.dnastack.dos.registry.util;
 
-import com.dnastack.dos.registry.controller.Ga4ghDataNodeCreationRequestDto;
-import com.dnastack.dos.registry.controller.Ga4ghDataNodeDto;
-import com.dnastack.dos.registry.controller.Ga4ghDataNodeUpdateRequestDto;
-import com.dnastack.dos.registry.model.Ga4ghDataNode;
+import com.dnastack.dos.registry.controller.ServiceNodeCreationRequestDto;
+import com.dnastack.dos.registry.controller.ServiceNodeDto;
+import com.dnastack.dos.registry.controller.ServiceNodeTypeEnumDto;
+import com.dnastack.dos.registry.controller.ServiceNodeUpdateRequestDto;
+import com.dnastack.dos.registry.model.ServiceNode;
 import com.dnastack.dos.registry.model.HealthStatus;
+import com.dnastack.dos.registry.model.ServiceNodeTypeEnum;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Helper class to assist in terms of conversion between business model object and dtos.
@@ -22,72 +23,80 @@ public class ConverterHelper {
 
     public static Gson gson = new Gson();
 
-    public static Ga4ghDataNodeDto convertToDto(Ga4ghDataNode dataNode){
-        Ga4ghDataNodeDto dto = new Ga4ghDataNodeDto();
-        dto.setId(dataNode.getId());
-        dto.setName(dataNode.getName());
-        dto.setDescription(dataNode.getDescription());
-        dto.setUrl(dataNode.getUrl());
-        dto.setCreated(dataNode.getCreated());
-        if(dataNode.getHealthStatus() != null) {
-            dto.setHealthStatus(dataNode.getHealthStatus().name());
+    public static ServiceNodeDto convertToDto(ServiceNode serviceNode) {
+        ServiceNodeDto dto = new ServiceNodeDto();
+        dto.setId(serviceNode.getId());
+        dto.setName(serviceNode.getName());
+        dto.setDescription(serviceNode.getDescription());
+        dto.setUrl(serviceNode.getUrl());
+        dto.setCreated(serviceNode.getCreated());
+        if (serviceNode.getHealthStatus() != null) {
+            dto.setHealthStatus(serviceNode.getHealthStatus().name());
         }
-        dto.setLastHealthUpdated(dataNode.getLastHealthUpdated());
-        dto.setMetaData(dataNode.getMetaData());
-        if(!StringUtils.isEmpty(dataNode.getAliases())) {
-            //dto.setAliases(dataNode.getAliases().stream().collect(Collectors.toList()));
+        dto.setLastHealthUpdated(serviceNode.getLastHealthUpdated());
+        dto.setMetaData(serviceNode.getMetaData());
+        if (!StringUtils.isEmpty(serviceNode.getAliases())) {
+            //dto.setAliases(serviceNode.getAliases().stream().collect(Collectors.toList()));
             //convert it to a list
-            List fromJson = gson.fromJson(dataNode.getAliases(), List.class);
+            List fromJson = gson.fromJson(serviceNode.getAliases(), List.class);
             dto.setAliases(fromJson);
         }
+        dto.setServiceType(ServiceNodeTypeEnumDto.valueOf(serviceNode.getServiceType()));
 
         return dto;
     }
 
-    public static void convertFromDataNodeCreationRequestDto(Ga4ghDataNode dataNode,
-                                                             Ga4ghDataNodeCreationRequestDto creationRequestDto){
-        if(!StringUtils.isEmpty(creationRequestDto.getName())) {
-            dataNode.setName(creationRequestDto.getName());
+    public static void convertFromDataNodeCreationRequestDto(ServiceNode serviceNode,
+                                                             ServiceNodeCreationRequestDto creationRequestDto) {
+        if (!StringUtils.isEmpty(creationRequestDto.getName())) {
+            serviceNode.setName(creationRequestDto.getName());
         }
-        if(!StringUtils.isEmpty(creationRequestDto.getUrl())) {
-            dataNode.setUrl(creationRequestDto.getUrl());
+        if (!StringUtils.isEmpty(creationRequestDto.getUrl())) {
+            serviceNode.setUrl(creationRequestDto.getUrl());
         }
-        if(!StringUtils.isEmpty(creationRequestDto.getDescription())) {
-            dataNode.setDescription(creationRequestDto.getDescription());
+        if (!StringUtils.isEmpty(creationRequestDto.getDescription())) {
+            serviceNode.setDescription(creationRequestDto.getDescription());
         }
-        if(creationRequestDto.getMetaData() != null) {
-            dataNode.setMetaData(creationRequestDto.getMetaData());
+        if (creationRequestDto.getMetaData() != null) {
+            serviceNode.setMetaData(creationRequestDto.getMetaData());
         }
-        if(creationRequestDto.getAliases()!=null) {
-            //dataNode.setAliases(creationRequestDto.getAliases().stream().collect(Collectors.toSet()));
-            dataNode.setAliases(gson.toJson(creationRequestDto.getAliases()));
+        if (creationRequestDto.getAliases() != null) {
+            //serviceNode.setAliases(creationRequestDto.getAliases().stream().collect(Collectors.toSet()));
+            serviceNode.setAliases(gson.toJson(creationRequestDto.getAliases()));
         }
 
-        dataNode.setHealthStatus(HealthStatus.UNKNOWN);
-        dataNode.setLastHealthUpdated(DateTime.now());
+        serviceNode.setHealthStatus(HealthStatus.UNKNOWN);
+        serviceNode.setLastHealthUpdated(DateTime.now());
 
         //TODO: make it a enum
-        dataNode.setLastUpdatedBy("CREATOR");
+        serviceNode.setLastUpdatedBy("CREATOR");
+
+        if(creationRequestDto.getServiceType() != null) {
+            serviceNode.setServiceType(creationRequestDto.getServiceType().name());
+        } else {
+            //default to DOS
+            serviceNode.setServiceType(ServiceNodeTypeEnum.DOS.name());
+        }
     }
 
-    public static void convertFromDataNodeUpdateRequestDto(Ga4ghDataNode dataNode,
-                                                             Ga4ghDataNodeUpdateRequestDto updateRequestDto){
-        if(!StringUtils.isEmpty(updateRequestDto.getName())) {
-            dataNode.setName(updateRequestDto.getName());
+    public static void convertFromDataNodeUpdateRequestDto(ServiceNode serviceNode,
+                                                           ServiceNodeUpdateRequestDto updateRequestDto) {
+        if (!StringUtils.isEmpty(updateRequestDto.getName())) {
+            serviceNode.setName(updateRequestDto.getName());
         }
-        if(!StringUtils.isEmpty(updateRequestDto.getDescription())) {
-            dataNode.setDescription(updateRequestDto.getDescription());
+        if (!StringUtils.isEmpty(updateRequestDto.getDescription())) {
+            serviceNode.setDescription(updateRequestDto.getDescription());
         }
-        if(updateRequestDto.getMetaData() != null) {
-            dataNode.setMetaData(updateRequestDto.getMetaData());
+        if (updateRequestDto.getMetaData() != null) {
+            serviceNode.setMetaData(updateRequestDto.getMetaData());
         }
-        if(updateRequestDto.getAliases()!=null) {
-            //dataNode.setAliases(updateRequestDto.getAliases().stream().collect(Collectors.toSet()));
-            dataNode.setAliases(gson.toJson(updateRequestDto.getAliases()));
+        if (updateRequestDto.getAliases() != null) {
+            //serviceNode.setAliases(updateRequestDto.getAliases().stream().collect(Collectors.toSet()));
+            serviceNode.setAliases(gson.toJson(updateRequestDto.getAliases()));
         }
 
         //TODO: make it a enum
-        dataNode.setLastUpdatedBy("UPDATER");
+        serviceNode.setLastUpdatedBy("UPDATER");
     }
 
 }

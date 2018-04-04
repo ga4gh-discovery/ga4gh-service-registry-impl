@@ -1,7 +1,6 @@
 package com.dnastack.dos.registry.controller;
 
 import com.dnastack.dos.registry.downstream.passthru.PassThruDataClient;
-import com.dnastack.dos.registry.service.DataNodeService;
 import com.dnastack.dos.registry.service.DataObjectService;
 import com.dnastack.dos.registry.util.SecurityTestUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,6 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -55,10 +55,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @WebAppConfiguration
 @ActiveProfiles({"it"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class DataObjectControllerTest {
 
-    public static final String OBJECTS_ENDPOINT = "/ga4gh/registry/dos/v1/dataobjects";
-    public static final String NODE_ENDPOINT = "/ga4gh/registry/dos/v1/nodes";
+    public static final String OBJECTS_ENDPOINT = "/ga4gh/registry/v1/dataobjects";
+    public static final String NODE_ENDPOINT = "/ga4gh/registry/v1/nodes";
     public static final String OAUTH_SIGNED_KEY = "Authorization";
     public static final String OAUTH_SIGNED_KEY_VALUE = "Dummy";
 
@@ -211,7 +212,7 @@ public class DataObjectControllerTest {
 
     public String createANode(String name, String url, String desc) throws Exception {
 
-        Ga4ghDataNodeCreationRequestDto requestDto = new Ga4ghDataNodeCreationRequestDto();
+        ServiceNodeCreationRequestDto requestDto = new ServiceNodeCreationRequestDto();
         requestDto.setName(name);
         requestDto.setUrl(url);
         requestDto.setDescription(desc);

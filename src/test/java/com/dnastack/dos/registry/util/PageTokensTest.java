@@ -1,9 +1,8 @@
 package com.dnastack.dos.registry.util;
 
 import com.dnastack.dos.registry.execution.PageExecutionContext;
-import com.dnastack.dos.registry.model.DataNodePage;
+import com.dnastack.dos.registry.model.ServiceNodePage;
 import com.dnastack.dos.registry.model.DataObjectPage;
-import com.dnastack.dos.registry.service.DataObjectService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +19,7 @@ public class PageTokensTest {
 
     @Test
     public void testEncode(){
-        DataNodePage page = new DataNodePage(0, 10, null, null, null, null, null);
+        ServiceNodePage page = new ServiceNodePage(0, 10, null, null, null, null, null);
 
         System.out.println(PageTokens.toDataNodePageCursor(page));
         System.out.println(PageTokens.toDataNodePageCursor(page.next()));
@@ -31,11 +30,11 @@ public class PageTokensTest {
 
     @Test
     public void testDecode(){
-        DataNodePage page = new DataNodePage(1, 20, null, null, null, null, null);
+        ServiceNodePage page = new ServiceNodePage(1, 20, null, null, null, null, null);
         String toCursor = PageTokens.toDataNodePageCursor(page.next());
         System.out.println(toCursor);
 
-        DataNodePage fromCursor = PageTokens.fromCursorToDataNodePage(toCursor);
+        ServiceNodePage fromCursor = PageTokens.fromCursorToDataNodePage(toCursor);
 
         System.out.println(fromCursor.getPageNumber());
 
@@ -50,9 +49,9 @@ public class PageTokensTest {
         String currentNodeId = "1";
         int currentNodeOffset = 0;
         String currentNodePageToken = "";
-        DataNodePage dataNodePage = new DataNodePage(0, 10, "tes", "est", "demo", null, null);
+        ServiceNodePage serviceNodePage = new ServiceNodePage(0, 10, "tes", "est", "demo", null, null);
         PageExecutionContext pageExecutionContext
-                = new PageExecutionContext(PageTokens.toDataNodePageCursor(dataNodePage.next()),
+                = new PageExecutionContext(PageTokens.toDataNodePageCursor(serviceNodePage.next()),
                 currentNodePoolIds,
                 currentNodeId,
                 currentNodeOffset,
@@ -84,9 +83,9 @@ public class PageTokensTest {
         String currentNodeId = "1";
         int currentNodeOffset = 0;
         String currentNodePageToken = "";
-        DataNodePage dataNodePage = new DataNodePage(0, 10, "tes", "est", "demo", null, null);
+        ServiceNodePage serviceNodePage = new ServiceNodePage(0, 10, "tes", "est", "demo", null, null);
         PageExecutionContext pageExecutionContext
-                = new PageExecutionContext(PageTokens.toDataNodePageCursor(dataNodePage.next()),
+                = new PageExecutionContext(PageTokens.toDataNodePageCursor(serviceNodePage.next()),
                 currentNodePoolIds,
                 currentNodeId,
                 currentNodeOffset,

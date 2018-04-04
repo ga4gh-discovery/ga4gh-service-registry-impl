@@ -14,20 +14,20 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Ga4ghDataObject {
-    private String id = null;
-    private String name = null;
-    private String size = null;
-    private DateTime created = null;
-    private DateTime updated = null;
-    private String version = null;
-    private String mimeType = null;
+    private String id;
+    private String name;
+    private String size;
+    private DateTime created;
+    private DateTime updated;
+    private String version;
+    private String mimeType;
     @Singular
-    private List<Checksum> checksums = new ArrayList<Checksum>();
+    private List<Checksum> checksums;
     @Singular
-    private List<URL> urls = null;
-    private String description = null;
+    private List<URL> urls;
+    private String description;
     @Singular
-    private List<String> aliases = null;
+    private List<String> aliases;
 
     public Ga4ghDataObject id(String id) {
         this.id = id;

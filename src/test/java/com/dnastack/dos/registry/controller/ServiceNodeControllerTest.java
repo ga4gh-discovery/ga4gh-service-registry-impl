@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -42,19 +43,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @WebAppConfiguration
 @ActiveProfiles({"it"})
-public class DataNodeControllerTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+public class ServiceNodeControllerTest {
 
-    public static final String NODE_ENDPOINT = "/ga4gh/registry/dos/v1/nodes";
+    public static final String NODE_ENDPOINT = "/ga4gh/registry/v1/nodes";
     public static final String OAUTH_SIGNED_KEY = "Authorization";
     public static final String OAUTH_SIGNED_KEY_VALUE = "Dummy";
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
-    DataNodeController dataNodeController;
+    ServiceNodeController serviceNodeController;
 
     @Autowired
-    DataNodeControllerAdvice dataNodeControllerAdvice;
+    RestControllerAdvice restControllerAdvice;
 
     @Autowired
     private WebApplicationContext wac;
@@ -72,8 +74,8 @@ public class DataNodeControllerTest {
                         .build();
 
         /*
-        mockMvc = MockMvcBuilders.standaloneSetup(dataNodeController)
-                .setControllerAdvice(dataNodeControllerAdvice)
+        mockMvc = MockMvcBuilders.standaloneSetup(serviceNodeController)
+                .setControllerAdvice(restControllerAdvice)
                 .addFilters(springSecurityFilterChain)
                 .apply(springSecurity())
                 .build();
@@ -84,7 +86,7 @@ public class DataNodeControllerTest {
     @Test
     public void createNodeTest() throws Exception {
 
-        Ga4ghDataNodeCreationRequestDto requestDto = new Ga4ghDataNodeCreationRequestDto();
+        ServiceNodeCreationRequestDto requestDto = new ServiceNodeCreationRequestDto();
         requestDto.setName("test-test");
         requestDto.setUrl("http://dnastack.com");
         requestDto.setDescription("dummy desc");
@@ -116,7 +118,7 @@ public class DataNodeControllerTest {
     @Test
     public void createNodeTest_WithoutAuthorizationHeader_ShouldReturn400() throws Exception {
 
-        Ga4ghDataNodeCreationRequestDto requestDto = new Ga4ghDataNodeCreationRequestDto();
+        ServiceNodeCreationRequestDto requestDto = new ServiceNodeCreationRequestDto();
         requestDto.setName("test-test");
         requestDto.setUrl("http://dnastack.com");
         requestDto.setDescription("dummy desc");
@@ -192,7 +194,7 @@ public class DataNodeControllerTest {
     @Test
     public void createNodeTest_WithInvalidAuthority_ShouldReturn403() throws Exception {
 
-        Ga4ghDataNodeCreationRequestDto requestDto = new Ga4ghDataNodeCreationRequestDto();
+        ServiceNodeCreationRequestDto requestDto = new ServiceNodeCreationRequestDto();
         requestDto.setName("test-test");
         requestDto.setUrl("http://dnastack.com");
         requestDto.setDescription("dummy desc");
@@ -231,9 +233,6 @@ public class DataNodeControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.dos_node.id", is(node_id)))
-                .andExpect(jsonPath("$.dos_node.name", isEmptyOrNullString()))
-                .andExpect(jsonPath("$.dos_node.url", isEmptyOrNullString()))
-                .andExpect(jsonPath("$.dos_node.description", isEmptyOrNullString()))
                 .andReturn();
 
     }
@@ -535,7 +534,7 @@ public class DataNodeControllerTest {
 
         String node_id = createANode("test_to_update", "http://dummy-update.org", "dummy one to update");
 
-        Ga4ghDataNodeUpdateRequestDto requestDto = new Ga4ghDataNodeUpdateRequestDto();
+        ServiceNodeUpdateRequestDto requestDto = new ServiceNodeUpdateRequestDto();
         requestDto.setName("test_to_update2");
         requestDto.setDescription("dummy one to update2");
         requestDto.setMetaData(new HashMap<String, String>() {{
@@ -566,7 +565,7 @@ public class DataNodeControllerTest {
 
         String node_id = "ID_NOT_EXIST";
 
-        Ga4ghDataNodeUpdateRequestDto requestDto = new Ga4ghDataNodeUpdateRequestDto();
+        ServiceNodeUpdateRequestDto requestDto = new ServiceNodeUpdateRequestDto();
         requestDto.setName("test_to_update2");
         requestDto.setDescription("dummy one to update2");
         requestDto.setMetaData(new HashMap<String, String>() {{
@@ -596,7 +595,7 @@ public class DataNodeControllerTest {
     public void updateNodeTest_WithEmptyRequestBody_ShouldReturn422() throws Exception {
         String node_id = createANode("test_to_update", "http://dummy-update.org", "dummy one to update");
 
-        Ga4ghDataNodeUpdateRequestDto requestDto = new Ga4ghDataNodeUpdateRequestDto();
+        ServiceNodeUpdateRequestDto requestDto = new ServiceNodeUpdateRequestDto();
 
         String reqeustBody = mapper.writeValueAsString(requestDto);
         MvcResult result = mockMvc.perform(
@@ -622,7 +621,7 @@ public class DataNodeControllerTest {
 
         String node_id = createANode("test_to_update", "http://dummy-update.org", "dummy one to update");
 
-        Ga4ghDataNodeUpdateRequestDto requestDto = new Ga4ghDataNodeUpdateRequestDto();
+        ServiceNodeUpdateRequestDto requestDto = new ServiceNodeUpdateRequestDto();
         requestDto.setName("test_to_update2");
         requestDto.setDescription("dummy one to update2");
         requestDto.setMetaData(new HashMap<String, String>() {{
@@ -655,7 +654,7 @@ public class DataNodeControllerTest {
 
         String node_id = createANode("test_to_update", "http://dummy-update.org", "dummy one to update");
 
-        Ga4ghDataNodeUpdateRequestDto requestDto = new Ga4ghDataNodeUpdateRequestDto();
+        ServiceNodeUpdateRequestDto requestDto = new ServiceNodeUpdateRequestDto();
         requestDto.setName("test_to_update2");
         requestDto.setDescription("dummy one to update2");
         requestDto.setMetaData(new HashMap<String, String>() {{
@@ -686,7 +685,7 @@ public class DataNodeControllerTest {
 
     public String createANode(String name, String url, String desc) throws Exception {
 
-        Ga4ghDataNodeCreationRequestDto requestDto = new Ga4ghDataNodeCreationRequestDto();
+        ServiceNodeCreationRequestDto requestDto = new ServiceNodeCreationRequestDto();
         requestDto.setName(name);
         requestDto.setUrl(url);
         requestDto.setDescription(desc);
@@ -718,10 +717,6 @@ public class DataNodeControllerTest {
         HashMap<String, Object> map = mapper.readValue(result.getResponse().getContentAsByteArray(), typeRef);
 
         return (String) ((Map) map.get("dos_node")).get("id");
-
-//        Ga4ghDataNodeResponseDto ga4ghDataNodeResponseDto = mapper.readValue(result.getResponse().getContentAsString(), Ga4ghDataNodeResponseDto.class);
-//
-//        return ga4ghDataNodeResponseDto.getDosNode().getId();
 
     }
 

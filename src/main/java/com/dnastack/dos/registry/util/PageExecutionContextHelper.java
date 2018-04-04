@@ -3,9 +3,9 @@ package com.dnastack.dos.registry.util;
 import com.dnastack.dos.registry.exception.PageExecutionContextException;
 import com.dnastack.dos.registry.exception.ServiceException;
 import com.dnastack.dos.registry.execution.PageExecutionContext;
-import com.dnastack.dos.registry.model.DataNodePage;
-import com.dnastack.dos.registry.model.Ga4ghDataNode;
-import com.dnastack.dos.registry.service.DataNodeService;
+import com.dnastack.dos.registry.model.ServiceNodePage;
+import com.dnastack.dos.registry.model.ServiceNode;
+import com.dnastack.dos.registry.service.ServiceNodeService;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -13,25 +13,25 @@ import java.util.stream.Collectors;
 
 public class PageExecutionContextHelper {
 
-    public static PageExecutionContext formPageExecutionContext(DataNodeService dataNodeService, DataNodePage dataNodePage){
+    public static PageExecutionContext formPageExecutionContext(ServiceNodeService serviceNodeService, ServiceNodePage serviceNodePage){
 
-        Page<Ga4ghDataNode> currentNodePool = null;
+        Page<ServiceNode> currentNodePool = null;
         try {
-            currentNodePool = dataNodeService.getNodes(dataNodePage);
+            currentNodePool = serviceNodeService.getNodes(serviceNodePage);
         } catch (Exception e) {
-            throw new ServiceException("Error during invoking dataNodeService", e.getCause());
+            throw new ServiceException("Error during invoking serviceNodeService", e.getCause());
         }
 
         if(currentNodePool.hasContent()){
 
             //reset the page execution context
             //initialize the current node pool
-            String currentNodePoolNextPageToken = currentNodePool.isLast() ? null : PageTokens.toDataNodePageCursor(dataNodePage.next());
+            String currentNodePoolNextPageToken = currentNodePool.isLast() ? null : PageTokens.toDataNodePageCursor(serviceNodePage.next());
             List<String> currentNodePoolIds = currentNodePool.getContent().stream()
-                    .map(Ga4ghDataNode::getId)
+                    .map(ServiceNode::getId)
                     .collect(Collectors.toList());
             String currentNodeId = currentNodePool.getContent().stream()
-                    .map(Ga4ghDataNode::getId)
+                    .map(ServiceNode::getId)
                     .findFirst()
                     .orElseThrow(() -> new PageExecutionContextException("No data node is found!"));
             int currentNodeOffset = 0;
