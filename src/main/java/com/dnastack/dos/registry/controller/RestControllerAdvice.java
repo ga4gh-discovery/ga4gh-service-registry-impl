@@ -20,7 +20,7 @@ import javax.validation.ValidationException;
 import java.util.*;
 
 @ControllerAdvice(annotations = RestController.class)
-public class DataNodeControllerAdvice {
+public class RestControllerAdvice {
 
     private static Logger logger = LoggerFactory.getLogger("DataNodeServiceLogger");
 

@@ -1,7 +1,7 @@
 package com.dnastack.dos.registry.repository;
 
-import com.dnastack.dos.registry.model.DataNodePage;
-import com.dnastack.dos.registry.model.Ga4ghDataNode;
+import com.dnastack.dos.registry.model.ServiceNodePage;
+import com.dnastack.dos.registry.model.ServiceNode;
 import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,10 +27,10 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class Ga4ghDataNodeRepositoryTest {
+public class ServiceNodeRepositoryTest {
 
     @Autowired
-    Ga4ghDataNodeRepository repository;
+    ServiceNodeRepository repository;
 
     Gson gson = new Gson();
 
@@ -39,18 +39,18 @@ public class Ga4ghDataNodeRepositoryTest {
         // given
         String id = "aaa-bbb-ccc";
         String name = "test_dos_node";
-        Ga4ghDataNode dataNode = new Ga4ghDataNode();
-        dataNode.setId(id);
-        dataNode.setName(name);
+        ServiceNode serviceNode = new ServiceNode();
+        serviceNode.setId(id);
+        serviceNode.setName(name);
         Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-        dataNode.setAliases(gson.toJson(aliases));
-        repository.save(dataNode);
+        serviceNode.setAliases(gson.toJson(aliases));
+        repository.save(serviceNode);
 
         // when
-        Ga4ghDataNode found = repository.findOne(dataNode.getId());
+        ServiceNode found = repository.findOne(serviceNode.getId());
 
         // then
-        assertTrue(found.getName().equals(dataNode.getName()));
+        assertTrue(found.getName().equals(serviceNode.getName()));
     }
 
     @Test
@@ -62,18 +62,18 @@ public class Ga4ghDataNodeRepositoryTest {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node1-"+i;
             String description = UUID.randomUUID().toString();
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId1);
-            dataNode.setId(id);
-            dataNode.setName(name);
-            dataNode.setDescription(description);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId1);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
+            serviceNode.setDescription(description);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
         // when
-        Page<Ga4ghDataNode> nodesByNameLike =
+        Page<ServiceNode> nodesByNameLike =
                 repository.findByOwnerIdAndNameLike("", "%", new PageRequest(0,10));
 
         Assert.assertEquals(50, nodesByNameLike.getTotalElements());
@@ -97,18 +97,18 @@ public class Ga4ghDataNodeRepositoryTest {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node1-"+i;
             String description = UUID.randomUUID().toString();
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId1);
-            dataNode.setId(id);
-            dataNode.setName(name);
-            dataNode.setDescription(description);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId1);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
+            serviceNode.setDescription(description);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
         // when
-        Page<Ga4ghDataNode> nodesByNameLike =
+        Page<ServiceNode> nodesByNameLike =
                 repository.findByOwnerIdAndNameLike(ownerId1, "%", new PageRequest(0,10));
 
         Assert.assertEquals(50, nodesByNameLike.getTotalElements());
@@ -123,7 +123,7 @@ public class Ga4ghDataNodeRepositoryTest {
 
 
         // when
-        Page<Ga4ghDataNode> nodesByNameLike_nonExsist =
+        Page<ServiceNode> nodesByNameLike_nonExsist =
                 repository.findByOwnerIdAndNameLike(ownerId1, "not_exist_%", new PageRequest(0,50));
 
         Assert.assertEquals(0, nodesByNameLike_nonExsist.getTotalElements());
@@ -146,19 +146,19 @@ public class Ga4ghDataNodeRepositoryTest {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node1-"+i;
             String description = UUID.randomUUID().toString();
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId);
-            dataNode.setId(id);
-            dataNode.setName(name);
-            dataNode.setDescription(description);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
+            serviceNode.setDescription(description);
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-            dataNode.setAliases(gson.toJson(aliases));
+            serviceNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
-            dataNode.setMetaData(metadata);
+            serviceNode.setMetaData(metadata);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
@@ -166,18 +166,18 @@ public class Ga4ghDataNodeRepositoryTest {
         IntStream.range(0,50).forEach(i -> {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node2-"+i;
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId2);
-            dataNode.setId(id);
-            dataNode.setName(name);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId2);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-            dataNode.setAliases(gson.toJson(aliases));
+            serviceNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
-            dataNode.setMetaData(metadata);
+            serviceNode.setMetaData(metadata);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
@@ -185,23 +185,23 @@ public class Ga4ghDataNodeRepositoryTest {
         IntStream.range(0,50).forEach(i -> {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node3-"+i;
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId3);
-            dataNode.setId(id);
-            dataNode.setName(name);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId3);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-            dataNode.setAliases(gson.toJson(aliases));
+            serviceNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
-            dataNode.setMetaData(metadata);
+            serviceNode.setMetaData(metadata);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
         // when
-        Page<Ga4ghDataNode> dataNodesLowerCase =
+        Page<ServiceNode> serviceNodesLowerCase =
                 repository.findByOwnerIdAndNameIgnoreCaseContainingAndAliasesIgnoreCaseContainingAndDescriptionIgnoreCaseContaining(
                         ownerId,
                         "test",
@@ -209,7 +209,7 @@ public class Ga4ghDataNodeRepositoryTest {
                         "",
                         new PageRequest(0,10));
 
-        Page<Ga4ghDataNode> dataNodesUpperCase =
+        Page<ServiceNode> serviceNodesUpperCase =
                 repository.findByOwnerIdAndNameIgnoreCaseContainingAndAliasesIgnoreCaseContainingAndDescriptionIgnoreCaseContaining(
                         ownerId,
                         "TEST",
@@ -218,7 +218,7 @@ public class Ga4ghDataNodeRepositoryTest {
                         new PageRequest(0,10));
 
 
-        Assert.assertEquals(dataNodesLowerCase.getTotalElements(), dataNodesUpperCase.getTotalElements());
+        Assert.assertEquals(serviceNodesLowerCase.getTotalElements(), serviceNodesUpperCase.getTotalElements());
 
     }
 
@@ -231,19 +231,19 @@ public class Ga4ghDataNodeRepositoryTest {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node1-"+i;
             String description = UUID.randomUUID().toString();
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId);
-            dataNode.setId(id);
-            dataNode.setName(name);
-            dataNode.setDescription(description);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
+            serviceNode.setDescription(description);
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-            dataNode.setAliases(gson.toJson(aliases));
+            serviceNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
-            dataNode.setMetaData(metadata);
+            serviceNode.setMetaData(metadata);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
@@ -251,19 +251,19 @@ public class Ga4ghDataNodeRepositoryTest {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node2-"+i;
             String description = UUID.randomUUID().toString();
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId);
-            dataNode.setId(id);
-            dataNode.setName(name);
-            dataNode.setDescription(description);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
+            serviceNode.setDescription(description);
             Set<String> aliases = Stream.of("demo1", "demo2").collect(Collectors.toSet());
-            dataNode.setAliases(gson.toJson(aliases));
+            serviceNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
-            dataNode.setMetaData(metadata);
+            serviceNode.setMetaData(metadata);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
@@ -271,8 +271,8 @@ public class Ga4ghDataNodeRepositoryTest {
             put("category", "cancer");
         }};
 
-        DataNodePage page = new DataNodePage(0, 51, null, "demo", null, null, null);
-        Page<Ga4ghDataNode> bySpecDefault = repository.findAll(new QueryDataNodesSpec(page), new PageRequest(0,51));
+        ServiceNodePage page = new ServiceNodePage(0, 51, null, "demo", null, null, null);
+        Page<ServiceNode> bySpecDefault = repository.findAll(new QueryServiceNodesSpec(page), new PageRequest(0,51));
         Assert.assertEquals(50, bySpecDefault.getTotalElements());
         Assert.assertTrue(bySpecDefault.isFirst());
         Assert.assertTrue(bySpecDefault.isLast());
@@ -283,8 +283,8 @@ public class Ga4ghDataNodeRepositoryTest {
         Assert.assertEquals(51, bySpecDefault.getSize());
         Assert.assertEquals(50, bySpecDefault.getNumberOfElements());
 
-        DataNodePage pageSpec = new DataNodePage(0, 51, null, "test", null, meta, null);
-        Page<Ga4ghDataNode> bySpec = repository.findAll(new QueryDataNodesSpec(pageSpec), new PageRequest(0,51));
+        ServiceNodePage pageSpec = new ServiceNodePage(0, 51, null, "test", null, meta, null);
+        Page<ServiceNode> bySpec = repository.findAll(new QueryServiceNodesSpec(pageSpec), new PageRequest(0,51));
         Assert.assertEquals(50, bySpec.getTotalElements());
         Assert.assertTrue(bySpec.isFirst());
         Assert.assertTrue(bySpec.isLast());
@@ -307,19 +307,19 @@ public class Ga4ghDataNodeRepositoryTest {
             String id = "uuid-"+i;
             String name = "test_dos_node1-"+i;
             String description = UUID.randomUUID().toString();
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId);
-            dataNode.setId(id);
-            dataNode.setName(name);
-            dataNode.setDescription(description);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
+            serviceNode.setDescription(description);
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-            dataNode.setAliases(gson.toJson(aliases));
+            serviceNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
-            dataNode.setMetaData(metadata);
+            serviceNode.setMetaData(metadata);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
@@ -327,19 +327,19 @@ public class Ga4ghDataNodeRepositoryTest {
             String id = UUID.randomUUID().toString();
             String name = "test_dos_node2-"+i;
             String description = UUID.randomUUID().toString();
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId);
-            dataNode.setId(id);
-            dataNode.setName(name);
-            dataNode.setDescription(description);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
+            serviceNode.setDescription(description);
             Set<String> aliases = Stream.of("demo1", "demo2").collect(Collectors.toSet());
-            dataNode.setAliases(gson.toJson(aliases));
+            serviceNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
-            dataNode.setMetaData(metadata);
+            serviceNode.setMetaData(metadata);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
@@ -349,8 +349,8 @@ public class Ga4ghDataNodeRepositoryTest {
                 })
                 .collect(Collectors.toList());
 
-        DataNodePage page = new DataNodePage(0, 11, null, null, null, null, ids);
-        Page<Ga4ghDataNode> bySpecWithIds = repository.findAll(new QueryDataNodesSpec(page), new PageRequest(0,11));
+        ServiceNodePage page = new ServiceNodePage(0, 11, null, null, null, null, ids);
+        Page<ServiceNode> bySpecWithIds = repository.findAll(new QueryServiceNodesSpec(page), new PageRequest(0,11));
         Assert.assertEquals(10, bySpecWithIds.getTotalElements());
         Assert.assertTrue(bySpecWithIds.isFirst());
         Assert.assertTrue(bySpecWithIds.isLast());
@@ -373,24 +373,24 @@ public class Ga4ghDataNodeRepositoryTest {
             String id = "uuid-"+i;
             String name = "test_dos_node1-"+i;
             String description = UUID.randomUUID().toString();
-            Ga4ghDataNode dataNode = new Ga4ghDataNode();
-            dataNode.setOwnerId(ownerId);
-            dataNode.setId(id);
-            dataNode.setName(name);
-            dataNode.setDescription(description);
+            ServiceNode serviceNode = new ServiceNode();
+            serviceNode.setOwnerId(ownerId);
+            serviceNode.setId(id);
+            serviceNode.setName(name);
+            serviceNode.setDescription(description);
             Set<String> aliases = Stream.of("test1", "test2").collect(Collectors.toSet());
-            dataNode.setAliases(gson.toJson(aliases));
+            serviceNode.setAliases(gson.toJson(aliases));
             Map<String, String> metadata = new HashMap<>();
             metadata.put("category", "cancer");
             metadata.put("kind", "kids");
-            dataNode.setMetaData(metadata);
+            serviceNode.setMetaData(metadata);
 
-            repository.save(dataNode);
+            repository.save(serviceNode);
 
         });
 
-        DataNodePage page = new DataNodePage(0, 11, "NON_EXIST", null, null, null, null);
-        Page<Ga4ghDataNode> bySpec = repository.findAll(new QueryDataNodesSpec(page), new PageRequest(0,11));
+        ServiceNodePage page = new ServiceNodePage(0, 11, "NON_EXIST", null, null, null, null);
+        Page<ServiceNode> bySpec = repository.findAll(new QueryServiceNodesSpec(page), new PageRequest(0,11));
         Assert.assertEquals(0, bySpec.getTotalElements());
         Assert.assertTrue(bySpec.isFirst());
         Assert.assertTrue(bySpec.isLast());

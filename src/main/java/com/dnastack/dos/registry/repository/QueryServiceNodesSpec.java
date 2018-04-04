@@ -1,8 +1,8 @@
 package com.dnastack.dos.registry.repository;
 
 
-import com.dnastack.dos.registry.model.DataNodePage;
-import com.dnastack.dos.registry.model.Ga4ghDataNode;
+import com.dnastack.dos.registry.model.ServiceNodePage;
+import com.dnastack.dos.registry.model.ServiceNode;
 import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
@@ -20,12 +20,12 @@ import java.util.Map;
  * @since: 1.0.0 <br/>
  */
 @AllArgsConstructor
-public class QueryDataNodesSpec implements Specification<Ga4ghDataNode> {
+public class QueryServiceNodesSpec implements Specification<ServiceNode> {
 
-    private final DataNodePage dataNodePage;
+    private final ServiceNodePage serviceNodePage;
 
     @Override
-    public Predicate toPredicate(Root<Ga4ghDataNode> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+    public Predicate toPredicate(Root<ServiceNode> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
         //This part allow to use this specification in pageable queries
         //but you must be aware that the results will be paged in
@@ -35,7 +35,7 @@ public class QueryDataNodesSpec implements Specification<Ga4ghDataNode> {
             return null;
 
         //building the desired query
-        MapJoin<Ga4ghDataNode, String, String> metaData = root.joinMap("metaData");
+        MapJoin<ServiceNode, String, String> metaData = root.joinMap("metaData");
         //root.fetch("aliases", JoinType.LEFT);
 
         query.distinct(true);
@@ -43,18 +43,18 @@ public class QueryDataNodesSpec implements Specification<Ga4ghDataNode> {
 
         List<Predicate> predicates = new ArrayList<>();
         //Predicate aliasPredicate = cb.isMember(alias, root.get("aliases"));
-        predicates.add(cb.like(root.get("aliases"), formatToLike(dataNodePage.getAlias())));
-        predicates.add(cb.like(root.get("name"), formatToLike(dataNodePage.getName())));
-        predicates.add(cb.like(root.get("description"), formatToLike(dataNodePage.getDescription())));
+        predicates.add(cb.like(root.get("aliases"), formatToLike(serviceNodePage.getAlias())));
+        predicates.add(cb.like(root.get("name"), formatToLike(serviceNodePage.getName())));
+        predicates.add(cb.like(root.get("description"), formatToLike(serviceNodePage.getDescription())));
 
-        if(!CollectionUtils.isEmpty(dataNodePage.getNodeIds())){
-            predicates.add(root.get("id").in(dataNodePage.getNodeIds()));
+        if(!CollectionUtils.isEmpty(serviceNodePage.getNodeIds())){
+            predicates.add(root.get("id").in(serviceNodePage.getNodeIds()));
         }
 
-        if(!CollectionUtils.isEmpty(dataNodePage.getMeta())) {
+        if(!CollectionUtils.isEmpty(serviceNodePage.getMeta())) {
 
             Predicate metaPredicate = null;
-            for(Map.Entry<String, String> entry : dataNodePage.getMeta().entrySet()) {
+            for(Map.Entry<String, String> entry : serviceNodePage.getMeta().entrySet()) {
                 Predicate keyPredicate = cb.equal(metaData.key(), entry.getKey());
                 Predicate valuePredicate = cb.equal(metaData.value(), entry.getValue());
 

@@ -1,6 +1,6 @@
 package com.dnastack.dos.registry.util;
 
-import com.dnastack.dos.registry.model.DataNodePage;
+import com.dnastack.dos.registry.model.ServiceNodePage;
 import com.dnastack.dos.registry.model.DataObjectPage;
 
 /**
@@ -14,11 +14,11 @@ public class PageTokens {
     private PageTokens() {
     }
 
-    public static DataNodePage fromCursorToDataNodePage(String cursor) {
-        return (DataNodePage) Base64JsonCodec.decode(cursor, DataNodePage.class);
+    public static ServiceNodePage fromCursorToDataNodePage(String cursor) {
+        return (ServiceNodePage) Base64JsonCodec.decode(cursor, ServiceNodePage.class);
     }
 
-    public static String toDataNodePageCursor(DataNodePage page) {
+    public static String toDataNodePageCursor(ServiceNodePage page) {
         return Base64JsonCodec.encode(page);
     }
 

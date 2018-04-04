@@ -18,7 +18,7 @@ import java.util.Map;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DataNodePage {
+public class ServiceNodePage {
 
     private final int pageNumber;
     //pageSize can be reset
@@ -33,13 +33,13 @@ public class DataNodePage {
     private final List<String> nodeIds;
 
     @JsonCreator
-    public DataNodePage(@JsonProperty("pageNumber") final int pageNumber,
-                        @JsonProperty("pageSize") int pageSize,
-                        @JsonProperty("name") final String name,
-                        @JsonProperty("alias") final String alias,
-                        @JsonProperty("description")final String description,
-                        @JsonProperty("meta") final Map<String, String> meta,
-                        @JsonProperty("nodeIds") final List<String> nodeIds) {
+    public ServiceNodePage(@JsonProperty("pageNumber") final int pageNumber,
+                           @JsonProperty("pageSize") int pageSize,
+                           @JsonProperty("name") final String name,
+                           @JsonProperty("alias") final String alias,
+                           @JsonProperty("description")final String description,
+                           @JsonProperty("meta") final Map<String, String> meta,
+                           @JsonProperty("nodeIds") final List<String> nodeIds) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.name = name;
@@ -50,8 +50,8 @@ public class DataNodePage {
     }
 
     @JsonIgnore
-    public DataNodePage next() {
-        return new DataNodePage(
+    public ServiceNodePage next() {
+        return new ServiceNodePage(
                 pageNumber + 1,
                 pageSize,
                 this.name,

@@ -12,11 +12,11 @@ import java.util.Map;
 @Data
 @Builder
 public class Notification {
-    private String code = null;
-    private String message = null;
-    private String uuid = null;
-    private DateTime timestamp = null;
-    private Map<String, Object> metadata = null;
+    private String code;
+    private String message;
+    private String uuid;
+    private DateTime timestamp;
+    private Map<String, Object> metadata;
 
 }
 

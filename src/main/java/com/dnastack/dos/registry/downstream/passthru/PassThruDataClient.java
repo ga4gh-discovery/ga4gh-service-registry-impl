@@ -56,8 +56,6 @@ public class PassThruDataClient implements IDataClient {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            //TODO: add more headers like authorization
-            //headers.add("Authorization", "Bearer " + tokenInfo.getJwtToken());
 
             //map dataObjectPage to ListDataObjectsRequestDto
             ListDataObjectsRequestDto listDataObjectsRequestDto = new ListDataObjectsRequestDto();

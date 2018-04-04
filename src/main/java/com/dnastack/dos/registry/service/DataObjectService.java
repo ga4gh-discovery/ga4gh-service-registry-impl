@@ -4,7 +4,7 @@ import com.dnastack.dos.registry.downstream.dto.ListDataObjectsResponseDto;
 import com.dnastack.dos.registry.downstream.passthru.PassThruDataClient;
 import com.dnastack.dos.registry.execution.PageExecutionContext;
 import com.dnastack.dos.registry.model.*;
-import com.dnastack.dos.registry.repository.Ga4ghDataNodeRepository;
+import com.dnastack.dos.registry.repository.ServiceNodeRepository;
 import com.dnastack.dos.registry.util.PageExecutionContextHelper;
 import com.dnastack.dos.registry.util.PageTokens;
 import org.modelmapper.ModelMapper;
@@ -34,10 +34,10 @@ public class DataObjectService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private Ga4ghDataNodeRepository repository;
+    private ServiceNodeRepository repository;
 
     @Autowired
-    private DataNodeService dataNodeService;
+    private ServiceNodeService serviceNodeService;
 
     @Autowired
     private PassThruDataClient passThruDataClient;
@@ -69,8 +69,8 @@ public class DataObjectService {
             Assert.notNull(currentNodeId, "current node cannot be null!");
             Assert.isTrue(currentNodePoolIds.contains(currentNodeId), "current node must be a member of currentNodePoolIds!");
 
-            Ga4ghDataNode dataNode = repository.findOne(currentNodeId);
-            if (dataNode == null) {
+            ServiceNode serviceNode = repository.findOne(currentNodeId);
+            if (serviceNode == null) {
                 //in case the data node was deleted during the execution of this request
                 //move on to the next node
                 moveToNextNode(dataObjectPage);
@@ -78,7 +78,7 @@ public class DataObjectService {
                 /*
                  * 1. Get the current DataNode and query for data objects:
                  */
-                String dataObjectsNodeUrl = dataNode.getUrl()+CONTEXT_URL;
+                String dataObjectsNodeUrl = serviceNode.getUrl()+CONTEXT_URL;
                 //NOTE: please use remainingCountForPage as page size!
                 dataObjectPage.getPageExecutionContext().setRemainingCountForPage(remainingCountForPage);
                 passThruDataClient.setDataObjectsNodeURL(dataObjectsNodeUrl);
@@ -167,8 +167,8 @@ public class DataObjectService {
     }
 
     private void moveToNextNodePool(DataObjectPage dataObjectPage, int remainingCountForPage) {
-        DataNodePage dataNodePage = PageTokens.fromCursorToDataNodePage(dataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageToken());
-        PageExecutionContext pageExecutionContext = PageExecutionContextHelper.formPageExecutionContext(dataNodeService, dataNodePage);
+        ServiceNodePage serviceNodePage = PageTokens.fromCursorToDataNodePage(dataObjectPage.getPageExecutionContext().getCurrentNodePoolNextPageToken());
+        PageExecutionContext pageExecutionContext = PageExecutionContextHelper.formPageExecutionContext(serviceNodeService, serviceNodePage);
         pageExecutionContext.setRemainingCountForPage(remainingCountForPage);
 
         dataObjectPage.setPageExecutionContext(pageExecutionContext);

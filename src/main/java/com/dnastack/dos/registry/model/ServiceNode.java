@@ -11,12 +11,12 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Entity class for Ga4ghDataNode
+ * Entity class for ServiceNode
  */
 @Entity
 @Table(name = "dos_node")
 @Data
-public class Ga4ghDataNode {
+public class ServiceNode {
 
     @Id
     private String id;
@@ -55,6 +55,8 @@ public class Ga4ghDataNode {
 
     @NotNull
     private String ownerId = "";
+
+    private String serviceType = "";
 
 }
 

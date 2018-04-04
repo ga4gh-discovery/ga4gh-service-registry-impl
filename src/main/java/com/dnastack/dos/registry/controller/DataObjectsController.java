@@ -2,11 +2,11 @@ package com.dnastack.dos.registry.controller;
 
 import com.dnastack.dos.registry.exception.InvalidPageTokenException;
 import com.dnastack.dos.registry.execution.PageExecutionContext;
-import com.dnastack.dos.registry.model.DataNodePage;
+import com.dnastack.dos.registry.model.ServiceNodePage;
 import com.dnastack.dos.registry.model.DataObjectPage;
 import com.dnastack.dos.registry.model.Ga4ghDataObjectOnNode;
 import com.dnastack.dos.registry.model.KeyValuePair;
-import com.dnastack.dos.registry.service.DataNodeService;
+import com.dnastack.dos.registry.service.ServiceNodeService;
 import com.dnastack.dos.registry.service.DataObjectService;
 import com.dnastack.dos.registry.util.PageExecutionContextHelper;
 import com.dnastack.dos.registry.util.PageTokens;
@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("ga4gh/registry/dos/v1")
+@RequestMapping("ga4gh/registry/v1")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class DataObjectsController implements DataobjectsApi {
 
@@ -55,7 +55,7 @@ public class DataObjectsController implements DataobjectsApi {
     private DataObjectService dataObjectService;
 
     @Autowired
-    private DataNodeService dataNodeService;
+    private ServiceNodeService serviceNodeService;
 
     //Tihs is the model to dto converter
     @Autowired
@@ -64,46 +64,47 @@ public class DataObjectsController implements DataobjectsApi {
     @Override
     @PreAuthorize("hasAuthority('ROLE_dos_user')")
     public ResponseEntity<Ga4ghDataObjectsResponseDto> getDataobjects(
-            @ApiParam(value = "The auth token")
-                @RequestHeader(value = "Authorization", required = false) String authorization,
-            @ApiParam(value = "query data objects by specifying a list of comma separated node_ids")
+            @ApiParam(value = "The auth token" )
+                @RequestHeader(value="Authorization", required=false) String authorization,
+            @ApiParam(value = "query Data Objects by specifying a list of comma separated node_ids")
                 @RequestParam(value = "node_ids", required = false) List<String> nodeIds,
-            @ApiParam(value = "query data objects by specifying a list of comma separated dos_ids NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "query Data Objects by specifying a list of comma separated dos_ids NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_ids", required = false) List<String> dosIds,
-            @ApiParam(value = "A keyword to search in the field of `name` from data node.")
+            @ApiParam(value = "A keyword to search in the field of `name` from service node.")
                 @RequestParam(value = "node_name", required = false) String nodeName,
-            @ApiParam(value = "If provided will only return Data Objects with the given `name`. NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "If provided will only return Data Objects with the given `name`. NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_name", required = false) String dosName,
-            @ApiParam(value = "If provided will only return Data Objects with the given `version`. NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "If provided will only return Data Objects with the given `version`. NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_version", required = false) String dosVersion,
-            @ApiParam(value = "If provided will only return Data Objects with the given `mime_type`. NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "If provided will only return Data Objects with the given `mime_type`. NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_mime_type", required = false) String dosMimeType,
-            @ApiParam(value = "A keyword to search in the field of `description` from data node.")
+            @ApiParam(value = "A keyword to search in the field of `description` from service node.")
                 @RequestParam(value = "node_description", required = false) String nodeDescription,
-            @ApiParam(value = "A keyword to search in the field of `description` from data object. NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "A keyword to search in the field of `description` from Data Object. NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_description", required = false) String dosDescription,
-            @ApiParam(value = "A keyword to search in the field of `aliases` from data node.")
+            @ApiParam(value = "A keyword to search in the field of `aliases` from service node.")
                 @RequestParam(value = "node_alias", required = false) String nodeAlias,
-            @ApiParam(value = "Query data nodes by specifying a list of <key, value> pairs AS STRING type, to match against the meta_date field of the data nodes. NOTE: as for now, OpenAPI does not support object as query parameter properly, this is a work-around solution until it support it!")
+            @ApiParam(value = "Query service nodes by specifying a list of <key, value> pairs AS STRING type, to match against the meta_date field of the service nodes. NOTE: as for now, OpenAPI does not support object as query parameter properly, this is a work-around solution until it support it!")
                 @RequestParam(value = "node_metadata", required = false) List<String> nodeMetadata,
             @ApiParam(value = "If provided will only return Data Objects with the given alias.")
                 @RequestParam(value = "dos_alias", required = false) String dosAlias,
             @ApiParam(value = "If provided will return only Data Objects with a that URL matches this string.")
                 @RequestParam(value = "dos_url", required = false) String dosUrl,
-            @ApiParam(value = "The hexlified checksum that one would like to match on.")
+            @ApiParam(value = "The hexlified checksum in Data Object that one would like to match on.")
                 @RequestParam(value = "dos_checksum", required = false) String dosChecksum,
-            @ApiParam(value = "query data objects by specific creation date range lower bound NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "query data objects by specific creation date range lower bound NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_date_created_from", required = false) DateTime dosDateCreatedFrom,
-            @ApiParam(value = "query data objects by specific creation date range upper bound NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "query data objects by specific creation date range upper bound NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_date_created_to", required = false) DateTime dosDateCreatedTo,
-            @ApiParam(value = "query data objects by specific updated date range lower bound NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "query data objects by specific updated date range lower bound NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_date_updated_from", required = false) DateTime dosDateUpdatedFrom,
-            @ApiParam(value = "query data objects by specific updated date range upper bound NOTE: current not supported in the dos-schema spec")
+            @ApiParam(value = "query data objects by specific updated date range upper bound NOTE: currently not supported in the dos-schema api")
                 @RequestParam(value = "dos_date_updated_to", required = false) DateTime dosDateUpdatedTo,
             @ApiParam(value = "The continuation token, which is used to page through large result sets. To get the next page of results, set this parameter to the value of `next_page_token` from the previous response.")
                 @RequestParam(value = "page_token", required = false) String pageToken,
             @ApiParam(value = "Specifies the maximum number of results to return in a single page. If unspecified, a system default will be used.")
-                @RequestParam(value = "page_size", required = false) Integer pageSize) {
+                @RequestParam(value = "page_size", required = false) Integer pageSize
+    ) {
 
         Ga4ghDataObjectsResponseDto ga4ghDataObjectsResponseDto = new Ga4ghDataObjectsResponseDto();
 
@@ -139,14 +140,14 @@ public class DataObjectsController implements DataobjectsApi {
                                 HashMap::new
                         ));
             }
-            DataNodePage dataNodePage = new DataNodePage(0, defaultPoolSize, nodeName, nodeAlias, nodeDescription, nodeMeta, nodeIds);
+            ServiceNodePage serviceNodePage = new ServiceNodePage(0, defaultPoolSize, nodeName, nodeAlias, nodeDescription, nodeMeta, nodeIds);
 
             //initialize the current node pool
-            //TODO: discuss with Jim about the best practise of holding this context. In a session? or in a page token?
+            //is it better to hold this context in a session? or in a page token?
             PageExecutionContext pageExecutionContext
-                    = PageExecutionContextHelper.formPageExecutionContext(dataNodeService, dataNodePage);
+                    = PageExecutionContextHelper.formPageExecutionContext(serviceNodeService, serviceNodePage);
             if (pageExecutionContext == null) {
-                //TODO: discuss with Jim if it makes sense if this returns 204 instead of this empty list
+                //does it makes sense if this returns 204 instead of this empty list?
                 ga4ghDataObjectsResponseDto.setDosObjects(new ArrayList<>());
                 return new ResponseEntity(ga4ghDataObjectsResponseDto, HttpStatus.OK);
             }
@@ -169,7 +170,7 @@ public class DataObjectsController implements DataobjectsApi {
                             .collect(Collectors.toList())
             );
         } else {
-            //TODO: discuss with Jim if it makes sense if this returns 204 instead of this empty list
+            //does it makes sense if this returns 204 instead of this empty list?
             ga4ghDataObjectsResponseDto.setDosObjects(new ArrayList<>());
         }
 
