@@ -52,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = DosRegistryApplication.class)
 @RunWith(SpringRunner.class)
 @ActiveProfiles({"it","local"})
-@Ignore
+//@Ignore
 public class Ga4ghDataNodeRepositoryLocalIT {
 
     public static final String OBJECTS_ENDPOINT = "/ga4gh/registry/dos/v1/dataobjects";
@@ -170,7 +170,7 @@ public class Ga4ghDataNodeRepositoryLocalIT {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(jsonPath("$.dos_objects", isA(List.class)))
                 .andExpect(jsonPath("$.dos_objects", hasSize(3))) //default page size
-                .andExpect(jsonPath("$.next_page_token").exists())
+                .andExpect(jsonPath("$.next_page_token").doesNotExist())
                 .andReturn();
 
     }
