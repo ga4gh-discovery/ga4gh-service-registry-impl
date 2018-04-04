@@ -591,6 +591,8 @@ definitions:
         description: >-
           OPTIONAL
           A human readable general description of this service node.
+      service_type:
+        $ref: '#/definitions/ServiceNodeTypeEnum'    
     required:
         - url
   ServiceNodeUpdateRequest:
