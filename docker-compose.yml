@@ -1,0 +1,46 @@
+version: '2'
+
+services:
+ dos-registry:
+   image: dos-registry-docker
+   ports:
+     - "8083:8083"
+   expose:
+     - "8083"
+   networks:
+     - my-networks
+   environment:
+     - SPRING_PROFILES_ACTIVE=docker
+     - DB=db
+     - KEYCLOAK=keycloak
+   #network_mode: host
+ db:
+   image: mysql:latest
+   ports:
+     - "3306:3306"
+   expose:
+     - "3306"
+   networks:
+     - my-networks
+   volumes:
+     - ./data:/var/lib/mysql
+   environment:
+     - MYSQL_ROOT_PASSWORD=admin
+     - MYSQL_DATABASE=dos_registry
+     - MYSQL_USER=dos
+     - MYSQL_PASSWORD=dos
+ keycloak:
+   image: jboss/keycloak
+   ports:
+     - 8180:8080
+   expose:
+     - "8180"
+   networks:
+     - my-networks
+   environment:
+     KEYCLOAK_USER: admin
+     KEYCLOAK_PASSWORD: admin
+     KEYCLOAK_LOGLEVEL: DEBUG
+networks:
+ my-networks:
+   driver: bridge

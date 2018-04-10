@@ -10,17 +10,22 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+		}
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
 		classpath ("org.yaml:snakeyaml:1.17+")
 		classpath ("io.swagger:swagger-codegen:2.2.3")
+		classpath('gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.13.0')
 	}
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'com.palantir.docker'
 
 group = 'com.dnastack.dos.registry'
 version = '1.0.0'
@@ -141,4 +146,11 @@ compileJava.dependsOn compileGeneratedJava
 
 clean.doFirst {
 	delete("${projectDir}/$swaggerTargetFolder")
+}
+
+docker {
+	//name "${project.group}/${jar.baseName}"
+    name "dos-registry-docker"
+	files jar.archivePath
+	buildArgs(['JAR_FILE': "${jar.archiveName}"])
 }

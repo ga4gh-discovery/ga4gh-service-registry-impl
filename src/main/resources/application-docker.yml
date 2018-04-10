@@ -10,7 +10,17 @@ spring:
         usertype:
           autoRegisterUserTypes: true
   datasource:
-    url: jdbc:mysql://localhost:3306/dos_registry?useSSL=false
+    url: jdbc:mysql://${DB:localhost}:3306/dos_registry?useSSL=false
     username: dos
     password: dos
 
+keycloak:
+  auth-server-url: http://${KEYCLOAK:localhost}:8180/auth
+  realm: DNAstack
+  resource: dos-registry
+  public-client: false
+  principal-attribute: preferred_username
+  bearer-only: true
+  enable-basic-auth: false # basic auth is default true, we dont want that
+  cors: true
+  use-resource-role-mappings: false
