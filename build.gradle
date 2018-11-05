@@ -1,144 +1,89 @@
-import groovy.json.JsonSlurper
-import io.swagger.codegen.DefaultGenerator
-import io.swagger.codegen.config.CodegenConfigurator
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.Yaml
-
-buildscript {
-	ext {
-		springBootVersion = '1.5.10.RELEASE'
-	}
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath ("org.yaml:snakeyaml:1.17+")
-		classpath ("io.swagger:swagger-codegen:2.2.3")
-	}
+plugins {
+	id 'java'
+	id "org.springframework.boot" version "2.1.0.RELEASE"
+	id "io.spring.dependency-management" version "1.0.6.RELEASE"
+	id 'io.franzbecker.gradle-lombok' version '1.8'
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
+group 'com.dnastack.discovery.registry'
 
-group = 'com.dnastack.dos.registry'
-version = '1.0.0'
-description = 'DOS Registry by DNAStack'
 sourceCompatibility = 1.8
-
-
-ext {
-	serviceName = 'dos-reg'
-	serviceVersion = '1.0.0'
-}
+targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
 }
 
-configurations {
-	generatedCompile
+ext {
+	injectVersion = "1"
+	restAssuredVersion = "3.1.1"
+    embeddedMongoVersion = "2.1.1"
+    queryDslVersion = "4.2.1"
 }
 
-dependencyManagement {
-	imports {
-		mavenBom "org.keycloak.bom:keycloak-adapter-bom:3.4.1.Final"
-	}
+springBoot {
+	buildInfo()
 }
 
-dependencies {
-
-	generatedCompile 'org.springframework.boot:spring-boot-starter-data-rest'
-	generatedCompile('io.springfox:springfox-swagger2:2.7.0')
-	generatedCompile('io.springfox:springfox-swagger-ui:2.7.0')
-	generatedCompile group: 'joda-time', name: 'joda-time', version: '2.3'
-
-	compile('org.springframework.boot:spring-boot-starter')
-	compile('org.springframework.boot:spring-boot-starter-web')
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('com.github.jmnarloch:modelmapper-spring-boot-starter:1.1.0')
-	compile('org.keycloak:keycloak-spring-boot-starter')
-	compile('io.springfox:springfox-swagger2:2.7.0')
-	compile('io.springfox:springfox-swagger-ui:2.7.0')
-	compile group: 'joda-time', name: 'joda-time', version: '2.3'
-	compile('org.jadira.usertype:usertype.core:5.0.0.GA')
-	compile("com.fasterxml.jackson.datatype:jackson-datatype-joda")
-	compileOnly('org.projectlombok:lombok')
-	// Use MySQL Connector-J
-	compile('mysql:mysql-connector-java')
-	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
-	compile group: 'com.querydsl', name: 'querydsl-jpa', version: '4.1.3'
-	compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
-
-
-	runtime('org.springframework.boot:spring-boot-devtools')
-
-//	testCompile('org.hsqldb:hsqldb')
-	testCompile('com.h2database:h2')
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.springframework.security:spring-security-test:4.2.2.RELEASE')
+lombok {
+	version = "1.18.4"
+	sha256 = ""
 }
 
 sourceSets {
-	generated {
-		compileClasspath = configurations.generatedCompile
-	}
-	main {
-		compileClasspath += generated.output
-		runtimeClasspath += generated.output
-	}
-	test {
-		compileClasspath += generated.output
-		runtimeClasspath += generated.output
-	}
+    main {
+        java {
+            srcDir "${buildDir}/generated-sources/querydsl"
+        }
+    }
 }
 
-jar {
-	manifest {
-		attributes 'Implementation-Title': project.description,
-				'Implementation-Version': project.version
-	}
+querydsl {
+    querydslSourcesDir = "${buildDir}/generated-sources/querydsl"
+    library = "com.querydsl:querydsl-apt:${queryDslVersion}"
+    jpa = true
 }
 
-bootRun {
-	systemProperties = System.properties
-	classpath += sourceSets.generated.output
+project.afterEvaluate {
+    project.tasks.compileQuerydsl.options.compilerArgs = [
+            "-proc:only",
+            "-processor", project.querydsl.processors() + ',lombok.launch.AnnotationProcessorHider$AnnotationProcessor'
+    ]
 }
 
-jar {
-	from sourceSets.generated.output
+dependencies {
+	compile 'org.springframework.boot:spring-boot-starter'
+	compile 'org.springframework.boot:spring-boot-starter-web'
+	compile "org.springframework.boot:spring-boot-starter-actuator"
+	compile "org.springframework.boot:spring-boot-starter-json"
+    compile "org.springframework.boot:spring-boot-starter-data-jpa"
+
+	compile "javax.inject:javax.inject:${injectVersion}"
+    compile "com.querydsl:querydsl-jpa:${queryDslVersion}"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+	testCompile "org.springframework.security:spring-security-test"
+    testCompile "com.h2database:h2"
+	testCompile "io.rest-assured:rest-assured:${restAssuredVersion}"
+	testCompile "io.rest-assured:json-path:${restAssuredVersion}"
 }
 
-def swaggerSourceFile = 'src/main/resources/api.yml'
-def swaggerTargetFolder = 'src/generated/java'
-
-task generateApi {
-	inputs.file("$projectDir/$swaggerSourceFile")
-	outputs.dir("$projectDir/$swaggerTargetFolder")
-	doLast {
-		def config = new CodegenConfigurator()
-		config.setInputSpec("file:///$projectDir/$swaggerSourceFile")
-		config.setOutputDir("$projectDir")
-		config.setLang('spring')
-		config.setAdditionalProperties([
-				'interfaceOnly':'true',
-				'modelPackage':'com.dnastack.dos.registry.controller',
-				'apiPackage':'com.dnastack.dos.registry.controller',
-				'sourceFolder'  : swaggerTargetFolder,
-				'useBeanValidation':true,
-				'modelNameSuffix':'Dto'
-		])
-		new DefaultGenerator().opts(config.toClientOptInput()).generate()
+test {
+	useJUnit {
+		exclude '**/*IT.class'
 	}
 }
 
-compileGeneratedJava.dependsOn generateApi
-classes.dependsOn generatedClasses
-compileJava.dependsOn compileGeneratedJava
+task unitTest(type: Test, description: 'Runs the unit tests.', group: 'Verification') {
+	useJUnit{
+		include '**/*Test.class'
+	}
+}
 
-clean.doFirst {
-	delete("${projectDir}/$swaggerTargetFolder")
+task integrationTest(type: Test, description: 'Runs the integration tests', group: 'Verification') {
+	useJUnit{
+		include '**/*IT.class'
+	}
+	ignoreFailures true
 }
