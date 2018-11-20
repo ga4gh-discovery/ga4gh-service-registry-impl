@@ -138,7 +138,7 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByName_oneMatchExpected() {
+    public void getServiceNodes_filterByQueryMatchingName_oneMatchExpected() {
         ServiceNode service1 = ServiceNode.builder()
             .name("test-beacon-1")
             .serviceType(ServiceType.BEACON)
@@ -158,7 +158,7 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("name", "beacon-1")
+            .queryParam("query", "beacon-1")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()
@@ -173,18 +173,18 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByName_multiMatchExpected() {
+    public void getServiceNodes_filterByQueryMatchingName_multiMatchExpected() {
         ServiceNode service1 = ServiceNode.builder()
             .name("test-beacon-1")
             .serviceType(ServiceType.BEACON)
-            .description("description for beacon 1")
+            .description("description for 1")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
         nodeService.save(service1);
         ServiceNode service2 = ServiceNode.builder()
             .name("test-beacon-2")
             .serviceType(ServiceType.BEACON)
-            .description("description for beacon 2")
+            .description("description for 2")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
         nodeService.save(service2);
@@ -193,7 +193,7 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("name", "beacon")
+            .queryParam("query", "beacon")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()
@@ -213,7 +213,7 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByDescription_oneMatchExpected() {
+    public void getServiceNodes_filterByQueryMatchingDescription_oneMatchExpected() {
         ServiceNode service1 = ServiceNode.builder()
             .name("test-beacon-1")
             .serviceType(ServiceType.BEACON)
@@ -233,7 +233,7 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("description", "beacon 1")
+            .queryParam("query", "beacon 1")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()
@@ -248,7 +248,7 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByDescription_multiMatchExpected() {
+    public void getServiceNodes_filterByQueryMatchingDescription_multiMatchExpected() {
         ServiceNode service1 = ServiceNode.builder()
             .name("test-beacon-1")
             .serviceType(ServiceType.BEACON)
@@ -268,7 +268,7 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("description", "beacon")
+            .queryParam("query", "description")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()
@@ -288,7 +288,7 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByAlias_oneMatchExpected() {
+    public void getServiceNodes_filterByQueryMatchingAlias_oneMatchExpected() {
         ServiceNode service1 = ServiceNode.builder()
             .name("test-beacon-1")
             .serviceType(ServiceType.BEACON)
@@ -308,7 +308,7 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("alias", "beaconA")
+            .queryParam("query", "beaconA")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()
@@ -323,18 +323,18 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByAlias_multiMatchExpected() {
+    public void getServiceNodes_filterByQueryMatchingAlias_multiMatchExpected() {
         ServiceNode service1 = ServiceNode.builder()
-            .name("test-beacon-1")
+            .name("test-1")
             .serviceType(ServiceType.BEACON)
-            .description("description for beacon 1")
+            .description("description for 1")
             .aliases(asList("beacon", "beaconA"))
             .build();
         nodeService.save(service1);
         ServiceNode service2 = ServiceNode.builder()
-            .name("test-beacon-2")
+            .name("test-2")
             .serviceType(ServiceType.BEACON)
-            .description("description for beacon 2")
+            .description("description for 2")
             .aliases(asList("beacon", "beaconB"))
             .build();
         nodeService.save(service2);
@@ -343,7 +343,7 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("alias", "beacon")
+            .queryParam("query", "beacon")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()
@@ -363,12 +363,12 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByNameAndAlias() {
+    public void getServiceNodes_filterByQueryMatchingNameAndAlias() {
         ServiceNode service1 = ServiceNode.builder()
             .name("test-beacon-1")
             .serviceType(ServiceType.BEACON)
             .description("description for beacon 1")
-            .aliases(asList("beacon", "beaconA"))
+            .aliases(asList("beacon", "beaconA", "test-beacon-2"))
             .build();
         nodeService.save(service1);
         ServiceNode service2 = ServiceNode.builder()
@@ -383,8 +383,47 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("name", "beacon-2")
-            .queryParam("alias", "beaconA")
+            .queryParam("query", "test-beacon-2")
+            .get("http://localhost:" + port + "/nodes")
+            .then()
+            .log().ifValidationFails()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            .body("content", hasSize(2))
+            .body("content[0].id", notNullValue())
+            .body("content[0].name", equalTo(service1.getName()))
+            .body("content[0].description", equalTo(service1.getDescription()))
+            .body("content[0].serviceType", equalTo(service1.getServiceType().name()))
+            .body("content[0].aliases", containsInAnyOrder("beacon", "beaconA", "test-beacon-2"))
+            .body("content[1].id", notNullValue())
+            .body("content[1].name", equalTo(service2.getName()))
+            .body("content[1].description", equalTo(service2.getDescription()))
+            .body("content[1].serviceType", equalTo(service2.getServiceType().name()))
+            .body("content[1].aliases", containsInAnyOrder("beacon", "beaconB"));
+    }
+
+    @Test
+    public void getServiceNodes_filterByQueryMatchingNameAndDescription() {
+        ServiceNode service1 = ServiceNode.builder()
+            .name("test-beacon-1")
+            .serviceType(ServiceType.BEACON)
+            .description("description for beacon 1")
+            .aliases(asList("beacon", "beaconA"))
+            .build();
+        nodeService.save(service1);
+        ServiceNode service2 = ServiceNode.builder()
+            .name("test-beacon-2")
+            .serviceType(ServiceType.BEACON)
+            .description("description for beacon 2 but also test-beacon-1")
+            .aliases(asList("beacon", "beaconB"))
+            .build();
+        nodeService.save(service2);
+
+        RestAssured.given()
+            .accept(ContentType.JSON)
+            .log().method()
+            .log().uri()
+            .queryParam("query", "beacon-1")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()
@@ -404,11 +443,11 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByNameAndDescription() {
+    public void getServiceNodes_filterByQueryMatchingAliasAndDescription() {
         ServiceNode service1 = ServiceNode.builder()
             .name("test-beacon-1")
             .serviceType(ServiceType.BEACON)
-            .description("description for beacon 1")
+            .description("description for beaconB")
             .aliases(asList("beacon", "beaconA"))
             .build();
         nodeService.save(service1);
@@ -424,8 +463,7 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("name", "beacon-2")
-            .queryParam("description", "description for beacon 1")
+            .queryParam("query", "beaconB")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()
@@ -445,48 +483,7 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_filterByAliasAndDescription() {
-        ServiceNode service1 = ServiceNode.builder()
-            .name("test-beacon-1")
-            .serviceType(ServiceType.BEACON)
-            .description("description for beacon 1")
-            .aliases(asList("beacon", "beaconA"))
-            .build();
-        nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
-            .name("test-beacon-2")
-            .serviceType(ServiceType.BEACON)
-            .description("description for beacon 2")
-            .aliases(asList("beacon", "beaconB"))
-            .build();
-        nodeService.save(service2);
-
-        RestAssured.given()
-            .accept(ContentType.JSON)
-            .log().method()
-            .log().uri()
-            .queryParam("alias", "beaconB")
-            .queryParam("description", "description for beacon 1")
-            .get("http://localhost:" + port + "/nodes")
-            .then()
-            .log().ifValidationFails()
-            .assertThat()
-            .statusCode(HttpStatus.OK.value())
-            .body("content", hasSize(2))
-            .body("content[0].id", notNullValue())
-            .body("content[0].name", equalTo(service1.getName()))
-            .body("content[0].description", equalTo(service1.getDescription()))
-            .body("content[0].serviceType", equalTo(service1.getServiceType().name()))
-            .body("content[0].aliases", containsInAnyOrder("beacon", "beaconA"))
-            .body("content[1].id", notNullValue())
-            .body("content[1].name", equalTo(service2.getName()))
-            .body("content[1].description", equalTo(service2.getDescription()))
-            .body("content[1].serviceType", equalTo(service2.getServiceType().name()))
-            .body("content[1].aliases", containsInAnyOrder("beacon", "beaconB"));
-    }
-
-    @Test
-    public void getServiceNodes_filterByNameAndAliasAndDescription() {
+    public void getServiceNodes_filterByQueryMatchingNameAndAliasAndDescription() {
         ServiceNode service1 = ServiceNode.builder()
             .name("test-beacon-1")
             .serviceType(ServiceType.BEACON)
@@ -513,9 +510,7 @@ public class ServiceNodeControllerIT {
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
-            .queryParam("name", "test-beacon-1")
-            .queryParam("alias", "beaconB")
-            .queryParam("description", "description for beacon 3")
+            .queryParam("query", "beacon")
             .get("http://localhost:" + port + "/nodes")
             .then()
             .log().ifValidationFails()

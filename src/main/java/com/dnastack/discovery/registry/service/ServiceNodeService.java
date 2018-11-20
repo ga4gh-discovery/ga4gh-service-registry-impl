@@ -10,7 +10,6 @@ import static java.util.stream.Collectors.toList;
 import com.dnastack.discovery.registry.domain.ServiceNodeEntity;
 import com.dnastack.discovery.registry.mapper.ServiceNodeMapper;
 import com.dnastack.discovery.registry.model.ServiceNode;
-import com.dnastack.discovery.registry.model.ServiceNodeQueryRequest;
 import com.dnastack.discovery.registry.repository.ServiceNodeRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -35,11 +34,10 @@ public class ServiceNodeService {
         return map(repository.save(reverseMap(model)));
     }
 
-    public Page<ServiceNode> getNodes(ServiceNodeQueryRequest request, Pageable pageable) {
-
-        Page<ServiceNodeEntity> page = repository.findAll(filterByName(request.getName())
-                .or(filterByDescription(request.getDescription()))
-                .or(filterByAlias(request.getAlias())),
+    public Page<ServiceNode> getNodes(String query, Pageable pageable) {
+        Page<ServiceNodeEntity> page = repository.findAll(filterByName(query)
+                .or(filterByDescription(query))
+                .or(filterByAlias(query)),
             pageable);
         return getNodes(pageable, page);
     }

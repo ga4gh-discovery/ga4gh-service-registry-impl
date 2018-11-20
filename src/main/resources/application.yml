@@ -11,6 +11,8 @@ spring:
   jackson:
     default-property-inclusion: non_null
     time-zone: UTC
+  jpa:
+    open-in-view: false
 
 management:
   endpoints:
