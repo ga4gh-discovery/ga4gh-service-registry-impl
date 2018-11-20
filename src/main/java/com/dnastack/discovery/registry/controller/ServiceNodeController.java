@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/nodes")
+@RequestMapping(value = "/services")
 public class ServiceNodeController {
 
     private ServiceNodeService serviceNodeService;
@@ -23,10 +23,10 @@ public class ServiceNodeController {
         this.serviceNodeService = serviceNodeService;
     }
 
-    @GetMapping(value = "/{nodeId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity getNodeById(@PathVariable("nodeId") String nodeId) {
+    @GetMapping(value = "/{serviceId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity getNodeById(@PathVariable("serviceId") String serviceId) {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(serviceNodeService.getNodeById(nodeId));
+            .body(serviceNodeService.getNodeById(serviceId));
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
