@@ -1,7 +1,5 @@
 package com.dnastack.discovery.registry.controller.exception;
 
-import java.time.ZonedDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -17,10 +15,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-public class ValidationError {
+public class ValidationError implements Error {
 
-    private ZonedDateTime timestamp;
-    private int status;
-    private List<ValidationFieldError> validationErrors;
+    private String code;
+    private String message;
+    private String field;
+    private Object rejectedValue;
 
 }

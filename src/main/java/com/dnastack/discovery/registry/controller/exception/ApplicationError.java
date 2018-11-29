@@ -15,11 +15,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-public class ValidationFieldError {
+public class ApplicationError implements Error {
 
-    private String field;
     private String code;
     private String message;
-    private Object rejectedValue;
 
 }

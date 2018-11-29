@@ -1,6 +1,7 @@
 package com.dnastack.discovery.registry.controller.exception;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -19,8 +20,8 @@ import lombok.ToString;
 public class ErrorInfo {
 
     private ZonedDateTime timestamp;
-    private int status;
-    private String error;
+    private int code;
     private String message;
+    private List<Error> errors;
 
 }

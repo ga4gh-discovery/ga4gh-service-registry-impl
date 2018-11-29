@@ -1,5 +1,7 @@
 package com.dnastack.discovery.registry.controller.exception;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 import com.dnastack.discovery.registry.service.ServiceNodeNotFoundException;
@@ -10,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,15 +33,25 @@ public class RestControllerExceptionHandler {
             responseStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }
 
+        List<Error> errors = ex.getMessage() != null && !ex.getMessage().isEmpty()
+            ? singletonList(buildApplicationError(ex))
+            : emptyList();
+
         ErrorInfo responseBody = ErrorInfo.builder()
             .timestamp(ZonedDateTime.now())
-            .status(responseStatus.value())
-            .error(responseStatus.getReasonPhrase())
-            .message(ex.getMessage())
+            .code(responseStatus.value())
+            .message(responseStatus.getReasonPhrase())
+            .errors(errors)
             .build();
 
         return ResponseEntity.status(responseStatus)
             .body(responseBody);
+    }
+
+    private ApplicationError buildApplicationError(RuntimeException ex) {
+        return ApplicationError.builder()
+            .message(ex.getMessage())
+            .build();
     }
 
     @ExceptionHandler(value = { MethodArgumentNotValidException.class })
@@ -54,25 +67,30 @@ public class RestControllerExceptionHandler {
     private ResponseEntity<Object> handleValidationException(BindingResult binding) {
         HttpStatus responseStatus = HttpStatus.BAD_REQUEST;
 
-        List<ValidationFieldError> fieldErrors = binding
+        List<Error> fieldErrors = binding
             .getFieldErrors()
             .stream()
-            .map(fieldError -> ValidationFieldError.builder()
-                .field(fieldError.getField())
-                .code(fieldError.getCode())
-                .message(fieldError.getDefaultMessage())
-                .rejectedValue(fieldError.getRejectedValue())
-                .build())
+            .map(this::buildValidationError)
             .collect(toList());
 
-        ValidationError responseBody = ValidationError.builder()
+        ErrorInfo responseBody = ErrorInfo.builder()
             .timestamp(ZonedDateTime.now())
-            .status(responseStatus.value())
-            .validationErrors(fieldErrors)
+            .code(responseStatus.value())
+            .message(responseStatus.getReasonPhrase())
+            .errors(fieldErrors)
             .build();
 
         return ResponseEntity.status(responseStatus)
             .body(responseBody);
+    }
+
+    private ValidationError buildValidationError(FieldError fieldError) {
+        return ValidationError.builder()
+            .code(fieldError.getCode())
+            .message(fieldError.getDefaultMessage())
+            .field(fieldError.getField())
+            .rejectedValue(fieldError.getRejectedValue())
+            .build();
     }
 
 }
