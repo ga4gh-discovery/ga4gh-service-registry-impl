@@ -7,9 +7,9 @@ import static com.dnastack.discovery.registry.repository.ServiceNodePredicates.f
 import static com.dnastack.discovery.registry.repository.ServiceNodePredicates.filterByName;
 import static java.util.stream.Collectors.toList;
 
-import com.dnastack.discovery.registry.domain.ServiceNodeEntity;
+import com.dnastack.discovery.registry.domain.ServiceEntity;
 import com.dnastack.discovery.registry.mapper.ServiceNodeMapper;
-import com.dnastack.discovery.registry.model.ServiceNode;
+import com.dnastack.discovery.registry.domain.ServiceModel;
 import com.dnastack.discovery.registry.repository.ServiceNodeRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -29,27 +29,27 @@ public class ServiceNodeService {
         this.repository = repository;
     }
 
-    public ServiceNode save(ServiceNode model) {
+    public ServiceModel save(ServiceModel model) {
         model.setCreatedAt(ZonedDateTime.now());
         return map(repository.save(reverseMap(model)));
     }
 
-    public Page<ServiceNode> getNodes(String query, Pageable pageable) {
-        Page<ServiceNodeEntity> page = repository.findAll(filterByName(query)
+    public Page<ServiceModel> getNodes(String query, Pageable pageable) {
+        Page<ServiceEntity> page = repository.findAll(filterByName(query)
                 .or(filterByDescription(query))
                 .or(filterByAlias(query)),
             pageable);
         return getNodes(pageable, page);
     }
 
-    private Page<ServiceNode> getNodes(Pageable pageable, Page<ServiceNodeEntity> page) {
-        List<ServiceNode> content = page.getContent().stream()
+    private Page<ServiceModel> getNodes(Pageable pageable, Page<ServiceEntity> page) {
+        List<ServiceModel> content = page.getContent().stream()
             .map(ServiceNodeMapper::map)
             .collect(toList());
         return new PageImpl<>(content, pageable, page.getTotalElements());
     }
 
-    public ServiceNode getNodeById(String nodeId) {
+    public ServiceModel getNodeById(String nodeId) {
         return repository.findById(nodeId)
             .map(ServiceNodeMapper::map)
             .orElseThrow(ServiceNodeNotFoundException::new);

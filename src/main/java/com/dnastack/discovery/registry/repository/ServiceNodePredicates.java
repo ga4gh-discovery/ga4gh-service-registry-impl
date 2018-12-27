@@ -2,12 +2,12 @@ package com.dnastack.discovery.registry.repository;
 
 import static java.util.Objects.isNull;
 
-import com.dnastack.discovery.registry.domain.QServiceNodeEntity;
+import com.dnastack.discovery.registry.domain.QServiceEntity;
 import com.querydsl.core.BooleanBuilder;
 
 public final class ServiceNodePredicates {
 
-    private static final QServiceNodeEntity serviceNode = QServiceNodeEntity.serviceNodeEntity;
+    private static final QServiceEntity serviceNode = QServiceEntity.serviceEntity;
 
     private ServiceNodePredicates() {
     }

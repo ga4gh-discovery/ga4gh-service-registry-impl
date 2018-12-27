@@ -1,7 +1,6 @@
 package com.dnastack.discovery.registry.domain;
 
 import com.dnastack.discovery.registry.domain.converter.ZonedDateTimeAttributeConverter;
-import com.dnastack.discovery.registry.model.HealthStatus;
 import java.time.ZonedDateTime;
 import javax.persistence.Convert;
 import javax.persistence.Embeddable;

@@ -2,7 +2,6 @@ package com.dnastack.discovery.registry.domain;
 
 
 import com.dnastack.discovery.registry.domain.converter.ZonedDateTimeAttributeConverter;
-import com.dnastack.discovery.registry.model.ServiceType;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ import org.hibernate.annotations.GenericGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class ServiceNodeEntity {
+public class ServiceEntity {
 
     private String id;
     private String name;

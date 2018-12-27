@@ -9,9 +9,9 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import com.dnastack.discovery.registry.TestApplication;
 import com.dnastack.discovery.registry.domain.Health;
-import com.dnastack.discovery.registry.model.HealthStatus;
-import com.dnastack.discovery.registry.model.ServiceNode;
-import com.dnastack.discovery.registry.model.ServiceType;
+import com.dnastack.discovery.registry.domain.HealthStatus;
+import com.dnastack.discovery.registry.domain.ServiceModel;
+import com.dnastack.discovery.registry.domain.ServiceType;
 import com.dnastack.discovery.registry.service.ServiceNodeService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -61,7 +61,7 @@ public class ServiceNodeControllerIT {
     @Test
     public void getServiceNodeById_nodeExistsWithId() {
         ZonedDateTime now = ZonedDateTime.now();
-        ServiceNode service = ServiceNode.builder()
+        ServiceModel service = ServiceModel.builder()
             .name("test-beacon")
             .type(ServiceType.BEACON)
             .description("description")
@@ -123,7 +123,7 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_atLeastOneNodeExists() {
-        ServiceNode service = ServiceNode.builder()
+        ServiceModel service = ServiceModel.builder()
             .name("test-beacon")
             .type(ServiceType.BEACON)
             .description("description")
@@ -150,14 +150,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingName_oneMatchExpected() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for beacon 1")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for beacon 2")
@@ -185,14 +185,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingName_multiMatchExpected() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for 1")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for 2")
@@ -225,14 +225,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingDescription_oneMatchExpected() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for beacon 1")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for beacon 2")
@@ -260,14 +260,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingDescription_multiMatchExpected() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for beacon 1")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for beacon 2")
@@ -300,14 +300,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingAlias_oneMatchExpected() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for beacon 1")
             .aliases(asList("beacon", "beaconA"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for beacon 2")
@@ -335,14 +335,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingAlias_multiMatchExpected() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-1")
             .type(ServiceType.BEACON)
             .description("description for 1")
             .aliases(asList("beacon", "beaconA"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-2")
             .type(ServiceType.BEACON)
             .description("description for 2")
@@ -375,14 +375,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingNameAndAlias() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for beacon 1")
             .aliases(asList("beacon", "beaconA", "test-beacon-2"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for beacon 2")
@@ -415,14 +415,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingNameAndDescription() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for beacon 1")
             .aliases(asList("beacon", "beaconA"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for beacon 2 but also test-beacon-1")
@@ -455,14 +455,14 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingAliasAndDescription() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for beaconB")
             .aliases(asList("beacon", "beaconA"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for beacon 2")
@@ -495,21 +495,21 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodes_filterByQueryMatchingNameAndAliasAndDescription() {
-        ServiceNode service1 = ServiceNode.builder()
+        ServiceModel service1 = ServiceModel.builder()
             .name("test-beacon-1")
             .type(ServiceType.BEACON)
             .description("description for beacon 1")
             .aliases(asList("beacon", "beaconA"))
             .build();
         nodeService.save(service1);
-        ServiceNode service2 = ServiceNode.builder()
+        ServiceModel service2 = ServiceModel.builder()
             .name("test-beacon-2")
             .type(ServiceType.BEACON)
             .description("description for beacon 2")
             .aliases(asList("beacon", "beaconB"))
             .build();
         nodeService.save(service2);
-        ServiceNode service3 = ServiceNode.builder()
+        ServiceModel service3 = ServiceModel.builder()
             .name("test-beacon-3")
             .type(ServiceType.BEACON)
             .description("description for beacon 3")

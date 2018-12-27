@@ -1,4 +1,4 @@
-package com.dnastack.discovery.registry.model;
+package com.dnastack.discovery.registry.domain;
 
 public enum ServiceType {
 

@@ -1,12 +1,12 @@
 package com.dnastack.discovery.registry.mapper;
 
-import com.dnastack.discovery.registry.domain.ServiceNodeEntity;
-import com.dnastack.discovery.registry.model.ServiceNode;
+import com.dnastack.discovery.registry.domain.ServiceEntity;
+import com.dnastack.discovery.registry.domain.ServiceModel;
 
 public class ServiceNodeMapper {
 
-    public static ServiceNode map(ServiceNodeEntity document) {
-        return ServiceNode.builder()
+    public static ServiceModel map(ServiceEntity document) {
+        return ServiceModel.builder()
             .id(document.getId())
             .name(document.getName())
             .url(document.getUrl())
@@ -19,8 +19,8 @@ public class ServiceNodeMapper {
             .build();
     }
 
-    public static ServiceNodeEntity reverseMap(ServiceNode model) {
-        return ServiceNodeEntity.builder()
+    public static ServiceEntity reverseMap(ServiceModel model) {
+        return ServiceEntity.builder()
             .id(model.getId())
             .name(model.getName())
             .url(model.getUrl())

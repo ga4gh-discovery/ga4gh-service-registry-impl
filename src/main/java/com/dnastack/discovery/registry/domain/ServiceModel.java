@@ -1,6 +1,5 @@
-package com.dnastack.discovery.registry.model;
+package com.dnastack.discovery.registry.domain;
 
-import com.dnastack.discovery.registry.domain.Health;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceNode {
+public class ServiceModel {
 
     private String id;
     private String name;
