@@ -27,7 +27,7 @@ public class ServiceNode {
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;
-    private ServiceType serviceType;
+    private ServiceType type;
     private HealthStatus healthStatus;
     private ZonedDateTime lastHealthUpdated;
 

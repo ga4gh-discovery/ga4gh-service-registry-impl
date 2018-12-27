@@ -14,7 +14,7 @@ public class ServiceNodeMapper {
             .description(document.getDescription())
             .aliases(document.getAliases())
             .metadata(document.getMetadata())
-            .serviceType(document.getServiceType())
+            .type(document.getType())
             .healthStatus(document.getHealthStatus())
             .lastHealthUpdated(document.getLastHealthUpdated())
             .build();
@@ -29,7 +29,7 @@ public class ServiceNodeMapper {
             .description(model.getDescription())
             .aliases(model.getAliases())
             .metadata(model.getMetadata())
-            .serviceType(model.getServiceType())
+            .type(model.getType())
             .healthStatus(model.getHealthStatus())
             .lastHealthUpdated(model.getLastHealthUpdated())
             .build();
