@@ -30,7 +30,7 @@ public class ServiceNodeService {
     }
 
     public ServiceNode save(ServiceNode model) {
-        model.setCreated(ZonedDateTime.now());
+        model.setCreatedAt(ZonedDateTime.now());
         return map(repository.save(reverseMap(model)));
     }
 

@@ -84,7 +84,7 @@ public class ServiceNodeControllerIT {
             .assertThat()
             .statusCode(HttpStatus.OK.value())
             .body("id", notNullValue())
-            .body("created", notNullValue())
+            .body("createdAt", notNullValue())
             .body("name", equalTo(service.getName()))
             .body("description", equalTo(service.getDescription()))
             .body("type", equalTo(service.getType().name()))

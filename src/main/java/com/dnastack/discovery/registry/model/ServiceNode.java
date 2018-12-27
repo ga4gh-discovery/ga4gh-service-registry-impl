@@ -24,7 +24,7 @@ public class ServiceNode {
     private String id;
     private String name;
     private String url;
-    private ZonedDateTime created;
+    private ZonedDateTime createdAt;
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;

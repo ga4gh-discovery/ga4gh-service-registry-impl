@@ -35,7 +35,7 @@ public class ServiceNodeEntity {
     private String id;
     private String name;
     private String url;
-    private ZonedDateTime created;
+    private ZonedDateTime createdAt;
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;
@@ -58,8 +58,8 @@ public class ServiceNodeEntity {
     }
 
     @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    public ZonedDateTime getCreated() {
-        return created;
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public String getDescription() {
