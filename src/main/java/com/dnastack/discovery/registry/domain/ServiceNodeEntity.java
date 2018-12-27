@@ -2,13 +2,13 @@ package com.dnastack.discovery.registry.domain;
 
 
 import com.dnastack.discovery.registry.domain.converter.ZonedDateTimeAttributeConverter;
-import com.dnastack.discovery.registry.model.HealthStatus;
 import com.dnastack.discovery.registry.model.ServiceType;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -40,8 +40,7 @@ public class ServiceNodeEntity {
     private List<String> aliases;
     private Map<String, String> metadata;
     private ServiceType type;
-    private HealthStatus healthStatus;
-    private ZonedDateTime lastHealthUpdated;
+    private Health health;
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -82,13 +81,9 @@ public class ServiceNodeEntity {
         return type;
     }
 
-    @Enumerated(value = EnumType.STRING)
-    public HealthStatus getHealthStatus() {
-        return healthStatus;
+    @Embedded
+    public Health getHealth() {
+        return health;
     }
 
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    public ZonedDateTime getLastHealthUpdated() {
-        return lastHealthUpdated;
-    }
 }

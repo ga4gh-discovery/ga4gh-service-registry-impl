@@ -1,5 +1,6 @@
 package com.dnastack.discovery.registry.model;
 
+import com.dnastack.discovery.registry.domain.Health;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,7 @@ public class ServiceNode {
     private List<String> aliases;
     private Map<String, String> metadata;
     private ServiceType type;
-    private HealthStatus healthStatus;
-    private ZonedDateTime lastHealthUpdated;
+    private Health health;
 
 }
 

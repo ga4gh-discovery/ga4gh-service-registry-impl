@@ -8,11 +8,14 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.dnastack.discovery.registry.TestApplication;
+import com.dnastack.discovery.registry.domain.Health;
+import com.dnastack.discovery.registry.model.HealthStatus;
 import com.dnastack.discovery.registry.model.ServiceNode;
 import com.dnastack.discovery.registry.model.ServiceType;
 import com.dnastack.discovery.registry.service.ServiceNodeService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import javax.inject.Inject;
 import org.junit.Ignore;
@@ -57,11 +60,16 @@ public class ServiceNodeControllerIT {
 
     @Test
     public void getServiceNodeById_nodeExistsWithId() {
+        ZonedDateTime now = ZonedDateTime.now();
         ServiceNode service = ServiceNode.builder()
             .name("test-beacon")
             .type(ServiceType.BEACON)
             .description("description")
             .aliases(asList("key1:value1", "key2:value2"))
+            .health(Health.builder()
+                .status(HealthStatus.UP)
+                .updatedAt(now)
+                .build())
             .build();
         String serviceId = nodeService.save(service).getId();
 
@@ -76,10 +84,13 @@ public class ServiceNodeControllerIT {
             .assertThat()
             .statusCode(HttpStatus.OK.value())
             .body("id", notNullValue())
+            .body("created", notNullValue())
             .body("name", equalTo(service.getName()))
             .body("description", equalTo(service.getDescription()))
             .body("type", equalTo(service.getType().name()))
-            .body("aliases", containsInAnyOrder("key1:value1", "key2:value2"));
+            .body("aliases", containsInAnyOrder("key1:value1", "key2:value2"))
+            .body("health.status", equalTo(service.getHealth().getStatus().name()))
+            .body("health.updatedAt", notNullValue());
     }
 
     @Test
