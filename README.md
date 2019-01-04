@@ -1,4 +1,4 @@
-# Discovery Service Registry
+# Discovery Service Registry [![Build Status](https://travis-ci.org/ga4gh-discovery/service-registry-impl.svg?branch=develop)](https://travis-ci.org/ga4gh-discovery/service-registry-impl)
 
 ## API docs
 
