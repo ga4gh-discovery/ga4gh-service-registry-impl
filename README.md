@@ -1,24 +1,31 @@
-# Service Registry 
+# Discovery Service Registry [![Build Status](https://travis-ci.org/ga4gh-discovery/service-registry-impl.svg?branch=develop)](https://travis-ci.org/ga4gh-discovery/service-registry-impl)
 
-## Overview
-RESTful APIs to facilitate registry services for underlying service nodes (e.g., Beacon node, GA4GH DOS node etc.)
+## API docs
 
-## Documentation
+See api [documentation](https://github.com/ga4gh-discovery/ga4gh-discovery-service-registry/blob/develop/service-registry.yml). You can use [online swagger editor](https://editor.swagger.io/) to view api documentation.
 
-#### References
-- [DOS Schema](https://github.com/ga4gh/data-object-service-schemas)
-- [DOS Connect](https://github.com/ohsu-comp-bio/dos_connect)
+## Development
 
-#### API
-- [OpenAPI Specs](https://github.com/idatamarc/dos-registry/blob/develop/src/main/resources/api.yml)
+```
+./gradlew clean build bootRun
+```
 
-#### Build
-    ./gradlew clean build
+Or
 
-#### Running on Local
+```
+docker build -t discovery-service-registry . && docker run -p 8080:8080 -it discovery-service-registry
+```
 
-    ./gradlew bootRun -Dspring.profiles.active=local
+## Running tests
 
-Remote debug:
+To run entire suite of integration tests:
 
-    ./gradlew bootRun  -Dspring.profiles.active=local --debug-jvm
+```
+./gradlew clean build integrationTest
+```
+
+To run just selection of tests:
+
+```
+./gradlew clean build integrationTest --tests "*getServiceNodeById*"
+```

@@ -1,48 +1,23 @@
 server:
-  port: 8083
-
-keycloak:
-  auth-server-url: http://localhost:8180/auth
-  realm: DNAstack
-  resource: dos-registry
-  public-client: false
-  principal-attribute: preferred_username
-  bearer-only: true
-  enable-basic-auth: false # basic auth is default true, we dont want that
-  cors: true
-  use-resource-role-mappings: false
+  port: 8080
 
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: update
-    # Use Jadira Usertype for mapping Joda Time types
-    # For Hibernate native properties must be used spring.jpa.properties.* (the
-    # prefix is stripped before adding them to the entity manager).
-    properties:
-      jadira:
-        usertype:
-          autoRegisterUserTypes: true
+  output:
+    ansi:
+      enabled: always
+  http:
+    converters:
+      preferred-json-mapper: jackson
   jackson:
-      serialization:
-          write-dates-as-timestamps: false
-logging:
-    level:
-        org.springframework.ws.client.MessageTracing.sent: TRACE
-        org.springframework.ws.client.MessageTracing.received: TRACE
-        org.apache.http.wire: DEBUG
-        org.springframework: DEBUG
-        org.springframework.web.client.RestTemplate: DEBUG
-        org.keycloak.adapters.springsecurity: TRACE
-        com.dnastack.dos.registry: DEBUG
+    default-property-inclusion: non_null
+    time-zone: UTC
+  jpa:
+    open-in-view: false
 
-service:
-    nodes:
-        default_page_size: 10
-    objects:
-        default_page_size: 50
-        default_pool_size: 5
-        timeout:
-          connection-request: 20000
-          connection:         50000
-          read:               25000
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  server:
+    add-application-context-header: false
