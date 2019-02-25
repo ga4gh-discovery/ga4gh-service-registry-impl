@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,13 @@ public class ServiceInstanceController {
     public ResponseEntity registerServiceInstance(@RequestBody ServiceInstanceRegistrationRequestModel registrationRequest) {
         return ResponseEntity.status(HttpStatus.PROCESSING)
             .body(service.registerInstance(registrationRequest));
+    }
+
+    @DeleteMapping(value = "/{serviceId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity deleteServiceInstanceById(@PathVariable("serviceId") String serviceId) {
+        service.deleteInstanceById(serviceId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .build();
     }
 
     @GetMapping(value = "/{serviceId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

@@ -37,6 +37,10 @@ public class ServiceInstanceService {
         return map(repository.save(serviceInstance));
     }
 
+    public void deleteInstanceById(String nodeId) {
+        repository.deleteById(nodeId);
+    }
+
     public Page<ServiceInstanceModel> getInstances(Pageable pageable) {
         Page<ServiceInstance> page = repository.findAll(pageable);
         return getInstances(pageable, page);
