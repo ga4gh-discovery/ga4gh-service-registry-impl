@@ -37,7 +37,8 @@ public class ServiceInstanceService {
         return map(repository.save(serviceInstance));
     }
 
-    public void deleteInstanceById(String nodeId) {
+    public void deregisterInstanceById(String nodeId) {
+        // TODO: this should deregister..
         repository.deleteById(nodeId);
     }
 

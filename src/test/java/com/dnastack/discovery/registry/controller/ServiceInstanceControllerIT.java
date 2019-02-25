@@ -186,7 +186,7 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void deleteServiceInstanceById_instanceExistsWithId_ensureNoSideEffect() {
+    public void deregisterServiceInstanceById_instanceExistsWithId_ensureNoSideEffect() {
         ServiceInstanceRegistrationRequestModel service1 = ServiceInstanceRegistrationRequestModel.builder()
             .name("test-beacon-1")
             .url("http://beacon-test-random-url1.someorg.com")

@@ -34,8 +34,8 @@ public class ServiceInstanceController {
     }
 
     @DeleteMapping(value = "/{serviceId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity deleteServiceInstanceById(@PathVariable("serviceId") String serviceId) {
-        service.deleteInstanceById(serviceId);
+    public ResponseEntity deregisterServiceInstanceById(@PathVariable("serviceId") String serviceId) {
+        service.deregisterInstanceById(serviceId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build();
     }
