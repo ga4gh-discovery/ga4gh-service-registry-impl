@@ -1,5 +1,6 @@
 package com.dnastack.discovery.registry.controller;
 
+import com.dnastack.discovery.registry.domain.ServiceInstanceType;
 import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import javax.inject.Inject;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,12 @@ public class ServiceInstanceController {
     public ResponseEntity getServiceInstances(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(serviceNodeService.getNodes(pageable));
+    }
+
+    @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity getServiceInstanceTypes() {
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(ServiceInstanceType.values());
     }
 
 }

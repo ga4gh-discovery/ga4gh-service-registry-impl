@@ -1,6 +1,7 @@
 package com.dnastack.discovery.registry.controller;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -136,6 +137,20 @@ public class ServiceInstanceControllerIT {
             .body("content[0].description", equalTo(service.getDescription()))
             .body("content[0].type", equalTo(service.getType().name()))
             .body("content[0].aliases", containsInAnyOrder("key1:value1", "key2:value2"));
+    }
+
+    @Test
+    public void getServiceInstanceTypes() {
+        RestAssured.given()
+            .accept(ContentType.JSON)
+            .log().method()
+            .log().uri()
+            .get("http://localhost:" + port + "/services/types")
+            .then()
+            .log().ifValidationFails()
+            .assertThat()
+            .statusCode(HttpStatus.OK.value())
+            .body(".", contains(ServiceInstanceType.BEACON.name(), ServiceInstanceType.DOS.name()));
     }
 
 }
