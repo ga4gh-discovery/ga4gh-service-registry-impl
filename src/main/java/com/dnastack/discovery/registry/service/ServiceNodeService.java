@@ -2,9 +2,6 @@ package com.dnastack.discovery.registry.service;
 
 import static com.dnastack.discovery.registry.mapper.ServiceNodeMapper.map;
 import static com.dnastack.discovery.registry.mapper.ServiceNodeMapper.reverseMap;
-import static com.dnastack.discovery.registry.repository.ServiceNodePredicates.filterByAlias;
-import static com.dnastack.discovery.registry.repository.ServiceNodePredicates.filterByDescription;
-import static com.dnastack.discovery.registry.repository.ServiceNodePredicates.filterByName;
 import static java.util.stream.Collectors.toList;
 
 import com.dnastack.discovery.registry.domain.ServiceEntity;
@@ -34,11 +31,8 @@ public class ServiceNodeService {
         return map(repository.save(reverseMap(model)));
     }
 
-    public Page<ServiceModel> getNodes(String query, Pageable pageable) {
-        Page<ServiceEntity> page = repository.findAll(filterByName(query)
-                .or(filterByDescription(query))
-                .or(filterByAlias(query)),
-            pageable);
+    public Page<ServiceModel> getNodes(Pageable pageable) {
+        Page<ServiceEntity> page = repository.findAll(pageable);
         return getNodes(pageable, page);
     }
 

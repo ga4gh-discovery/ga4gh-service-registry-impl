@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,9 +29,9 @@ public class ServiceNodeController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity getNodes(@RequestParam(required = false) String query, Pageable pageable) {
+    public ResponseEntity getNodes(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(serviceNodeService.getNodes(query, pageable));
+            .body(serviceNodeService.getNodes(pageable));
     }
 
 }
