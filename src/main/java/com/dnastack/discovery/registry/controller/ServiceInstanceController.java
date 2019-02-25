@@ -29,7 +29,7 @@ public class ServiceInstanceController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity registerServiceInstance(@RequestBody ServiceInstanceRegistrationRequestModel registrationRequest) {
-        return ResponseEntity.status(HttpStatus.PROCESSING)
+        return ResponseEntity.status(HttpStatus.OK)
             .body(service.registerInstance(registrationRequest));
     }
 
