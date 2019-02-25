@@ -33,6 +33,7 @@ public class ServiceInstance {
     private String id;
     private String name;
     private String url;
+    private String email;
     private ZonedDateTime createdAt;
     private String description;
     private List<String> aliases;
@@ -52,6 +53,10 @@ public class ServiceInstance {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Convert(converter = ZonedDateTimeAttributeConverter.class)

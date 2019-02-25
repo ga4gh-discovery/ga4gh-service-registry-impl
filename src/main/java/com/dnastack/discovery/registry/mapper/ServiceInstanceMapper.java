@@ -1,29 +1,30 @@
 package com.dnastack.discovery.registry.mapper;
 
 import com.dnastack.discovery.registry.domain.ServiceInstance;
-import com.dnastack.discovery.registry.domain.ServiceInstanceModel;
+import com.dnastack.discovery.registry.model.ServiceInstanceModel;
+import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 
 public class ServiceInstanceMapper {
 
-    public static ServiceInstanceModel map(ServiceInstance document) {
+    public static ServiceInstanceModel map(ServiceInstance entity) {
         return ServiceInstanceModel.builder()
-            .id(document.getId())
-            .name(document.getName())
-            .url(document.getUrl())
-            .createdAt(document.getCreatedAt())
-            .description(document.getDescription())
-            .aliases(document.getAliases())
-            .metadata(document.getMetadata())
-            .type(document.getType())
+            .id(entity.getId())
+            .name(entity.getName())
+            .url(entity.getUrl())
+            .email(entity.getEmail())
+            .createdAt(entity.getCreatedAt())
+            .description(entity.getDescription())
+            .aliases(entity.getAliases())
+            .metadata(entity.getMetadata())
+            .type(entity.getType())
             .build();
     }
 
-    public static ServiceInstance reverseMap(ServiceInstanceModel model) {
+    public static ServiceInstance reverseMap(ServiceInstanceRegistrationRequestModel model) {
         return ServiceInstance.builder()
-            .id(model.getId())
             .name(model.getName())
             .url(model.getUrl())
-            .createdAt(model.getCreatedAt())
+            .email(model.getEmail())
             .description(model.getDescription())
             .aliases(model.getAliases())
             .metadata(model.getMetadata())

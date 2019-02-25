@@ -9,8 +9,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.dnastack.discovery.registry.TestApplication;
-import com.dnastack.discovery.registry.domain.ServiceInstanceModel;
 import com.dnastack.discovery.registry.domain.ServiceInstanceType;
+import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -58,13 +58,15 @@ public class ServiceInstanceControllerIT {
 
     @Test
     public void getServiceInstanceById_instanceExistsWithId() {
-        ServiceInstanceModel service = ServiceInstanceModel.builder()
+        ServiceInstanceRegistrationRequestModel service = ServiceInstanceRegistrationRequestModel.builder()
             .name("test-beacon")
+            .url("http://beacon-test-random-url.someorg.com")
             .type(ServiceInstanceType.BEACON)
+            .email("beacon-admin@someorg.com")
             .description("description")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
-        String serviceId = nodeService.save(service).getId();
+        String serviceId = nodeService.registerInstance(service).getId();
 
         RestAssured.given()
             .accept(ContentType.JSON)
@@ -78,7 +80,9 @@ public class ServiceInstanceControllerIT {
             .statusCode(HttpStatus.OK.value())
             .body("id", notNullValue())
             .body("createdAt", notNullValue())
+            .body("url", equalTo(service.getUrl()))
             .body("name", equalTo(service.getName()))
+            .body("email", equalTo(service.getEmail()))
             .body("description", equalTo(service.getDescription()))
             .body("type", equalTo(service.getType().name()))
             .body("aliases", containsInAnyOrder("key1:value1", "key2:value2"));
@@ -114,13 +118,15 @@ public class ServiceInstanceControllerIT {
 
     @Test
     public void getServiceInstances_atLeastOneInstanceExists() {
-        ServiceInstanceModel service = ServiceInstanceModel.builder()
+        ServiceInstanceRegistrationRequestModel service = ServiceInstanceRegistrationRequestModel.builder()
             .name("test-beacon")
+            .url("http://beacon-test-random-url.someorg.com")
             .type(ServiceInstanceType.BEACON)
+            .email("beacon-admin@someorg.com")
             .description("description")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
-        nodeService.save(service);
+        nodeService.registerInstance(service);
 
         RestAssured.given()
             .accept(ContentType.JSON)
@@ -133,7 +139,9 @@ public class ServiceInstanceControllerIT {
             .statusCode(HttpStatus.OK.value())
             .body("content", hasSize(1))
             .body("content[0].id", notNullValue())
+            .body("content[0].url", equalTo(service.getUrl()))
             .body("content[0].name", equalTo(service.getName()))
+            .body("content[0].email", equalTo(service.getEmail()))
             .body("content[0].description", equalTo(service.getDescription()))
             .body("content[0].type", equalTo(service.getType().name()))
             .body("content[0].aliases", containsInAnyOrder("key1:value1", "key2:value2"));

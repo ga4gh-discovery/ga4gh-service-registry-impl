@@ -1,12 +1,12 @@
 package com.dnastack.discovery.registry.service;
 
 import static com.dnastack.discovery.registry.mapper.ServiceInstanceMapper.map;
-import static com.dnastack.discovery.registry.mapper.ServiceInstanceMapper.reverseMap;
 import static java.util.stream.Collectors.toList;
 
 import com.dnastack.discovery.registry.domain.ServiceInstance;
 import com.dnastack.discovery.registry.mapper.ServiceInstanceMapper;
-import com.dnastack.discovery.registry.domain.ServiceInstanceModel;
+import com.dnastack.discovery.registry.model.ServiceInstanceModel;
+import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.repository.ServiceInstanceRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -26,24 +26,30 @@ public class ServiceInstanceService {
         this.repository = repository;
     }
 
-    public ServiceInstanceModel save(ServiceInstanceModel model) {
-        model.setCreatedAt(ZonedDateTime.now());
-        return map(repository.save(reverseMap(model)));
+    public ServiceInstanceModel registerInstance(ServiceInstanceRegistrationRequestModel registrationModel) {
+        ServiceInstance serviceInstance = ServiceInstanceMapper.reverseMap(registrationModel);
+        serviceInstance.setCreatedAt(ZonedDateTime.now());
+
+        // TODO: add test suite to test service instance prior persisting
+        // TODO: async
+        // TODO: contact service instance's owner re success/failure
+
+        return map(repository.save(serviceInstance));
     }
 
-    public Page<ServiceInstanceModel> getNodes(Pageable pageable) {
+    public Page<ServiceInstanceModel> getInstances(Pageable pageable) {
         Page<ServiceInstance> page = repository.findAll(pageable);
-        return getNodes(pageable, page);
+        return getInstances(pageable, page);
     }
 
-    private Page<ServiceInstanceModel> getNodes(Pageable pageable, Page<ServiceInstance> page) {
+    private Page<ServiceInstanceModel> getInstances(Pageable pageable, Page<ServiceInstance> page) {
         List<ServiceInstanceModel> content = page.getContent().stream()
             .map(ServiceInstanceMapper::map)
             .collect(toList());
         return new PageImpl<>(content, pageable, page.getTotalElements());
     }
 
-    public ServiceInstanceModel getNodeById(String nodeId) {
+    public ServiceInstanceModel getInstanceById(String nodeId) {
         return repository.findById(nodeId)
             .map(ServiceInstanceMapper::map)
             .orElseThrow(ServiceInstanceNotFoundException::new);
