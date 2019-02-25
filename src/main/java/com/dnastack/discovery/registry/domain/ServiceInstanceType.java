@@ -1,6 +1,6 @@
 package com.dnastack.discovery.registry.domain;
 
-public enum ServiceType {
+public enum ServiceInstanceType {
 
     BEACON,
     DOS;

@@ -1,6 +1,6 @@
 package com.dnastack.discovery.registry.controller;
 
-import com.dnastack.discovery.registry.service.ServiceNodeService;
+import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import javax.inject.Inject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -13,23 +13,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/services")
-public class ServiceNodeController {
+public class ServiceInstanceController {
 
-    private ServiceNodeService serviceNodeService;
+    private ServiceInstanceService serviceNodeService;
 
     @Inject
-    public ServiceNodeController(ServiceNodeService serviceNodeService) {
+    public ServiceInstanceController(ServiceInstanceService serviceNodeService) {
         this.serviceNodeService = serviceNodeService;
     }
 
     @GetMapping(value = "/{serviceId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity getNodeById(@PathVariable("serviceId") String serviceId) {
+    public ResponseEntity getServiceInstanceById(@PathVariable("serviceId") String serviceId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(serviceNodeService.getNodeById(serviceId));
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity getNodes(Pageable pageable) {
+    public ResponseEntity getServiceInstances(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(serviceNodeService.getNodes(pageable));
     }

@@ -18,7 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceModel {
+public class ServiceInstanceModel {
 
     private String id;
     private String name;
@@ -27,7 +27,7 @@ public class ServiceModel {
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;
-    private ServiceType type;
+    private ServiceInstanceType type;
 
 }
 

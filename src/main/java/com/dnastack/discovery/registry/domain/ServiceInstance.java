@@ -28,7 +28,7 @@ import org.hibernate.annotations.GenericGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class ServiceEntity {
+public class ServiceInstance {
 
     private String id;
     private String name;
@@ -37,7 +37,7 @@ public class ServiceEntity {
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;
-    private ServiceType type;
+    private ServiceInstanceType type;
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -74,7 +74,7 @@ public class ServiceEntity {
     }
 
     @Enumerated(value = EnumType.STRING)
-    public ServiceType getType() {
+    public ServiceInstanceType getType() {
         return type;
     }
 

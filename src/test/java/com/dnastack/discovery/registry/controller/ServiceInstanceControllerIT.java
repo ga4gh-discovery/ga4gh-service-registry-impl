@@ -8,12 +8,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.dnastack.discovery.registry.TestApplication;
-import com.dnastack.discovery.registry.domain.ServiceModel;
-import com.dnastack.discovery.registry.domain.ServiceType;
-import com.dnastack.discovery.registry.service.ServiceNodeService;
+import com.dnastack.discovery.registry.domain.ServiceInstanceModel;
+import com.dnastack.discovery.registry.domain.ServiceInstanceType;
+import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 import javax.inject.Inject;
 import org.junit.Ignore;
@@ -32,17 +31,17 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(classes = TestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ServiceNodeControllerIT {
+public class ServiceInstanceControllerIT {
 
     @LocalServerPort
     private Integer port;
     @Inject
-    private ServiceNodeService nodeService;
+    private ServiceInstanceService nodeService;
 
     // TODO:
     @Ignore
     @Test
-    public void getServiceNodeById_identifierIsInvalidUUID() {
+    public void getServiceInstanceById_identifierIsInvalidUUID() {
         String invalidUUID = "abcdefgh-ijkl";
         RestAssured.given()
             .accept(ContentType.JSON)
@@ -57,11 +56,10 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodeById_nodeExistsWithId() {
-        ZonedDateTime now = ZonedDateTime.now();
-        ServiceModel service = ServiceModel.builder()
+    public void getServiceInstanceById_instanceExistsWithId() {
+        ServiceInstanceModel service = ServiceInstanceModel.builder()
             .name("test-beacon")
-            .type(ServiceType.BEACON)
+            .type(ServiceInstanceType.BEACON)
             .description("description")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
@@ -86,7 +84,7 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodeById_nodeNotExistsWithId() {
+    public void getServiceInstanceById_instanceNotExistsWithId() {
         RestAssured.given()
             .accept(ContentType.JSON)
             .log().method()
@@ -100,7 +98,7 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_noNodeExists() {
+    public void getServiceInstances_noInstanceExists() {
         RestAssured.given()
             .accept(ContentType.JSON)
             .log().method()
@@ -114,10 +112,10 @@ public class ServiceNodeControllerIT {
     }
 
     @Test
-    public void getServiceNodes_atLeastOneNodeExists() {
-        ServiceModel service = ServiceModel.builder()
+    public void getServiceInstances_atLeastOneInstanceExists() {
+        ServiceInstanceModel service = ServiceInstanceModel.builder()
             .name("test-beacon")
-            .type(ServiceType.BEACON)
+            .type(ServiceInstanceType.BEACON)
             .description("description")
             .aliases(asList("key1:value1", "key2:value2"))
             .build();
