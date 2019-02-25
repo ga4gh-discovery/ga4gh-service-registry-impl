@@ -8,8 +8,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.dnastack.discovery.registry.TestApplication;
-import com.dnastack.discovery.registry.domain.Health;
-import com.dnastack.discovery.registry.domain.HealthStatus;
 import com.dnastack.discovery.registry.domain.ServiceModel;
 import com.dnastack.discovery.registry.domain.ServiceType;
 import com.dnastack.discovery.registry.service.ServiceNodeService;
@@ -66,10 +64,6 @@ public class ServiceNodeControllerIT {
             .type(ServiceType.BEACON)
             .description("description")
             .aliases(asList("key1:value1", "key2:value2"))
-            .health(Health.builder()
-                .status(HealthStatus.UP)
-                .updatedAt(now)
-                .build())
             .build();
         String serviceId = nodeService.save(service).getId();
 
@@ -88,9 +82,7 @@ public class ServiceNodeControllerIT {
             .body("name", equalTo(service.getName()))
             .body("description", equalTo(service.getDescription()))
             .body("type", equalTo(service.getType().name()))
-            .body("aliases", containsInAnyOrder("key1:value1", "key2:value2"))
-            .body("health.status", equalTo(service.getHealth().getStatus().name()))
-            .body("health.updatedAt", notNullValue());
+            .body("aliases", containsInAnyOrder("key1:value1", "key2:value2"));
     }
 
     @Test

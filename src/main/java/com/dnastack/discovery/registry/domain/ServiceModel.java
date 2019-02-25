@@ -28,7 +28,6 @@ public class ServiceModel {
     private List<String> aliases;
     private Map<String, String> metadata;
     private ServiceType type;
-    private Health health;
 
 }
 

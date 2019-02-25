@@ -15,7 +15,6 @@ public class ServiceNodeMapper {
             .aliases(document.getAliases())
             .metadata(document.getMetadata())
             .type(document.getType())
-            .health(document.getHealth())
             .build();
     }
 
@@ -29,7 +28,6 @@ public class ServiceNodeMapper {
             .aliases(model.getAliases())
             .metadata(model.getMetadata())
             .type(model.getType())
-            .health(model.getHealth())
             .build();
     }
 

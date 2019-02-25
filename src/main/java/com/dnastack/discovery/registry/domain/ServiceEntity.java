@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -39,7 +38,6 @@ public class ServiceEntity {
     private List<String> aliases;
     private Map<String, String> metadata;
     private ServiceType type;
-    private Health health;
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -78,11 +76,6 @@ public class ServiceEntity {
     @Enumerated(value = EnumType.STRING)
     public ServiceType getType() {
         return type;
-    }
-
-    @Embedded
-    public Health getHealth() {
-        return health;
     }
 
 }
