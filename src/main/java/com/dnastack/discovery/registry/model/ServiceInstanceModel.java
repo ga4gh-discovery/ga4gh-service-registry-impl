@@ -1,5 +1,6 @@
-package com.dnastack.discovery.registry.domain;
+package com.dnastack.discovery.registry.model;
 
+import com.dnastack.discovery.registry.domain.ServiceInstanceType;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
@@ -18,17 +19,17 @@ import lombok.ToString;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServiceModel {
+public class ServiceInstanceModel {
 
     private String id;
     private String name;
     private String url;
+    private String email;
     private ZonedDateTime createdAt;
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;
-    private ServiceType type;
-    private Health health;
+    private ServiceInstanceType type;
 
 }
 

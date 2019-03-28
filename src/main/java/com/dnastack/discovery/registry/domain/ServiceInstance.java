@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -29,17 +28,17 @@ import org.hibernate.annotations.GenericGenerator;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class ServiceEntity {
+public class ServiceInstance {
 
     private String id;
     private String name;
     private String url;
+    private String email;
     private ZonedDateTime createdAt;
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;
-    private ServiceType type;
-    private Health health;
+    private ServiceInstanceType type;
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -54,6 +53,10 @@ public class ServiceEntity {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Convert(converter = ZonedDateTimeAttributeConverter.class)
@@ -76,13 +79,8 @@ public class ServiceEntity {
     }
 
     @Enumerated(value = EnumType.STRING)
-    public ServiceType getType() {
+    public ServiceInstanceType getType() {
         return type;
-    }
-
-    @Embedded
-    public Health getHealth() {
-        return health;
     }
 
 }
