@@ -1,15 +1,13 @@
 plugins {
-	id 'java'
-	id "org.springframework.boot" version "2.1.0.RELEASE"
-	id "io.spring.dependency-management" version "1.0.6.RELEASE"
-	id 'io.franzbecker.gradle-lombok' version '1.8'
-    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+	id "java"
+	id "org.springframework.boot" version "2.1.5.RELEASE"
+	id "io.spring.dependency-management" version "1.0.7.RELEASE"
 }
 
-group 'com.dnastack.discovery.registry'
+group "com.dnastack.discovery.registry"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11.0
+targetCompatibility = 11.0
 
 repositories {
 	mavenCentral()
@@ -17,50 +15,25 @@ repositories {
 
 ext {
 	injectVersion = "1"
-	restAssuredVersion = "3.1.1"
+	lombokVersion = "1.18.8"
+	restAssuredVersion = "4.0.0"
     embeddedMongoVersion = "2.1.1"
-    queryDslVersion = "4.2.1"
 }
 
 springBoot {
 	buildInfo()
 }
 
-lombok {
-	version = "1.18.4"
-	sha256 = ""
-}
-
-sourceSets {
-    main {
-        java {
-            srcDir "${buildDir}/generated-sources/querydsl"
-        }
-    }
-}
-
-querydsl {
-    querydslSourcesDir = "${buildDir}/generated-sources/querydsl"
-    library = "com.querydsl:querydsl-apt:${queryDslVersion}"
-    jpa = true
-}
-
-project.afterEvaluate {
-    project.tasks.compileQuerydsl.options.compilerArgs = [
-            "-proc:only",
-            "-processor", project.querydsl.processors() + ',lombok.launch.AnnotationProcessorHider$AnnotationProcessor'
-    ]
-}
-
 dependencies {
-	compile 'org.springframework.boot:spring-boot-starter'
-	compile 'org.springframework.boot:spring-boot-starter-web'
+	compile "org.springframework.boot:spring-boot-starter"
+	compile "org.springframework.boot:spring-boot-starter-web"
 	compile "org.springframework.boot:spring-boot-starter-actuator"
 	compile "org.springframework.boot:spring-boot-starter-json"
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
 
 	compile "javax.inject:javax.inject:${injectVersion}"
-    compile "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     compile "com.h2database:h2"
 
     testCompile "org.springframework.boot:spring-boot-starter-test"
@@ -68,23 +41,24 @@ dependencies {
     testCompile "com.h2database:h2"
 	testCompile "io.rest-assured:rest-assured:${restAssuredVersion}"
 	testCompile "io.rest-assured:json-path:${restAssuredVersion}"
+	testCompile "io.rest-assured:xml-path:${restAssuredVersion}"
 }
 
 test {
 	useJUnit {
-		exclude '**/*IT.class'
+		exclude "**/*IT.class"
 	}
 }
 
-task unitTest(type: Test, description: 'Runs the unit tests.', group: 'Verification') {
+task unitTest(type: Test, description: "Runs the unit tests.", group: "Verification") {
 	useJUnit{
-		include '**/*Test.class'
+		include "**/*Test.class"
 	}
 }
 
-task integrationTest(type: Test, description: 'Runs the integration tests', group: 'Verification') {
+task integrationTest(type: Test, description: "Runs the integration tests", group: "Verification") {
 	useJUnit{
-		include '**/*IT.class'
+		include "**/*IT.class"
 	}
 	ignoreFailures true
 }
