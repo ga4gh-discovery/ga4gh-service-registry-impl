@@ -24,8 +24,9 @@ public class ServiceInstanceModel {
     private String id;
     private String name;
     private String url;
-    private String email;
+    private String contactUrl;
     private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;

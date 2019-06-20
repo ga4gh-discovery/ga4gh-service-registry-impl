@@ -5,14 +5,8 @@ import com.dnastack.discovery.registry.domain.converter.ZonedDateTimeAttributeCo
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -35,6 +29,7 @@ public class ServiceInstance {
     private String url;
     private String contactUrl;
     private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
     private String description;
     private List<String> aliases;
     private Map<String, String> metadata;
@@ -64,6 +59,12 @@ public class ServiceInstance {
         return createdAt;
     }
 
+    @Convert(converter = ZonedDateTimeAttributeConverter.class)
+    public ZonedDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    @Lob
     public String getDescription() {
         return description;
     }

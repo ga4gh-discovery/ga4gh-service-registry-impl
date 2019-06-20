@@ -17,7 +17,6 @@ ext {
 	injectVersion = "1"
 	lombokVersion = "1.18.8"
 	restAssuredVersion = "4.0.0"
-    embeddedMongoVersion = "2.1.1"
 }
 
 springBoot {
@@ -29,7 +28,8 @@ dependencies {
 	compile "org.springframework.boot:spring-boot-starter-web"
 	compile "org.springframework.boot:spring-boot-starter-actuator"
 	compile "org.springframework.boot:spring-boot-starter-json"
-    compile "org.springframework.boot:spring-boot-starter-data-jpa"
+	compile "org.springframework.boot:spring-boot-starter-data-jpa"
+	compile "org.springframework.boot:spring-boot-starter-security"
 
 	compile "javax.inject:javax.inject:${injectVersion}"
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"

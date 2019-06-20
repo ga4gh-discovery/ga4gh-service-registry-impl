@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
+import com.dnastack.discovery.registry.service.ServiceInstanceExistsException;
 import com.dnastack.discovery.registry.service.ServiceInstanceNotFoundException;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -28,6 +29,8 @@ public class RestControllerExceptionHandler {
             responseStatus = HttpStatus.BAD_REQUEST;
         } else if (ex instanceof ServiceInstanceNotFoundException) {
             responseStatus = HttpStatus.NOT_FOUND;
+        } else if (ex instanceof ServiceInstanceExistsException) {
+            responseStatus = HttpStatus.CONFLICT;
         } else {
             log.error("Unmapped exception", ex);
             responseStatus = HttpStatus.INTERNAL_SERVER_ERROR;

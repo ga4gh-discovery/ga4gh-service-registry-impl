@@ -4,12 +4,15 @@ import static com.dnastack.discovery.registry.mapper.ServiceInstanceMapper.map;
 import static java.util.stream.Collectors.toList;
 
 import com.dnastack.discovery.registry.domain.ServiceInstance;
+import com.dnastack.discovery.registry.domain.ServiceInstanceType;
 import com.dnastack.discovery.registry.mapper.ServiceInstanceMapper;
+import com.dnastack.discovery.registry.model.PaginatedServiceInstanceModel;
 import com.dnastack.discovery.registry.model.ServiceInstanceModel;
 import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.repository.ServiceInstanceRepository;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,34 +33,44 @@ public class ServiceInstanceService {
         ServiceInstance serviceInstance = ServiceInstanceMapper.reverseMap(registrationModel);
         serviceInstance.setCreatedAt(ZonedDateTime.now());
 
-        // TODO: add test suite to test service instance prior persisting
-        // TODO: async
-        // TODO: contact service instance's owner re success/failure
+        Optional<ServiceInstanceModel> existingInstance = getInstanceByNameAndType(serviceInstance.getName(), serviceInstance.getType());
+        if (existingInstance.isPresent()) {
+            throw new ServiceInstanceExistsException("Service instance (ID " + existingInstance.get().getId() + ") with given name and type already exists");
+        }
 
         return map(repository.save(serviceInstance));
     }
 
-    public void deregisterInstanceById(String nodeId) {
-        // TODO: this should deregister..
-        repository.deleteById(nodeId);
+    public ServiceInstanceModel replaceInstance(String id, ServiceInstanceModel patch) {
+        ServiceInstanceModel existingInstance = getInstanceById(id);
+        patch.setId(id);
+        patch.setCreatedAt(existingInstance.getCreatedAt());
+        patch.setUpdatedAt(ZonedDateTime.now());
+        return ServiceInstanceMapper.map(repository.save(ServiceInstanceMapper.reverseMap(patch)));
     }
 
-    public Page<ServiceInstanceModel> getInstances(Pageable pageable) {
-        Page<ServiceInstance> page = repository.findAll(pageable);
-        return getInstances(pageable, page);
+    public void deregisterInstanceById(String id) {
+        repository.deleteById(id);
     }
 
-    private Page<ServiceInstanceModel> getInstances(Pageable pageable, Page<ServiceInstance> page) {
-        List<ServiceInstanceModel> content = page.getContent().stream()
-            .map(ServiceInstanceMapper::map)
-            .collect(toList());
-        return new PageImpl<>(content, pageable, page.getTotalElements());
+    public PaginatedServiceInstanceModel getInstances(String page, Integer limit) {
+        List<ServiceInstanceModel> content = repository.findAll().stream()
+                .map(ServiceInstanceMapper::map)
+                .collect(toList());
+        return PaginatedServiceInstanceModel.builder()
+                .content(content)
+                .build();
     }
 
-    public ServiceInstanceModel getInstanceById(String nodeId) {
-        return repository.findById(nodeId)
-            .map(ServiceInstanceMapper::map)
-            .orElseThrow(ServiceInstanceNotFoundException::new);
+    public ServiceInstanceModel getInstanceById(String id) {
+        return repository.findOneById(id)
+                .map(ServiceInstanceMapper::map)
+                .orElseThrow(ServiceInstanceNotFoundException::new);
+    }
+
+    public Optional<ServiceInstanceModel> getInstanceByNameAndType(String name, ServiceInstanceType type) {
+        return repository.findOneByNameAndType(name, type)
+                .map(ServiceInstanceMapper::map);
     }
 
 }

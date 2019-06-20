@@ -4,7 +4,7 @@ server:
 spring:
   output:
     ansi:
-      enabled: always
+      enabled: detect
   http:
     converters:
       preferred-json-mapper: jackson
@@ -13,6 +13,10 @@ spring:
     time-zone: UTC
   jpa:
     open-in-view: false
+  security:
+    user:
+      name: dev
+      password: dev
 
 management:
   endpoints:

@@ -22,7 +22,7 @@ public class ServiceInstanceRegistrationRequestModel {
 
     private String url;
     private ServiceInstanceType type;
-    private String email;
+    private String contactUrl;
     private String name;
     private String description;
     private List<String> aliases;
