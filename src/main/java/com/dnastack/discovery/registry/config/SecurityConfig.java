@@ -22,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/actuator/health").permitAll()
+                .antMatchers("/actuator/health", "/service-info").permitAll()
                 .antMatchers("/**").authenticated();
     }
 
