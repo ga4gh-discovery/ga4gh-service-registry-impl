@@ -2,18 +2,12 @@ package com.dnastack.discovery.registry.domain;
 
 
 import com.dnastack.discovery.registry.domain.converter.ZonedDateTimeAttributeConverter;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import javax.persistence.*;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.time.ZonedDateTime;
+import java.util.Map;
 
 @Setter
 @Builder
@@ -31,9 +25,8 @@ public class ServiceInstance {
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
     private String description;
-    private List<String> aliases;
-    private Map<String, String> metadata;
-    private ServiceInstanceType type;
+    private Map<String, String> extension;
+    private String type;
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -70,17 +63,11 @@ public class ServiceInstance {
     }
 
     @ElementCollection(fetch = FetchType.EAGER)
-    public List<String> getAliases() {
-        return aliases;
+    public Map<String, String> getExtension() {
+        return extension;
     }
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    public Map<String, String> getMetadata() {
-        return metadata;
-    }
-
-    @Enumerated(value = EnumType.STRING)
-    public ServiceInstanceType getType() {
+    public String getType() {
         return type;
     }
 

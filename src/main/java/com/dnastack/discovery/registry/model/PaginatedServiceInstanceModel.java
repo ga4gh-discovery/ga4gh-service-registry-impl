@@ -14,6 +14,6 @@ import java.util.List;
 public class PaginatedServiceInstanceModel {
 
     private List<ServiceInstanceModel> content;
-    private MetadataModel metadata;
+    private PaginationModel pagination;
 
 }

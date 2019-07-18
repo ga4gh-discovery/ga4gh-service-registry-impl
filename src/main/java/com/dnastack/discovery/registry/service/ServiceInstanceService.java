@@ -1,25 +1,24 @@
 package com.dnastack.discovery.registry.service;
 
-import static com.dnastack.discovery.registry.mapper.ServiceInstanceMapper.map;
-import static java.util.stream.Collectors.toList;
-
 import com.dnastack.discovery.registry.domain.ServiceInstance;
-import com.dnastack.discovery.registry.domain.ServiceInstanceType;
 import com.dnastack.discovery.registry.mapper.ServiceInstanceMapper;
 import com.dnastack.discovery.registry.model.PaginatedServiceInstanceModel;
 import com.dnastack.discovery.registry.model.ServiceInstanceModel;
 import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.repository.ServiceInstanceRepository;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+
+import static com.dnastack.discovery.registry.mapper.ServiceInstanceMapper.map;
+import static java.util.stream.Collectors.toList;
 
 @Service
+@Transactional
 public class ServiceInstanceService {
 
     private ServiceInstanceRepository repository;
@@ -53,7 +52,7 @@ public class ServiceInstanceService {
         repository.deleteById(id);
     }
 
-    public PaginatedServiceInstanceModel getInstances(String page, Integer limit) {
+    public PaginatedServiceInstanceModel getInstances(String page) {
         List<ServiceInstanceModel> content = repository.findAll().stream()
                 .map(ServiceInstanceMapper::map)
                 .collect(toList());
@@ -68,9 +67,14 @@ public class ServiceInstanceService {
                 .orElseThrow(ServiceInstanceNotFoundException::new);
     }
 
-    public Optional<ServiceInstanceModel> getInstanceByNameAndType(String name, ServiceInstanceType type) {
+    public Optional<ServiceInstanceModel> getInstanceByNameAndType(String name, String type) {
         return repository.findOneByNameAndType(name, type)
                 .map(ServiceInstanceMapper::map);
+    }
+
+    public List<String> getTypes() {
+        return repository.findAllDistinctTypes()
+                .collect(toList());
     }
 
 }

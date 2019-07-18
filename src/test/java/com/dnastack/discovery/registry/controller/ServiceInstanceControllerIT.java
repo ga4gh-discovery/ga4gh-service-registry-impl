@@ -1,22 +1,10 @@
 package com.dnastack.discovery.registry.controller;
 
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
-
 import com.dnastack.discovery.registry.TestApplication;
-import com.dnastack.discovery.registry.domain.ServiceInstanceType;
 import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import java.util.UUID;
-import javax.inject.Inject;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.inject.Inject;
+import java.util.UUID;
+
+import static org.hamcrest.Matchers.*;
 
 @SuppressWarnings("Duplicates")
 @ActiveProfiles("test")
@@ -44,10 +37,9 @@ public class ServiceInstanceControllerIT {
         ServiceInstanceRegistrationRequestModel service = ServiceInstanceRegistrationRequestModel.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
-                .type(ServiceInstanceType.BEACON)
+                .type("urn:ga4gh:beacon")
                 .contactUrl("beacon-admin@someorg.com")
                 .description("description")
-                .aliases(asList("key1:value1", "key2:value2"))
                 .build();
         String serviceId = nodeService.registerInstance(service).getId();
 
@@ -56,7 +48,6 @@ public class ServiceInstanceControllerIT {
                 .log().method()
                 .log().uri()
                 .pathParam("serviceId", serviceId)
-                .auth().basic("dev", "dev")
                 .get("http://localhost:" + port + "/services/{serviceId}")
                 .then()
                 .log().ifValidationFails()
@@ -68,8 +59,7 @@ public class ServiceInstanceControllerIT {
                 .body("name", equalTo(service.getName()))
                 .body("contactUrl", equalTo(service.getContactUrl()))
                 .body("description", equalTo(service.getDescription()))
-                .body("type", equalTo(service.getType().name()))
-                .body("aliases", containsInAnyOrder("key1:value1", "key2:value2"));
+                .body("type", equalTo(service.getType()));
     }
 
     @Test
@@ -79,7 +69,6 @@ public class ServiceInstanceControllerIT {
                 .log().method()
                 .log().uri()
                 .pathParam("serviceId", UUID.randomUUID().toString())
-                .auth().basic("dev", "dev")
                 .get("http://localhost:" + port + "/services/{serviceId}")
                 .then()
                 .log().ifValidationFails()
@@ -93,7 +82,6 @@ public class ServiceInstanceControllerIT {
                 .accept(ContentType.JSON)
                 .log().method()
                 .log().uri()
-                .auth().basic("dev", "dev")
                 .get("http://localhost:" + port + "/services")
                 .then()
                 .log().ifValidationFails()
@@ -107,10 +95,9 @@ public class ServiceInstanceControllerIT {
         ServiceInstanceRegistrationRequestModel service = ServiceInstanceRegistrationRequestModel.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
-                .type(ServiceInstanceType.BEACON)
+                .type("urn:ga4gh:beacon")
                 .contactUrl("beacon-admin@someorg.com")
                 .description("description")
-                .aliases(asList("key1:value1", "key2:value2"))
                 .build();
         nodeService.registerInstance(service);
 
@@ -118,7 +105,6 @@ public class ServiceInstanceControllerIT {
                 .accept(ContentType.JSON)
                 .log().method()
                 .log().uri()
-                .auth().basic("dev", "dev")
                 .get("http://localhost:" + port + "/services")
                 .then()
                 .log().everything()
@@ -130,27 +116,61 @@ public class ServiceInstanceControllerIT {
                 .body("content[0].name", equalTo(service.getName()))
                 .body("content[0].contactUrl", equalTo(service.getContactUrl()))
                 .body("content[0].description", equalTo(service.getDescription()))
-                .body("content[0].type", equalTo(service.getType().name()))
-                .body("content[0].aliases", containsInAnyOrder("key1:value1", "key2:value2"));
+                .body("content[0].type", equalTo(service.getType()));
     }
 
     @Test
     public void getServiceInstanceTypes() {
+        nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
+                .name("test-beacon")
+                .url("http://beacon-test-random-url.someorg.com")
+                .type("urn:ga4gh:beacon")
+                .contactUrl("beacon-admin@someorg.com")
+                .description("description")
+                .build());
+        nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
+                .name("test-beacon")
+                .url("http://beacon-test-random-url.someorg.com")
+                .type("urn:ga4gh:beacon-aggregator")
+                .contactUrl("beacon-admin@someorg.com")
+                .description("description")
+                .build());
+        nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
+                .name("test-beacon")
+                .url("http://beacon-test-random-url.someorg.com")
+                .type("urn:ga4gh:user-portal")
+                .contactUrl("beacon-admin@someorg.com")
+                .description("description")
+                .build());
+
         RestAssured.given()
                 .accept(ContentType.JSON)
                 .log().method()
                 .log().uri()
-                .auth().basic("dev", "dev")
                 .get("http://localhost:" + port + "/services/types")
                 .then()
                 .log().ifValidationFails()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .body(".", contains(
-                        ServiceInstanceType.BEACON.name(),
-                        ServiceInstanceType.SEARCH_ADAPTER.name(),
-                        ServiceInstanceType.DOS.name()
+                        "urn:ga4gh:beacon",
+                        "urn:ga4gh:beacon-aggregator",
+                        "urn:ga4gh:user-portal"
                 ));
+    }
+
+    @Test
+    public void getServiceInstanceTypes_empty() {
+        RestAssured.given()
+                .accept(ContentType.JSON)
+                .log().method()
+                .log().uri()
+                .get("http://localhost:" + port + "/services/types")
+                .then()
+                .log().ifValidationFails()
+                .assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .body(".", empty());
     }
 
     @Test
@@ -158,10 +178,9 @@ public class ServiceInstanceControllerIT {
         ServiceInstanceRegistrationRequestModel service = ServiceInstanceRegistrationRequestModel.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
-                .type(ServiceInstanceType.BEACON)
+                .type("urn:ga4gh:beacon")
                 .contactUrl("beacon-admin@someorg.com")
                 .description("description")
-                .aliases(asList("key1:value1", "key2:value2"))
                 .build();
         String serviceId = nodeService.registerInstance(service).getId();
 
@@ -183,19 +202,17 @@ public class ServiceInstanceControllerIT {
         ServiceInstanceRegistrationRequestModel service1 = ServiceInstanceRegistrationRequestModel.builder()
                 .name("test-beacon-1")
                 .url("http://beacon-test-random-url1.someorg.com")
-                .type(ServiceInstanceType.BEACON)
+                .type("urn:ga4gh:beacon")
                 .contactUrl("beacon-admin@someorg.com")
                 .description("description1")
-                .aliases(asList("key1:value1"))
                 .build();
         String service1Id = nodeService.registerInstance(service1).getId();
         ServiceInstanceRegistrationRequestModel service2 = ServiceInstanceRegistrationRequestModel.builder()
                 .name("test-beacon-2")
                 .url("http://beacon-test-random-url2.someorg.com")
-                .type(ServiceInstanceType.BEACON)
+                .type("urn:ga4gh:beacon")
                 .contactUrl("beacon-admin@someorg.com")
                 .description("description2")
-                .aliases(asList("key2:value2"))
                 .build();
         nodeService.registerInstance(service2).getId();
 
@@ -217,7 +234,6 @@ public class ServiceInstanceControllerIT {
                 .accept(ContentType.JSON)
                 .log().method()
                 .log().uri()
-                .auth().basic("dev", "dev")
                 .get("http://localhost:" + port + "/services")
                 .then()
                 .log().everything()
@@ -229,8 +245,7 @@ public class ServiceInstanceControllerIT {
                 .body("content[0].name", equalTo(service2.getName()))
                 .body("content[0].contactUrl", equalTo(service2.getContactUrl()))
                 .body("content[0].description", equalTo(service2.getDescription()))
-                .body("content[0].type", equalTo(service2.getType().name()))
-                .body("content[0].aliases", containsInAnyOrder("key2:value2"));
+                .body("content[0].type", equalTo(service2.getType()));
     }
 
 }

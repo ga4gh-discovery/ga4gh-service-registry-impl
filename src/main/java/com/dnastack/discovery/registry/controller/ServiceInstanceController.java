@@ -1,17 +1,14 @@
 package com.dnastack.discovery.registry.controller;
 
-import com.dnastack.discovery.registry.domain.ServiceInstanceType;
 import com.dnastack.discovery.registry.model.ServiceInstanceModel;
 import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.service.ServiceInstanceService;
-import javax.inject.Inject;
-import javax.websocket.server.PathParam;
-
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.inject.Inject;
 
 @RestController
 @RequestMapping(value = "/services")
@@ -50,16 +47,15 @@ public class ServiceInstanceController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity getServiceInstances(@RequestParam(value = "page", required = false) String page,
-                                              @RequestParam(value = "limit", required = false) Integer limit) {
+    public ResponseEntity getServiceInstances(@RequestParam(value = "page", required = false) String page) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(service.getInstances(page, limit));
+                .body(service.getInstances(page));
     }
 
     @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity getServiceInstanceTypes() {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ServiceInstanceType.values());
+                .body(service.getTypes());
     }
 
 }

@@ -15,8 +15,7 @@ public class ServiceInstanceMapper {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .description(entity.getDescription())
-                .aliases(entity.getAliases())
-                .metadata(entity.getMetadata())
+                .extension(entity.getExtension())
                 .type(entity.getType())
                 .build();
     }
@@ -30,8 +29,7 @@ public class ServiceInstanceMapper {
                 .createdAt(model.getCreatedAt())
                 .updatedAt(model.getUpdatedAt())
                 .description(model.getDescription())
-                .aliases(model.getAliases())
-                .metadata(model.getMetadata())
+                .extension(model.getExtension())
                 .type(model.getType())
                 .build();
     }
@@ -42,8 +40,7 @@ public class ServiceInstanceMapper {
                 .url(model.getUrl())
                 .contactUrl(model.getContactUrl())
                 .description(model.getDescription())
-                .aliases(model.getAliases())
-                .metadata(model.getMetadata())
+                .extension(model.getExtension())
                 .type(model.getType())
                 .build();
     }

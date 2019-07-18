@@ -30,9 +30,9 @@ app:
   service-info:
     id: "org.ga4gh.serviceregistry"
     name: "GA4GH Service Registry Reference Implementation"
-    type: "urn:ga4gh:serviceregistry"
+    type: "urn:ga4gh:registry"
     organization: "GA4GH"
     description: "Reference implementation of GA4GH Service Registry"
     documentation-url: "https://github.com/ga4gh-discovery/ga4gh-service-registry"
-    contact-url:
+    contact-url: "mailto:support@example.com"
     version: 1.0

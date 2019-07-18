@@ -9,7 +9,7 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class MetadataModel {
+public class PaginationModel {
 
     private String nextPage;
     private String previousPage;
