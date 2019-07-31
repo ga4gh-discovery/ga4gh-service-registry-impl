@@ -30,7 +30,9 @@ public class ServiceInstanceService {
 
     public ServiceInstanceModel registerInstance(ServiceInstanceRegistrationRequestModel registrationModel) {
         ServiceInstance serviceInstance = ServiceInstanceMapper.reverseMap(registrationModel);
-        serviceInstance.setCreatedAt(ZonedDateTime.now());
+        ZonedDateTime now = ZonedDateTime.now();
+        serviceInstance.setCreatedAt(now);
+        serviceInstance.setUpdatedAt(now);
 
         Optional<ServiceInstanceModel> existingInstance = getInstanceByNameAndType(serviceInstance.getName(), serviceInstance.getType());
         if (existingInstance.isPresent()) {

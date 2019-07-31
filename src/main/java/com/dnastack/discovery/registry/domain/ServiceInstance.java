@@ -21,12 +21,16 @@ public class ServiceInstance {
     private String id;
     private String name;
     private String url;
-    private String contactUrl;
+    private String type;
+    private String organization;
+    private String version;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
     private String description;
+    private String documentationUrl;
+    private String contactUrl;
+    private Maturity maturity;
     private Map<String, String> extension;
-    private String type;
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -43,8 +47,16 @@ public class ServiceInstance {
         return url;
     }
 
-    public String getContactUrl() {
-        return contactUrl;
+    public String getType() {
+        return type;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     @Convert(converter = ZonedDateTimeAttributeConverter.class)
@@ -57,18 +69,27 @@ public class ServiceInstance {
         return updatedAt;
     }
 
+    public String getDocumentationUrl() {
+        return documentationUrl;
+    }
+
+    public String getContactUrl() {
+        return contactUrl;
+    }
+
     @Lob
     public String getDescription() {
         return description;
     }
 
+    @Enumerated(EnumType.STRING)
+    public Maturity getMaturity() {
+        return maturity;
+    }
+
     @ElementCollection(fetch = FetchType.EAGER)
     public Map<String, String> getExtension() {
         return extension;
-    }
-
-    public String getType() {
-        return type;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.dnastack.discovery.registry.config;
 
+import com.dnastack.discovery.registry.domain.Maturity;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -15,9 +16,11 @@ public class ServiceInfo {
     private String name;
     private String type;
     private String organization;
+    private String version;
     private String description;
     private String documentationUrl;
     private String contactUrl;
-    private String version;
+    private Maturity maturity;
+    private Object extension;
 
 }

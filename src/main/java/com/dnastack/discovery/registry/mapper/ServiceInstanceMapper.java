@@ -17,6 +17,10 @@ public class ServiceInstanceMapper {
                 .description(entity.getDescription())
                 .extension(entity.getExtension())
                 .type(entity.getType())
+                .version(entity.getVersion())
+                .organization(entity.getOrganization())
+                .documentationUrl(entity.getDocumentationUrl())
+                .maturity(entity.getMaturity())
                 .build();
     }
 
@@ -31,6 +35,10 @@ public class ServiceInstanceMapper {
                 .description(model.getDescription())
                 .extension(model.getExtension())
                 .type(model.getType())
+                .version(model.getVersion())
+                .organization(model.getOrganization())
+                .documentationUrl(model.getDocumentationUrl())
+                .maturity(model.getMaturity())
                 .build();
     }
 
@@ -42,6 +50,10 @@ public class ServiceInstanceMapper {
                 .description(model.getDescription())
                 .extension(model.getExtension())
                 .type(model.getType())
+                .version(model.getVersion())
+                .organization(model.getOrganization())
+                .documentationUrl(model.getDocumentationUrl())
+                .maturity(model.getMaturity())
                 .build();
     }
 

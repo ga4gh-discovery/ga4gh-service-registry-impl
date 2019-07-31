@@ -17,6 +17,7 @@ ext {
 	injectVersion = "1"
 	lombokVersion = "1.18.8"
 	restAssuredVersion = "4.0.0"
+	swaggerValidator = "2.4.1"
 }
 
 springBoot {
@@ -42,6 +43,8 @@ dependencies {
 	testCompile "io.rest-assured:rest-assured:${restAssuredVersion}"
 	testCompile "io.rest-assured:json-path:${restAssuredVersion}"
 	testCompile "io.rest-assured:xml-path:${restAssuredVersion}"
+	testCompile "com.atlassian.oai:swagger-request-validator-core:${swaggerValidator}"
+	testCompile "com.atlassian.oai:swagger-request-validator-restassured:${swaggerValidator}"
 }
 
 test {
