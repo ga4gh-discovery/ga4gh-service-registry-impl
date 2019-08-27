@@ -2,24 +2,12 @@ package com.dnastack.discovery.registry.domain;
 
 
 import com.dnastack.discovery.registry.domain.converter.ZonedDateTimeAttributeConverter;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.time.ZonedDateTime;
+import java.util.Map;
 
 @Setter
 @Builder
@@ -33,12 +21,16 @@ public class ServiceInstance {
     private String id;
     private String name;
     private String url;
-    private String email;
+    private String type;
+    private String organization;
+    private String version;
     private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
     private String description;
-    private List<String> aliases;
-    private Map<String, String> metadata;
-    private ServiceInstanceType type;
+    private String documentationUrl;
+    private String contactUrl;
+    private Maturity maturity;
+    private Map<String, String> extension;
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -55,8 +47,16 @@ public class ServiceInstance {
         return url;
     }
 
-    public String getEmail() {
-        return email;
+    public String getType() {
+        return type;
+    }
+
+    public String getOrganization() {
+        return organization;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     @Convert(converter = ZonedDateTimeAttributeConverter.class)
@@ -64,23 +64,32 @@ public class ServiceInstance {
         return createdAt;
     }
 
+    @Convert(converter = ZonedDateTimeAttributeConverter.class)
+    public ZonedDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public String getDocumentationUrl() {
+        return documentationUrl;
+    }
+
+    public String getContactUrl() {
+        return contactUrl;
+    }
+
+    @Lob
     public String getDescription() {
         return description;
     }
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    public List<String> getAliases() {
-        return aliases;
+    @Enumerated(EnumType.STRING)
+    public Maturity getMaturity() {
+        return maturity;
     }
 
     @ElementCollection(fetch = FetchType.EAGER)
-    public Map<String, String> getMetadata() {
-        return metadata;
-    }
-
-    @Enumerated(value = EnumType.STRING)
-    public ServiceInstanceType getType() {
-        return type;
+    public Map<String, String> getExtension() {
+        return extension;
     }
 
 }

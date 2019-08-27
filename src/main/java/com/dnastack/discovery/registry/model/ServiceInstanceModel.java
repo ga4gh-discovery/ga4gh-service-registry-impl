@@ -1,16 +1,10 @@
 package com.dnastack.discovery.registry.model;
 
-import com.dnastack.discovery.registry.domain.ServiceInstanceType;
+import com.dnastack.discovery.registry.domain.Maturity;
+import lombok.*;
+
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Map;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 @Setter
 @Getter
@@ -24,12 +18,16 @@ public class ServiceInstanceModel {
     private String id;
     private String name;
     private String url;
-    private String email;
+    private String type;
+    private String organization;
+    private String version;
     private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
     private String description;
-    private List<String> aliases;
-    private Map<String, String> metadata;
-    private ServiceInstanceType type;
+    private String documentationUrl;
+    private String contactUrl;
+    private Maturity maturity;
+    private Map<String, String> extension;
 
 }
 
