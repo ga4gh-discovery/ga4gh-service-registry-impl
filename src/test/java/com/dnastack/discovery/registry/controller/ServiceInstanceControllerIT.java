@@ -2,7 +2,8 @@ package com.dnastack.discovery.registry.controller;
 
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.dnastack.discovery.registry.TestApplication;
-import com.dnastack.discovery.registry.domain.Maturity;
+import com.dnastack.discovery.registry.domain.Environment;
+import com.dnastack.discovery.registry.model.OrganizationModel;
 import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import io.restassured.RestAssured;
@@ -55,20 +56,23 @@ public class ServiceInstanceControllerIT {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization("MyOrg")
-                .maturity(Maturity.TEST)
+                .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
+                .environment(Environment.TEST)
                 .build();
         String serviceId = nodeService.registerInstance(service).getId();
 
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .pathParam("serviceId", serviceId)
                 .get("http://localhost:" + port + "/services/{serviceId}")
                 .then()
-                .log().ifValidationFails()
+                .log()
+                .ifValidationFails()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
@@ -76,8 +80,9 @@ public class ServiceInstanceControllerIT {
                 .body("type", equalTo(service.getType()))
                 .body("url", equalTo(service.getUrl()))
                 .body("name", equalTo(service.getName()))
-                .body("organization", equalTo(service.getOrganization()))
-                .body("maturity", equalTo(service.getMaturity().name()))
+                .body("organization.name", equalTo(service.getOrganization().getName()))
+                .body("organization.url", equalTo(service.getOrganization().getUrl()))
+                .body("environment", equalTo(service.getEnvironment().toString()))
                 .body("createdAt", notNullValue())
                 .body("updatedAt", notNullValue())
                 .body("contactUrl", equalTo(service.getContactUrl()))
@@ -89,12 +94,15 @@ public class ServiceInstanceControllerIT {
     public void getServiceInstanceById_instanceNotExistsWithId() {
         RestAssured.given()
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .pathParam("serviceId", UUID.randomUUID().toString())
                 .get("http://localhost:" + port + "/services/{serviceId}")
                 .then()
-                .log().ifValidationFails()
+                .log()
+                .ifValidationFails()
                 .assertThat()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
@@ -104,14 +112,17 @@ public class ServiceInstanceControllerIT {
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .get("http://localhost:" + port + "/services")
                 .then()
-                .log().ifValidationFails()
+                .log()
+                .ifValidationFails()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .body("content", empty());
+                .body("", empty());
     }
 
     @Test
@@ -124,87 +135,101 @@ public class ServiceInstanceControllerIT {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization("MyOrg")
-                .maturity(Maturity.TEST)
+                .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
+                .environment(Environment.TEST)
                 .build();
         nodeService.registerInstance(service);
 
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .get("http://localhost:" + port + "/services")
                 .then()
-                .log().everything()
+                .log()
+                .everything()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .body("content", hasSize(1))
-                .body("content[0].id", notNullValue())
-                .body("content[0].version", equalTo(service.getVersion()))
-                .body("content[0].type", equalTo(service.getType()))
-                .body("content[0].url", equalTo(service.getUrl()))
-                .body("content[0].name", equalTo(service.getName()))
-                .body("content[0].organization", equalTo(service.getOrganization()))
-                .body("content[0].maturity", equalTo(service.getMaturity().name()))
-                .body("content[0].createdAt", notNullValue())
-                .body("content[0].updatedAt", notNullValue())
-                .body("content[0].contactUrl", equalTo(service.getContactUrl()))
-                .body("content[0].documentationUrl", equalTo(service.getDocumentationUrl()))
-                .body("content[0].description", equalTo(service.getDescription()));
+                .body("[0].id", notNullValue())
+                .body("[0].version", equalTo(service.getVersion()))
+                .body("[0].type", equalTo(service.getType()))
+                .body("[0].url", equalTo(service.getUrl()))
+                .body("[0].name", equalTo(service.getName()))
+                .body("[0].organization.name", equalTo(service.getOrganization().getName()))
+                .body("[0].organization.url", equalTo(service.getOrganization().getUrl()))
+                .body("[0].environment", equalTo(service.getEnvironment().toString()))
+                .body("[0].createdAt", notNullValue())
+                .body("[0].updatedAt", notNullValue())
+                .body("[0].contactUrl", equalTo(service.getContactUrl()))
+                .body("[0].documentationUrl", equalTo(service.getDocumentationUrl()))
+                .body("[0].description", equalTo(service.getDescription()));
     }
 
     @Test
     public void getServiceInstanceTypes() {
         nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
-                .name("test-beacon-aggregator")
-                .url("http://beacon-aggregator-test-url.someorg.com")
-                .type("org.ga4gh:beacon-aggregator:1.0.0")
-                .contactUrl("beacon-admin@someorg.com")
-                .description("description")
-                .documentationUrl("http://beacon-test-random-url.someorg.com")
-                .version("1.0.0")
-                .organization("MyOrg")
-                .maturity(Maturity.TEST)
-                .build());
+                                             .name("test-beacon-aggregator")
+                                             .url("http://beacon-aggregator-test-url.someorg.com")
+                                             .type("org.ga4gh:beacon-aggregator:1.0.0")
+                                             .contactUrl("beacon-admin@someorg.com")
+                                             .description("description")
+                                             .documentationUrl("http://beacon-test-random-url.someorg.com")
+                                             .version("1.0.0")
+                                             .organization(OrganizationModel.builder()
+                                                                   .name("MyOrg")
+                                                                   .url("http://example.com")
+                                                                   .build())
+                                             .environment(Environment.TEST)
+                                             .build());
         nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
-                .name("test-beacon")
-                .url("http://beacon-test-url.someorg.com")
-                .type("org.ga4gh:beacon:1.0.1")
-                .contactUrl("beacon-admin@someorg.com")
-                .description("description")
-                .documentationUrl("http://beacon-test-random-url.someorg.com")
-                .version("1.0.1")
-                .organization("MyOrg")
-                .maturity(Maturity.TEST)
-                .build());
+                                             .name("test-beacon")
+                                             .url("http://beacon-test-url.someorg.com")
+                                             .type("org.ga4gh:beacon:1.0.1")
+                                             .contactUrl("beacon-admin@someorg.com")
+                                             .description("description")
+                                             .documentationUrl("http://beacon-test-random-url.someorg.com")
+                                             .version("1.0.1")
+                                             .organization(OrganizationModel.builder()
+                                                                   .name("MyOrg")
+                                                                   .url("http://example.com")
+                                                                   .build())
+                                             .environment(Environment.TEST)
+                                             .build());
         nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
-                .name("test-portal")
-                .url("http://user-portal-test-url.someorg.com")
-                .type("org.ga4gh:user-portal:1")
-                .contactUrl("beacon-admin@someorg.com")
-                .description("description")
-                .documentationUrl("http://beacon-test-random-url.someorg.com")
-                .version("1")
-                .organization("MyOrg")
-                .maturity(Maturity.TEST)
-                .build());
+                                             .name("test-portal")
+                                             .url("http://user-portal-test-url.someorg.com")
+                                             .type("org.ga4gh:user-portal:1")
+                                             .contactUrl("beacon-admin@someorg.com")
+                                             .description("description")
+                                             .documentationUrl("http://beacon-test-random-url.someorg.com")
+                                             .version("1")
+                                             .organization(OrganizationModel.builder()
+                                                                   .name("MyOrg")
+                                                                   .url("http://example.com")
+                                                                   .build())
+                                             .environment(Environment.TEST)
+                                             .build());
 
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .get("http://localhost:" + port + "/services/types")
                 .then()
-                .log().ifValidationFails()
+                .log()
+                .ifValidationFails()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .body(".", containsInAnyOrder(
-                        "org.ga4gh:beacon:1.0.1",
-                        "org.ga4gh:beacon-aggregator:1.0.0",
-                        "org.ga4gh:user-portal:1"
-                ));
+                .body(".",
+                      containsInAnyOrder("org.ga4gh:beacon:1.0.1",
+                                         "org.ga4gh:beacon-aggregator:1.0.0",
+                                         "org.ga4gh:user-portal:1"));
     }
 
     @Test
@@ -212,11 +237,14 @@ public class ServiceInstanceControllerIT {
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .get("http://localhost:" + port + "/services/types")
                 .then()
-                .log().ifValidationFails()
+                .log()
+                .ifValidationFails()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
                 .body(".", empty());
@@ -232,20 +260,24 @@ public class ServiceInstanceControllerIT {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization("MyOrg")
-                .maturity(Maturity.TEST)
+                .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
+                .environment(Environment.TEST)
                 .build();
         String serviceId = nodeService.registerInstance(service).getId();
 
         RestAssured.given()
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .pathParam("serviceId", serviceId)
-                .auth().basic("dev", "dev")
+                .auth()
+                .basic("dev", "dev")
                 .delete("http://localhost:" + port + "/services/{serviceId}")
                 .then()
-                .log().ifValidationFails()
+                .log()
+                .ifValidationFails()
                 .assertThat()
                 .statusCode(HttpStatus.NO_CONTENT.value());
     }
@@ -260,8 +292,8 @@ public class ServiceInstanceControllerIT {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.0")
-                .organization("MyOrg")
-                .maturity(Maturity.TEST)
+                .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
+                .environment(Environment.TEST)
                 .build();
         String service1Id = nodeService.registerInstance(service1).getId();
         ServiceInstanceRegistrationRequestModel service2 = ServiceInstanceRegistrationRequestModel.builder()
@@ -272,21 +304,25 @@ public class ServiceInstanceControllerIT {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization("MyOrg")
-                .maturity(Maturity.TEST)
+                .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
+                .environment(Environment.TEST)
                 .build();
         nodeService.registerInstance(service2).getId();
 
         // 1. Delete service1
         RestAssured.given()
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .pathParam("serviceId", service1Id)
-                .auth().basic("dev", "dev")
+                .auth()
+                .basic("dev", "dev")
                 .delete("http://localhost:" + port + "/services/{serviceId}")
                 .then()
-                .log().ifValidationFails()
+                .log()
+                .ifValidationFails()
                 .assertThat()
                 .statusCode(HttpStatus.NO_CONTENT.value());
 
@@ -294,26 +330,29 @@ public class ServiceInstanceControllerIT {
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log().method()
-                .log().uri()
+                .log()
+                .method()
+                .log()
+                .uri()
                 .get("http://localhost:" + port + "/services")
                 .then()
-                .log().everything()
+                .log()
+                .everything()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
-                .body("content", hasSize(1))
-                .body("content[0].id", notNullValue())
-                .body("content[0].version", equalTo(service2.getVersion()))
-                .body("content[0].type", equalTo(service2.getType()))
-                .body("content[0].url", equalTo(service2.getUrl()))
-                .body("content[0].name", equalTo(service2.getName()))
-                .body("content[0].organization", equalTo(service2.getOrganization()))
-                .body("content[0].maturity", equalTo(service2.getMaturity().name()))
-                .body("content[0].createdAt", notNullValue())
-                .body("content[0].updatedAt", notNullValue())
-                .body("content[0].contactUrl", equalTo(service2.getContactUrl()))
-                .body("content[0].documentationUrl", equalTo(service2.getDocumentationUrl()))
-                .body("content[0].description", equalTo(service2.getDescription()));
+                .body("[0].id", notNullValue())
+                .body("[0].version", equalTo(service2.getVersion()))
+                .body("[0].type", equalTo(service2.getType()))
+                .body("[0].url", equalTo(service2.getUrl()))
+                .body("[0].name", equalTo(service2.getName()))
+                .body("[0].organization.name", equalTo(service2.getOrganization().getName()))
+                .body("[0].organization.url", equalTo(service2.getOrganization().getUrl()))
+                .body("[0].environment", equalTo(service2.getEnvironment().toString()))
+                .body("[0].createdAt", notNullValue())
+                .body("[0].updatedAt", notNullValue())
+                .body("[0].contactUrl", equalTo(service2.getContactUrl()))
+                .body("[0].documentationUrl", equalTo(service2.getDocumentationUrl()))
+                .body("[0].description", equalTo(service2.getDescription()));
     }
 
 }

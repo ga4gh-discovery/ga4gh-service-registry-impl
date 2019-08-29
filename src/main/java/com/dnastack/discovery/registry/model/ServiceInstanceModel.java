@@ -1,10 +1,9 @@
 package com.dnastack.discovery.registry.model;
 
-import com.dnastack.discovery.registry.domain.Maturity;
+import com.dnastack.discovery.registry.domain.Environment;
 import lombok.*;
 
 import java.time.ZonedDateTime;
-import java.util.Map;
 
 @Setter
 @Getter
@@ -17,17 +16,15 @@ public class ServiceInstanceModel {
 
     private String id;
     private String name;
-    private String url;
     private String type;
-    private String organization;
-    private String version;
+    private String url;
+    private String description;
+    private OrganizationModel organization;
+    private String contactUrl;
+    private String documentationUrl;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
-    private String description;
-    private String documentationUrl;
-    private String contactUrl;
-    private Maturity maturity;
-    private Map<String, String> extension;
+    private Environment environment;
+    private String version;
 
 }
-
