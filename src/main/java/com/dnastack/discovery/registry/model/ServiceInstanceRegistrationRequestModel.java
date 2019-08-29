@@ -1,6 +1,6 @@
 package com.dnastack.discovery.registry.model;
 
-import com.dnastack.discovery.registry.domain.Maturity;
+import com.dnastack.discovery.registry.domain.Environment;
 import lombok.*;
 
 import java.util.Map;
@@ -17,12 +17,12 @@ public class ServiceInstanceRegistrationRequestModel {
     private String name;
     private String url;
     private String type;
-    private String organization;
+    private OrganizationModel organization;
     private String version;
     private String description;
     private String documentationUrl;
     private String contactUrl;
-    private Maturity maturity;
+    private Environment environment;
     private Map<String, String> extension;
 
 }

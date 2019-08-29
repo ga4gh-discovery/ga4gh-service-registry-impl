@@ -13,8 +13,11 @@ public interface ServiceInstanceRepository extends JpaRepository<ServiceInstance
 
     @Query("SELECT DISTINCT si.type FROM ServiceInstance si")
     Stream<String> findAllDistinctTypes();
+
     Stream<ServiceInstance> findAllByType(String type);
+
     Optional<ServiceInstance> findOneById(String id);
+
     Optional<ServiceInstance> findOneByNameAndType(String name, String type);
 
 }

@@ -9,9 +9,10 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaginationModel {
+public class OrganizationModel {
 
-    private String nextPage;
-    private String previousPage;
+    private String name;
+    private String url;
 
 }
+

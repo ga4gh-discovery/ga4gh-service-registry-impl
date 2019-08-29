@@ -1,7 +1,7 @@
 plugins {
-	id "java"
-	id "org.springframework.boot" version "2.1.5.RELEASE"
-	id "io.spring.dependency-management" version "1.0.7.RELEASE"
+    id "java"
+    id "org.springframework.boot" version "2.1.5.RELEASE"
+    id "io.spring.dependency-management" version "1.0.7.RELEASE"
 }
 
 group "com.dnastack.discovery.registry"
@@ -10,58 +10,58 @@ sourceCompatibility = 11.0
 targetCompatibility = 11.0
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 ext {
-	injectVersion = "1"
-	lombokVersion = "1.18.8"
-	restAssuredVersion = "4.0.0"
-	swaggerValidator = "2.4.1"
+    injectVersion = "1"
+    lombokVersion = "1.18.8"
+    restAssuredVersion = "4.0.0"
+    swaggerValidator = "2.4.1"
 }
 
 springBoot {
-	buildInfo()
+    buildInfo()
 }
 
 dependencies {
-	compile "org.springframework.boot:spring-boot-starter"
-	compile "org.springframework.boot:spring-boot-starter-web"
-	compile "org.springframework.boot:spring-boot-starter-actuator"
-	compile "org.springframework.boot:spring-boot-starter-json"
-	compile "org.springframework.boot:spring-boot-starter-data-jpa"
-	compile "org.springframework.boot:spring-boot-starter-security"
+    compile "org.springframework.boot:spring-boot-starter"
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile "org.springframework.boot:spring-boot-starter-json"
+    compile "org.springframework.boot:spring-boot-starter-data-jpa"
+    compile "org.springframework.boot:spring-boot-starter-security"
 
-	compile "javax.inject:javax.inject:${injectVersion}"
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    compile "javax.inject:javax.inject:${injectVersion}"
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     compile "com.h2database:h2"
 
     testCompile "org.springframework.boot:spring-boot-starter-test"
-	testCompile "org.springframework.security:spring-security-test"
+    testCompile "org.springframework.security:spring-security-test"
     testCompile "com.h2database:h2"
-	testCompile "io.rest-assured:rest-assured:${restAssuredVersion}"
-	testCompile "io.rest-assured:json-path:${restAssuredVersion}"
-	testCompile "io.rest-assured:xml-path:${restAssuredVersion}"
-	testCompile "com.atlassian.oai:swagger-request-validator-core:${swaggerValidator}"
-	testCompile "com.atlassian.oai:swagger-request-validator-restassured:${swaggerValidator}"
+    testCompile "io.rest-assured:rest-assured:${restAssuredVersion}"
+    testCompile "io.rest-assured:json-path:${restAssuredVersion}"
+    testCompile "io.rest-assured:xml-path:${restAssuredVersion}"
+    testCompile "com.atlassian.oai:swagger-request-validator-core:${swaggerValidator}"
+    testCompile "com.atlassian.oai:swagger-request-validator-restassured:${swaggerValidator}"
 }
 
 test {
-	useJUnit {
-		exclude "**/*IT.class"
-	}
+    useJUnit {
+        exclude "**/*IT.class"
+    }
 }
 
 task unitTest(type: Test, description: "Runs the unit tests.", group: "Verification") {
-	useJUnit{
-		include "**/*Test.class"
-	}
+    useJUnit {
+        include "**/*Test.class"
+    }
 }
 
 task integrationTest(type: Test, description: "Runs the integration tests", group: "Verification") {
-	useJUnit{
-		include "**/*IT.class"
-	}
-	ignoreFailures true
+    useJUnit {
+        include "**/*IT.class"
+    }
+    ignoreFailures true
 }
