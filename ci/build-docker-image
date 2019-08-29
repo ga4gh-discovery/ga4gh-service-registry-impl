@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+# This script runs the gradle build, including unit tests, assembles a fat jar with
+# embedded web server, and packages the resulting thing in a Docker image that runs
+# the server on startup. The image is tagged with the string passed in as the first argument.
+
+# This script is invoked during CI build with the following arguments:
+target_image_name=$1
+app_name=$2
+app_version=$3
+
+# Print java version
+#java -version
+
+# This script does all its staging in a directory called target for easy cleanup and effective .gitignore.
+mkdir -p ci/impl/target
+
+cp -r src build.gradle gradle.properties gradle gradlew gradlew.bat settings.gradle ci/impl/target/
+docker build \
+  --build-arg APP_NAME=${app_name} \
+  --build-arg APP_VERSION=${app_version} \
+  -t ${target_image_name} \
+  ci/impl

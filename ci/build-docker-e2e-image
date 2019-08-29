@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+# This script packages the end-to-end test module into a Docker image that runs the tests against
+# an arbitrary deployment of this service, specified by the E2E_TEST_URI environment variable.
+# The contents of /target are captured by the CI system after the tests have run, which makes
+# report generation possible.
+
+# The Docker image we build is tagged with the string passed in as the first argument to this script.
+
+# This script is invoked during CI build with the following arguments:
+target_image_name=$1
+app_name=$2
+app_version=$3
+
+dockerWorkspace=ci/e2e-tests/target
+rm -rf ${dockerWorkspace}
+mkdir -p ${dockerWorkspace}
+
+cp -rp e2e-tests/* ${dockerWorkspace}/
+#cp -rp e2e-tests/.gradle ${dockerWorkspace}/
+
+
+(cd ci/e2e-tests && docker build -t ${target_image_name} .)
