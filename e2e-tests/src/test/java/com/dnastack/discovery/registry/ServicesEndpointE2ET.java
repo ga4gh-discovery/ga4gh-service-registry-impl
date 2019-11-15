@@ -3,7 +3,6 @@ package com.dnastack.discovery.registry;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
 
 import java.util.UUID;
 
@@ -13,6 +12,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
     @Test
     public void getServiceInstanceById_instanceNotExistsWithId() {
+        // @formatter:off
         RestAssured.given()
                 .accept(ContentType.JSON)
                 .header("Authorization", "Basic " + getBase64Auth())
@@ -23,11 +23,13 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .then()
                 .log().ifValidationFails()
                 .assertThat()
-                .statusCode(HttpStatus.NOT_FOUND.value());
+                .statusCode(404);
+        // @formatter:on
     }
 
     @Test
     public void getServiceInstances_atLeastTwoInstancesExpected() {
+        // @formatter:off
         RestAssured.given()
                 .accept(ContentType.JSON)
                 .header("Authorization", "Basic " + getBase64Auth())
@@ -37,7 +39,8 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .then()
                 .log().ifValidationFails()
                 .assertThat()
-                .statusCode(HttpStatus.OK.value());
+                .statusCode(200);
+        // @formatter:on
     }
 
 }

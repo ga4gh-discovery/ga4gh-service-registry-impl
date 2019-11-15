@@ -1,4 +1,4 @@
-# Discovery Service Registry [![Build Status](https://travis-ci.org/ga4gh-discovery/service-registry-impl.svg?branch=develop)](https://travis-ci.org/ga4gh-discovery/service-registry-impl)
+# Discovery Service Registry
 
 ## API docs
 
@@ -6,14 +6,10 @@ See api [documentation](https://github.com/ga4gh-discovery/ga4gh-discovery-servi
 
 ## Development
 
+You will need OpenJDK 11 or newer. [AdoptOpenJDK](https://adoptopenjdk.net/) is a good source.
+
 ```
 ./gradlew clean build bootRun
-```
-
-Or
-
-```
-docker build -t discovery-service-registry . && docker run -p 8080:8080 -it discovery-service-registry
 ```
 
 ## Running tests
@@ -28,4 +24,14 @@ To run just selection of tests:
 
 ```
 ./gradlew clean build integrationTest --tests "*getServiceNodeById*"
+```
+
+## Building a deployable Docker image
+
+```shell script
+image_name=dnastack-service-registry
+image_version=$(git describe)
+docker_tag=my.docker.repo/${image_name}:{image_version}
+ci/build-docker-image ${docker_tag} ${image_name} ${image_version}
+docker push ${docker_tag}
 ```

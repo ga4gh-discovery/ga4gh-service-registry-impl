@@ -19,8 +19,6 @@ dockerWorkspace=ci/e2e-tests/target
 rm -rf ${dockerWorkspace}
 mkdir -p ${dockerWorkspace}
 
-cp -rp e2e-tests/* ${dockerWorkspace}/
-#cp -rp e2e-tests/.gradle ${dockerWorkspace}/
-
+cp -rp gradlew gradle e2e-tests/src e2e-tests/*.gradle ${dockerWorkspace}/
 
 (cd ci/e2e-tests && docker build -t ${target_image_name} .)

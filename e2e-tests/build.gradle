@@ -1,37 +1,27 @@
 plugins {
     id "java"
-    id "org.springframework.boot" version "2.1.5.RELEASE"
-    id "io.spring.dependency-management" version "1.0.7.RELEASE"
 }
 
 group "com.dnastack.discovery.registry"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
     mavenCentral()
 }
 
 ext {
-    injectVersion = "1"
+    junitVersion = "4.12"
     restAssuredVersion = "4.0.0"
     lombokVersion = "1.18.8"
 }
 
-bootJar {
-    mainClassName "com.dnastack.discovery.registry.Application"
-}
-
 dependencies {
-    compile "org.springframework.boot:spring-boot-starter"
-    compile "org.springframework.boot:spring-boot-starter-web"
-
-    compile "javax.inject:javax.inject:${injectVersion}"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-    testCompile "org.springframework.boot:spring-boot-starter-test"
+    testCompile "junit:junit:${junitVersion}"
     testCompile "io.rest-assured:rest-assured:${restAssuredVersion}"
     testCompile "io.rest-assured:json-path:${restAssuredVersion}"
     testCompile "io.rest-assured:xml-path:${restAssuredVersion}"
@@ -46,5 +36,17 @@ test {
 task endToEndTest(type: Test, description: 'Runs the E2E tests', group: 'Verification') {
     useJUnit{
         include '**/*E2ET.class'
+    }
+}
+
+task resolveAllDependencies {
+    description "Resolves all transitive dependencies (e.g. to build offline later)."
+
+    doLast {
+        configurations.all {
+            if (it.isCanBeResolved()) {
+                it.resolve()
+            }
+        }
     }
 }

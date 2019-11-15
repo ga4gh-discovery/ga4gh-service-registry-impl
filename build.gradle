@@ -6,8 +6,8 @@ plugins {
 
 group "com.dnastack.discovery.registry"
 
-sourceCompatibility = 11.0
-targetCompatibility = 11.0
+sourceCompatibility = 11
+targetCompatibility = 11
 
 repositories {
     mavenCentral()
