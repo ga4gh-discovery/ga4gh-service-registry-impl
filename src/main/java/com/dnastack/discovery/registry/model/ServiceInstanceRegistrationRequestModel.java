@@ -23,6 +23,5 @@ public class ServiceInstanceRegistrationRequestModel {
     private String documentationUrl;
     private String contactUrl;
     private Environment environment;
-    private Map<String, String> extension;
 
 }

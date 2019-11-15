@@ -16,22 +16,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf()
-                .disable()
-                .sessionManagement()
-                .sessionCreationPolicy(STATELESS)
+        // @formatter:off
+        http
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(STATELESS)
                 .and()
                 .httpBasic()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/actuator/health")
-                .permitAll()
-                .antMatchers("/service-info")
-                .permitAll()
-                .antMatchers(HttpMethod.GET, "/services/**")
-                .permitAll()
-                .antMatchers("/**")
-                .authenticated();
+                .antMatchers("/actuator/health").permitAll()
+                .antMatchers("/service-info").permitAll()
+                .antMatchers(HttpMethod.GET, "/services/**").permitAll()
+                .antMatchers("/**").authenticated();
+        // @formatter:on
     }
 
 }

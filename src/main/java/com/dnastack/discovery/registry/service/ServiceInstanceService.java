@@ -41,8 +41,9 @@ public class ServiceInstanceService {
         Optional<ServiceInstanceModel> existingInstance = getInstanceByNameAndType(serviceInstance.getName(),
                                                                                    serviceInstance.getType());
         if (existingInstance.isPresent()) {
-            throw new ServiceInstanceExistsException("Service instance (ID " + existingInstance.get()
-                    .getId() + ") with given name and type already exists");
+            throw new ServiceInstanceExistsException(
+                    "Service instance (ID " + existingInstance.get().getId() + ")" +
+                            " with given name and type already exists");
         }
 
         final Optional<Organization> organization = organizationRepository.findByName(registrationModel.getOrganization()
