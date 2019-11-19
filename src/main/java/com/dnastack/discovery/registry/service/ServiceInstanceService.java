@@ -16,7 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.dnastack.discovery.registry.mapper.ServiceInstanceMapper.map;
+import static com.dnastack.discovery.registry.mapper.ServiceInstanceMapper.toDto;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -33,7 +33,7 @@ public class ServiceInstanceService {
     }
 
     public ServiceInstanceModel registerInstance(ServiceInstanceRegistrationRequestModel registrationModel) {
-        ServiceInstance serviceInstance = ServiceInstanceMapper.reverseMap(registrationModel);
+        ServiceInstance serviceInstance = ServiceInstanceMapper.toEntity(registrationModel);
         ZonedDateTime now = ZonedDateTime.now();
         serviceInstance.setCreatedAt(now);
         serviceInstance.setUpdatedAt(now);
@@ -50,11 +50,11 @@ public class ServiceInstanceService {
                                                                                         .getName());
 
         organization.ifPresentOrElse(o -> serviceInstance.setOrganization(o), () -> {
-            final Organization newOrganization = organizationRepository.save(OrganizationMapper.reverseMap(registrationModel.getOrganization()));
+            final Organization newOrganization = organizationRepository.save(OrganizationMapper.toEntity(registrationModel.getOrganization()));
             serviceInstance.setOrganization(newOrganization);
         });
 
-        return map(serviceRepository.save(serviceInstance));
+        return toDto(serviceRepository.save(serviceInstance));
     }
 
     public ServiceInstanceModel replaceInstance(String id, ServiceInstanceModel patch) {
@@ -62,7 +62,7 @@ public class ServiceInstanceService {
         patch.setId(id);
         patch.setCreatedAt(existingInstance.getCreatedAt());
         patch.setUpdatedAt(ZonedDateTime.now());
-        return ServiceInstanceMapper.map(serviceRepository.save(ServiceInstanceMapper.reverseMap(patch)));
+        return ServiceInstanceMapper.toDto(serviceRepository.save(ServiceInstanceMapper.toEntity(patch)));
     }
 
     public void deregisterInstanceById(String id) {
@@ -70,17 +70,17 @@ public class ServiceInstanceService {
     }
 
     public List<ServiceInstanceModel> getInstances() {
-        return serviceRepository.findAll().stream().map(ServiceInstanceMapper::map).collect(toList());
+        return serviceRepository.findAll().stream().map(ServiceInstanceMapper::toDto).collect(toList());
     }
 
     public ServiceInstanceModel getInstanceById(String id) {
         return serviceRepository.findOneById(id)
-                .map(ServiceInstanceMapper::map)
+                .map(ServiceInstanceMapper::toDto)
                 .orElseThrow(ServiceInstanceNotFoundException::new);
     }
 
     public Optional<ServiceInstanceModel> getInstanceByNameAndType(String name, String type) {
-        return serviceRepository.findOneByNameAndType(name, type).map(ServiceInstanceMapper::map);
+        return serviceRepository.findOneByNameAndType(name, type).map(ServiceInstanceMapper::toDto);
     }
 
     public List<String> getTypes() {

@@ -1,4 +1,4 @@
-test-secrets*.env
+*-secrets*.env
 
 ### STS ###
 .apt_generated

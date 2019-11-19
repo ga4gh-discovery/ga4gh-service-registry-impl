@@ -6,7 +6,7 @@ import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestM
 
 public class ServiceInstanceMapper {
 
-    public static ServiceInstanceModel map(ServiceInstance entity) {
+    public static ServiceInstanceModel toDto(ServiceInstance entity) {
         return ServiceInstanceModel.builder()
                 .id(entity.getId())
                 .name(entity.getName())
@@ -17,14 +17,15 @@ public class ServiceInstanceMapper {
                 .description(entity.getDescription())
                 .type(entity.getType())
                 .version(entity.getVersion())
-                .organization(OrganizationMapper.map(entity.getOrganization()))
+                .organization(OrganizationMapper.toDto(entity.getOrganization()))
                 .documentationUrl(entity.getDocumentationUrl())
                 .environment(entity.getEnvironment())
+                .additionalProperties(entity.getAdditionalProperties())
                 .build();
     }
 
-    public static ServiceInstance reverseMap(ServiceInstanceModel model) {
-        return ServiceInstance.builder()
+    public static ServiceInstance toEntity(ServiceInstanceModel model) {
+        ServiceInstance entity = ServiceInstance.builder()
                 .id(model.getId())
                 .name(model.getName())
                 .url(model.getUrl())
@@ -34,24 +35,28 @@ public class ServiceInstanceMapper {
                 .description(model.getDescription())
                 .type(model.getType())
                 .version(model.getVersion())
-                .organization(OrganizationMapper.reverseMap(model.getOrganization()))
+                .organization(OrganizationMapper.toEntity(model.getOrganization()))
                 .documentationUrl(model.getDocumentationUrl())
                 .environment(model.getEnvironment())
                 .build();
+        entity.setAdditionalProperties(model.getAdditionalProperties());
+        return entity;
     }
 
-    public static ServiceInstance reverseMap(ServiceInstanceRegistrationRequestModel model) {
-        return ServiceInstance.builder()
+    public static ServiceInstance toEntity(ServiceInstanceRegistrationRequestModel model) {
+        ServiceInstance entity = ServiceInstance.builder()
                 .name(model.getName())
                 .url(model.getUrl())
                 .contactUrl(model.getContactUrl())
                 .description(model.getDescription())
                 .type(model.getType())
                 .version(model.getVersion())
-                .organization(OrganizationMapper.reverseMap(model.getOrganization()))
+                .organization(OrganizationMapper.toEntity(model.getOrganization()))
                 .documentationUrl(model.getDocumentationUrl())
                 .environment(model.getEnvironment())
                 .build();
+        entity.setAdditionalProperties(model.getAdditionalProperties());
+        return entity;
     }
 
 }

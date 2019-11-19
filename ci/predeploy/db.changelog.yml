@@ -1,0 +1,89 @@
+databaseChangeLog:
+  - changeSet:
+      id: initial
+      author: jfuerth
+      changes:
+        - createTable:
+            tableName: organization
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(255)
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: organization_pkey
+              - column:
+                  name: name
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: url
+                  type: VARCHAR(255)
+                  # The non-null constraint from the spec has been relaxed here because it's not realistic.
+                  # For example, the Beacon Network doesn't have a URL for every beacon organization.
+                  # The constraint was relaxed because null seems preferable to junk data.
+        - addUniqueConstraint:
+              tableName: organization
+              columnNames: url
+              constraintName: org_unique_url
+        - addUniqueConstraint:
+              tableName: organization
+              columnNames: name
+              constraintName: org_unique_name
+        - createTable:
+            tableName: service_instance
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(255)
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: service_instance_pkey
+              - column:
+                  name: additional_properties_json
+                  type: VARCHAR
+              - column:
+                  name: contact_url
+                  type: VARCHAR
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: description
+                  type: VARCHAR
+              - column:
+                  name: documentation_url
+                  type: VARCHAR
+              - column:
+                  name: environment
+                  type: VARCHAR(20)
+              - column:
+                  name: name
+                  type: VARCHAR
+              - column:
+                  name: type
+                  type: VARCHAR(255)
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: url
+                  type: VARCHAR
+              - column:
+                  name: version
+                  type: VARCHAR(255)
+              - column:
+                  name: organization_id
+                  type: VARCHAR(255)
+        - addForeignKeyConstraint:
+            constraintName: service_instange_organization_fk
+            baseTableName: service_instance
+            baseColumnNames: organization_id
+            referencedTableName: organization
+            referencedColumnNames: id
+            deferrable: true
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: NO ACTION
+            validate: true

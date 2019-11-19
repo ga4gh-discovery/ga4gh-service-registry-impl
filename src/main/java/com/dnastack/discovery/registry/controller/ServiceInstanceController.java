@@ -14,7 +14,7 @@ import javax.inject.Inject;
 @RequestMapping(value = "/services")
 public class ServiceInstanceController {
 
-    private ServiceInstanceService service;
+    private final ServiceInstanceService service;
 
     @Inject
     public ServiceInstanceController(ServiceInstanceService service) {

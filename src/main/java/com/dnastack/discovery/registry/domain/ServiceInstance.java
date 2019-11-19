@@ -1,11 +1,19 @@
 package com.dnastack.discovery.registry.domain;
 
 import com.dnastack.discovery.registry.domain.converter.ZonedDateTimeAttributeConverter;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -16,6 +24,8 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @Entity
 public class ServiceInstance {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private String id;
     private String name;
@@ -29,6 +39,7 @@ public class ServiceInstance {
     private ZonedDateTime updatedAt;
     private Environment environment;
     private String version;
+    private String additionalPropertiesJson;
 
     @Id
     @GeneratedValue(generator = "uuid")
@@ -47,11 +58,6 @@ public class ServiceInstance {
         return updatedAt;
     }
 
-    @Lob
-    public String getDescription() {
-        return description;
-    }
-
     @ManyToOne
     public Organization getOrganization() {
         return organization;
@@ -62,4 +68,21 @@ public class ServiceInstance {
         return environment;
     }
 
+    @Transient
+    public Map<String, Object> getAdditionalProperties() {
+        try {
+            return OBJECT_MAPPER.readValue(additionalPropertiesJson, new TypeReference<Map<String, Object>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't parse JSON: " + additionalPropertiesJson, e);
+        }
+    }
+
+    @Transient
+    public void setAdditionalProperties(Map<String, Object> properties) {
+        try {
+            additionalPropertiesJson = OBJECT_MAPPER.writeValueAsString(properties);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Couldn't convert to JSON: " + properties, e);
+        }
+    }
 }
