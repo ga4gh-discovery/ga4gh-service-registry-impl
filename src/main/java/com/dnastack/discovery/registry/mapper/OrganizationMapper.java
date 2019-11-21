@@ -9,7 +9,7 @@ public class OrganizationMapper {
         return OrganizationModel.builder().name(entity.getName()).url(entity.getUrl()).build();
     }
 
-    public static Organization toEntity(OrganizationModel model) {
+    public static Organization toEntity(String realm, OrganizationModel model) {
         return Organization.builder().name(model.getName()).url(model.getUrl()).build();
     }
 

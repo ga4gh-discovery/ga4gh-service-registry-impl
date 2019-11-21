@@ -1,19 +1,17 @@
 package com.dnastack.discovery.registry.domain;
 
 import com.dnastack.discovery.registry.domain.converter.ZonedDateTimeAttributeConverter;
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -27,46 +25,54 @@ public class ServiceInstance {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private String id;
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Embeddable
+    public static class Key implements Serializable {
+        @ManyToOne
+        @JoinColumn(name = "realm")
+        private String realm;
+        private String id;
+
+        /**
+         * Creates a new key with a strong random ID for use in the given realm.
+         */
+        public static Key inRealm(String realm) {
+            return new Key(realm, UUID.randomUUID().toString());
+        }
+    }
+
+    @EmbeddedId
+    private Key key;
+
     private String name;
     private String type;
     private String url;
     private String description;
-    private Organization organization;
-    private String contactUrl;
-    private String documentationUrl;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
-    private Environment environment;
-    private String version;
-    private String additionalPropertiesJson;
-
-    @Id
-    @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    public String getId() {
-        return id;
-    }
-
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    public ZonedDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
-    public ZonedDateTime getUpdatedAt() {
-        return updatedAt;
-    }
 
     @ManyToOne
-    public Organization getOrganization() {
-        return organization;
-    }
+    @MapsId("key.realm")
+    @JoinColumns({
+            @JoinColumn(name = "realm", referencedColumnName = "realm"),
+            @JoinColumn(name = "organization_id", referencedColumnName = "id")
+    })
+    private Organization organization;
+
+    private String contactUrl;
+    private String documentationUrl;
+
+    @Convert(converter = ZonedDateTimeAttributeConverter.class)
+    private ZonedDateTime createdAt;
+
+    @Convert(converter = ZonedDateTimeAttributeConverter.class)
+    private ZonedDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
-    public Environment getEnvironment() {
-        return environment;
-    }
+    private Environment environment;
+
+    private String version;
+    private String additionalPropertiesJson;
 
     @Transient
     public Map<String, Object> getAdditionalProperties() {

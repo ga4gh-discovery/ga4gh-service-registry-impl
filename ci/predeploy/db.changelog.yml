@@ -87,3 +87,78 @@ databaseChangeLog:
             onDelete: CASCADE
             onUpdate: NO ACTION
             validate: true
+  - changeSet:
+      id: add-realms
+      author: jfuerth
+      changes:
+        - addColumn:
+            tableName: organization
+            columns:
+              - column:
+                  name: realm
+                  type: varchar
+        - addColumn:
+            tableName: service_instance
+            columns:
+              - column:
+                  name: realm
+                  type: varchar
+        - sql:
+            sql: UPDATE organization SET realm='default'
+        - sql:
+            sql: UPDATE service_instance SET realm='default'
+        - addNotNullConstraint:
+            tableName: service_instance
+            columnName: realm
+            columnDataType: varchar
+        - addNotNullConstraint:
+            tableName: organization
+            columnName: realm
+            columnDataType: varchar
+
+        # drop all the old constraints so we can recreate them with realm
+        - dropForeignKeyConstraint:
+            baseTableName: service_instance
+            constraintName: service_instange_organization_fk
+        - dropUniqueConstraint:
+            tableName: organization
+            constraintName: org_unique_url
+        - dropUniqueConstraint:
+            tableName: organization
+            constraintName: org_unique_name
+        - dropPrimaryKey:
+            tableName: service_instance
+            constraintName: service_instance_pkey
+        - dropPrimaryKey:
+            tableName: organization
+            constraintName: organization_pkey
+
+        - addPrimaryKey:
+            tableName: service_instance
+            columnNames: realm, id
+            constraintName: service_instance_pk
+        - addPrimaryKey:
+            tableName: organization
+            columnNames: realm, id
+            constraintName: organization_pk
+
+        - addUniqueConstraint:
+            tableName: organization
+            columnNames: realm, url
+            constraintName: org_unique_url
+        - addUniqueConstraint:
+            tableName: organization
+            columnNames: realm, name
+            constraintName: org_unique_name
+
+        - addForeignKeyConstraint:
+            constraintName: service_instance_organization_fk
+            baseTableName: service_instance
+            baseColumnNames: realm, organization_id
+            referencedTableName: organization
+            referencedColumnNames: realm, id
+            deferrable: true
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: NO ACTION
+            validate: true

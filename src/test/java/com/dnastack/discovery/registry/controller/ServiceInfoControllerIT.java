@@ -44,18 +44,15 @@ public class ServiceInfoControllerIT {
 
     @Test
     public void getServiceInfo() {
+        // @formatter:off
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
                 .get("http://localhost:" + port + "/service-info")
                 .then()
-                .log()
-                .ifValidationFails()
-                .assertThat()
+                .log().ifValidationFails()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", equalTo("org.ga4gh.service-registry"))
                 .body("name", equalTo("GA4GH Service Registry Reference Implementation"))
@@ -67,6 +64,8 @@ public class ServiceInfoControllerIT {
                 .body("documentationUrl", equalTo("https://github.com/ga4gh-discovery/ga4gh-service-registry"))
                 .body("environment", equalTo("dev"))
                 .body("version", equalTo("1.0.0"));
+        // @formatter:on
+
     }
 
 }

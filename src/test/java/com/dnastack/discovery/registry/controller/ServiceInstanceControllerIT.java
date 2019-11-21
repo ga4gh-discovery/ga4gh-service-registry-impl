@@ -32,6 +32,8 @@ import static org.hamcrest.Matchers.*;
 @SpringBootTest(classes = TestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ServiceInstanceControllerIT {
 
+    private static String TEST_REALM = "e2e-test-" + System.currentTimeMillis();
+
     @Value("${app.service-registry.spec-url}")
     private String specYamlUrl;
     private OpenApiValidationFilter validationFilter;
@@ -59,21 +61,19 @@ public class ServiceInstanceControllerIT {
                 .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
                 .environment(Environment.TEST)
                 .build();
-        String serviceId = nodeService.registerInstance(service).getId();
+        String serviceId = nodeService.registerInstance(TEST_REALM, service).getId();
 
+        // @formatter:off
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .pathParam("serviceId", serviceId)
                 .get("http://localhost:" + port + "/services/{serviceId}")
                 .then()
-                .log()
-                .ifValidationFails()
-                .assertThat()
+                .log().ifValidationFails()
                 .statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
                 .body("version", equalTo(service.getVersion()))
@@ -88,41 +88,40 @@ public class ServiceInstanceControllerIT {
                 .body("contactUrl", equalTo(service.getContactUrl()))
                 .body("documentationUrl", equalTo(service.getDocumentationUrl()))
                 .body("description", equalTo(service.getDescription()));
+        // @formatter:on
     }
 
     @Test
     public void getServiceInstanceById_instanceNotExistsWithId() {
+        // @formatter:off
         RestAssured.given()
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .pathParam("serviceId", UUID.randomUUID().toString())
                 .get("http://localhost:" + port + "/services/{serviceId}")
                 .then()
-                .log()
-                .ifValidationFails()
-                .assertThat()
+                .log().ifValidationFails()
                 .statusCode(HttpStatus.NOT_FOUND.value());
+        // @formatter:on
     }
 
     @Test
     public void getServiceInstances_noInstanceExists() {
+        // @formatter:off
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .get("http://localhost:" + port + "/services")
                 .then()
-                .log()
-                .ifValidationFails()
-                .assertThat()
+                .log().ifValidationFails()
                 .statusCode(HttpStatus.OK.value())
                 .body("", empty());
+        // @formatter:on
     }
 
     @Test
@@ -138,20 +137,18 @@ public class ServiceInstanceControllerIT {
                 .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
                 .environment(Environment.TEST)
                 .build();
-        nodeService.registerInstance(service);
+        nodeService.registerInstance(TEST_REALM, service);
 
+        // @formatter:off
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .get("http://localhost:" + port + "/services")
                 .then()
-                .log()
-                .everything()
-                .assertThat()
+                .log().everything()
                 .statusCode(HttpStatus.OK.value())
                 .body("[0].id", notNullValue())
                 .body("[0].version", equalTo(service.getVersion()))
@@ -166,11 +163,12 @@ public class ServiceInstanceControllerIT {
                 .body("[0].contactUrl", equalTo(service.getContactUrl()))
                 .body("[0].documentationUrl", equalTo(service.getDocumentationUrl()))
                 .body("[0].description", equalTo(service.getDescription()));
+        // @formatter:on
     }
 
     @Test
     public void getServiceInstanceTypes() {
-        nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
+        nodeService.registerInstance(TEST_REALM, ServiceInstanceRegistrationRequestModel.builder()
                                              .name("test-beacon-aggregator")
                                              .url("http://beacon-aggregator-test-url.someorg.com")
                                              .type("org.ga4gh:beacon-aggregator:1.0.0")
@@ -184,7 +182,7 @@ public class ServiceInstanceControllerIT {
                                                                    .build())
                                              .environment(Environment.TEST)
                                              .build());
-        nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
+        nodeService.registerInstance(TEST_REALM, ServiceInstanceRegistrationRequestModel.builder()
                                              .name("test-beacon")
                                              .url("http://beacon-test-url.someorg.com")
                                              .type("org.ga4gh:beacon:1.0.1")
@@ -198,7 +196,7 @@ public class ServiceInstanceControllerIT {
                                                                    .build())
                                              .environment(Environment.TEST)
                                              .build());
-        nodeService.registerInstance(ServiceInstanceRegistrationRequestModel.builder()
+        nodeService.registerInstance(TEST_REALM, ServiceInstanceRegistrationRequestModel.builder()
                                              .name("test-portal")
                                              .url("http://user-portal-test-url.someorg.com")
                                              .type("org.ga4gh:user-portal:1")
@@ -213,41 +211,39 @@ public class ServiceInstanceControllerIT {
                                              .environment(Environment.TEST)
                                              .build());
 
+        // @formatter:off
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .get("http://localhost:" + port + "/services/types")
                 .then()
-                .log()
-                .ifValidationFails()
-                .assertThat()
+                .log().ifValidationFails()
                 .statusCode(HttpStatus.OK.value())
                 .body(".",
                       containsInAnyOrder("org.ga4gh:beacon:1.0.1",
                                          "org.ga4gh:beacon-aggregator:1.0.0",
                                          "org.ga4gh:user-portal:1"));
+        // @formatter:on
     }
 
     @Test
     public void getServiceInstanceTypes_empty() {
+        // @formatter:off
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .get("http://localhost:" + port + "/services/types")
                 .then()
-                .log()
-                .ifValidationFails()
-                .assertThat()
+                .log().ifValidationFails()
                 .statusCode(HttpStatus.OK.value())
                 .body(".", empty());
+        // @formatter:on
     }
 
     @Test
@@ -263,23 +259,21 @@ public class ServiceInstanceControllerIT {
                 .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
                 .environment(Environment.TEST)
                 .build();
-        String serviceId = nodeService.registerInstance(service).getId();
+        String serviceId = nodeService.registerInstance(TEST_REALM, service).getId();
 
+        // @formatter:off
         RestAssured.given()
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .pathParam("serviceId", serviceId)
-                .auth()
-                .basic("dev", "dev")
+                .auth().basic("dev", "dev")
                 .delete("http://localhost:" + port + "/services/{serviceId}")
                 .then()
-                .log()
-                .ifValidationFails()
-                .assertThat()
+                .log().ifValidationFails()
                 .statusCode(HttpStatus.NO_CONTENT.value());
+        // @formatter:on
     }
 
     @Test
@@ -295,7 +289,7 @@ public class ServiceInstanceControllerIT {
                 .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
                 .environment(Environment.TEST)
                 .build();
-        String service1Id = nodeService.registerInstance(service1).getId();
+        String service1Id = nodeService.registerInstance(TEST_REALM, service1).getId();
         ServiceInstanceRegistrationRequestModel service2 = ServiceInstanceRegistrationRequestModel.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
@@ -307,38 +301,32 @@ public class ServiceInstanceControllerIT {
                 .organization(OrganizationModel.builder().name("MyOrg").url("http://example.com").build())
                 .environment(Environment.TEST)
                 .build();
-        nodeService.registerInstance(service2).getId();
+        nodeService.registerInstance(TEST_REALM, service2).getId();
 
+        // @formatter:off
         // 1. Delete service1
         RestAssured.given()
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .pathParam("serviceId", service1Id)
-                .auth()
-                .basic("dev", "dev")
+                .auth().basic("dev", "dev")
                 .delete("http://localhost:" + port + "/services/{serviceId}")
                 .then()
-                .log()
-                .ifValidationFails()
-                .assertThat()
+                .log().ifValidationFails()
                 .statusCode(HttpStatus.NO_CONTENT.value());
 
         // 2 Fetch all remaining instances
         RestAssured.given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
-                .log()
-                .method()
-                .log()
-                .uri()
+                .log().method()
+                .log().uri()
+                .header("Service-Registry-Realm", TEST_REALM)
                 .get("http://localhost:" + port + "/services")
                 .then()
-                .log()
-                .everything()
-                .assertThat()
+                .log().everything()
                 .statusCode(HttpStatus.OK.value())
                 .body("[0].id", notNullValue())
                 .body("[0].version", equalTo(service2.getVersion()))
@@ -353,6 +341,7 @@ public class ServiceInstanceControllerIT {
                 .body("[0].contactUrl", equalTo(service2.getContactUrl()))
                 .body("[0].documentationUrl", equalTo(service2.getDocumentationUrl()))
                 .body("[0].description", equalTo(service2.getDescription()));
+        // @formatter:on
     }
 
 }

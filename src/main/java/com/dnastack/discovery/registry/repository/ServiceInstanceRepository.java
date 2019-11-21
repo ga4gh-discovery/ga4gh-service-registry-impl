@@ -5,19 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
-public interface ServiceInstanceRepository extends JpaRepository<ServiceInstance, String> {
+public interface ServiceInstanceRepository extends JpaRepository<ServiceInstance, ServiceInstance.Key> {
 
-    @Query("SELECT DISTINCT si.type FROM ServiceInstance si")
-    Stream<String> findAllDistinctTypes();
+    @Query("SELECT DISTINCT si.type FROM ServiceInstance si WHERE si.key.realm = :realm")
+    Stream<String> findAllDistinctTypes(String realm);
 
-    Stream<ServiceInstance> findAllByType(String type);
+    Optional<ServiceInstance> findOneByKeyRealmAndNameAndType(String realm, String name, String type);
 
-    Optional<ServiceInstance> findOneById(String id);
-
-    Optional<ServiceInstance> findOneByNameAndType(String name, String type);
-
+    List<ServiceInstance> findByKeyRealm(String realm);
 }

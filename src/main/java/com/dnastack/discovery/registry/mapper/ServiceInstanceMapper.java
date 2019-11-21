@@ -8,7 +8,7 @@ public class ServiceInstanceMapper {
 
     public static ServiceInstanceModel toDto(ServiceInstance entity) {
         return ServiceInstanceModel.builder()
-                .id(entity.getId())
+                .id(entity.getKey().getId())
                 .name(entity.getName())
                 .url(entity.getUrl())
                 .contactUrl(entity.getContactUrl())
@@ -24,9 +24,9 @@ public class ServiceInstanceMapper {
                 .build();
     }
 
-    public static ServiceInstance toEntity(ServiceInstanceModel model) {
+    public static ServiceInstance toEntity(String realm, ServiceInstanceModel model) {
         ServiceInstance entity = ServiceInstance.builder()
-                .id(model.getId())
+                .key(new ServiceInstance.Key(realm, model.getId()))
                 .name(model.getName())
                 .url(model.getUrl())
                 .contactUrl(model.getContactUrl())
@@ -35,7 +35,7 @@ public class ServiceInstanceMapper {
                 .description(model.getDescription())
                 .type(model.getType())
                 .version(model.getVersion())
-                .organization(OrganizationMapper.toEntity(model.getOrganization()))
+                .organization(OrganizationMapper.toEntity(realm, model.getOrganization())) // FIXME should be resolved from DB
                 .documentationUrl(model.getDocumentationUrl())
                 .environment(model.getEnvironment())
                 .build();
@@ -43,15 +43,16 @@ public class ServiceInstanceMapper {
         return entity;
     }
 
-    public static ServiceInstance toEntity(ServiceInstanceRegistrationRequestModel model) {
+    public static ServiceInstance toEntity(String realm, ServiceInstanceRegistrationRequestModel model) {
         ServiceInstance entity = ServiceInstance.builder()
+                .key(ServiceInstance.Key.inRealm(realm))
                 .name(model.getName())
                 .url(model.getUrl())
                 .contactUrl(model.getContactUrl())
                 .description(model.getDescription())
                 .type(model.getType())
                 .version(model.getVersion())
-                .organization(OrganizationMapper.toEntity(model.getOrganization()))
+                .organization(OrganizationMapper.toEntity(realm, model.getOrganization()))
                 .documentationUrl(model.getDocumentationUrl())
                 .environment(model.getEnvironment())
                 .build();

@@ -2,11 +2,8 @@ package com.dnastack.discovery.registry.model;
 
 import lombok.*;
 
-@Setter
-@Getter
+@Data
 @Builder
-@ToString
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrganizationModel {

@@ -18,10 +18,14 @@ ext {
 }
 
 dependencies {
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    compile "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     testCompile "junit:junit:${junitVersion}"
+    testCompile 'org.slf4j:slf4j-simple:1.7.28'
+    testCompile 'com.fasterxml.jackson.core:jackson-databind:2.9.9.3'
+    testCompile 'com.fasterxml.jackson.core:jackson-annotations:2.9.9'
     testCompile "io.rest-assured:rest-assured:${restAssuredVersion}"
     testCompile "io.rest-assured:json-path:${restAssuredVersion}"
     testCompile "io.rest-assured:xml-path:${restAssuredVersion}"
