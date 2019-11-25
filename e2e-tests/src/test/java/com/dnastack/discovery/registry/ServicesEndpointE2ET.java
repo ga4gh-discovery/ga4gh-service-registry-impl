@@ -1,6 +1,6 @@
 package com.dnastack.discovery.registry;
 
-import com.dnastack.discovery.registry.client.OrganizationModel;
+import com.dnastack.discovery.registry.client.TestingOrganizationModel;
 import com.dnastack.discovery.registry.client.TestingServiceInstance;
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.*;
 public class ServicesEndpointE2ET extends BaseE2ET {
     private static String TEST_REALM = "e2e-test-" + System.currentTimeMillis();
 
-    String registerServiceInstance(String realm, TestingServiceInstance service) {
+    String registerServiceInstance(String realm, TestingServiceInstance service, int expectedStatus) {
         // @formatter:off
         String createdServiceUrl = RestAssured.given()
             .accept(ContentType.JSON)
@@ -32,15 +32,19 @@ public class ServicesEndpointE2ET extends BaseE2ET {
             .post("/services")
             .then()
             .log().ifValidationFails()
-            .statusCode(201)
+            .statusCode(expectedStatus)
             .extract().header("Location");
         // @formatter:on
 
-        assertThat("HTTP Created must include a Location header pointing to the created entity",
-                createdServiceUrl, notNullValue());
-        log.info("Created service {} in realm {}", createdServiceUrl, TEST_REALM);
-        String id = createdServiceUrl.substring(createdServiceUrl.lastIndexOf('/') + 1);
-        return id;
+        if (expectedStatus == 201) {
+            assertThat("HTTP Created must include a Location header pointing to the created entity",
+                    createdServiceUrl, notNullValue());
+            log.info("Created service {} in realm {}", createdServiceUrl, TEST_REALM);
+            String id = createdServiceUrl.substring(createdServiceUrl.lastIndexOf('/') + 1);
+            return id;
+        } else {
+            return null;
+        }
     }
 
     private void deleteServiceInstance(String serviceId) {
@@ -91,7 +95,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     }
 
     @Test
-    public void getServiceInstanceById_instanceNotExistsWithId() {
+    public void getServiceInstanceById_should_return404_when_idIsNotFound() {
         // @formatter:off
         RestAssured.given()
                 .accept(ContentType.JSON)
@@ -108,13 +112,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     }
 
     @Test
-    public void getServiceInstances_atLeastTwoInstancesExpected() {
-        List<TestingServiceInstance> instances = getServiceInstances();
-        assertThat(instances, hasSize(greaterThanOrEqualTo(2)));
-    }
-
-    @Test
-    public void getServiceInstanceById_instanceExistsWithId() {
+    public void postServiceInstance_shouldWork_when_instanceHasNewOrg() {
         TestingServiceInstance service = TestingServiceInstance.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
@@ -123,10 +121,10 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization(new OrganizationModel("MyOrg", "http://example.com"))
+                .organization(new TestingOrganizationModel("MyOrg", "http://example.com"))
                 .environment("test")
                 .build();
-        String serviceId = registerServiceInstance(TEST_REALM, service);
+        String serviceId = registerServiceInstance(TEST_REALM, service, 201);
 
         // @formatter:off
         RestAssured.given()
@@ -157,6 +155,22 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     }
 
     @Test
+    public void postServiceInstance_should_return400_when_instanceHasNoOrg() {
+        TestingServiceInstance service = TestingServiceInstance.builder()
+                .name("test-no-org")
+                .url("http://beacon-test-random-url.noorg.com")
+                .type("org.ga4gh:beacon:1.0.1")
+                .contactUrl("beacon-admin@noorg.com")
+                .description("no org description")
+                .documentationUrl("http://beacon-test-random-url.someorg.com")
+                .version("1.0.1")
+                .organization(null)
+                .environment("test")
+                .build();
+        registerServiceInstance(TEST_REALM, service, 400);
+    }
+
+    @Test
     public void getServiceInstances_noInstanceExists() {
         // @formatter:off
         RestAssured.given()
@@ -183,10 +197,10 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization(new OrganizationModel("MyOrg", "http://example.com"))
+                .organization(new TestingOrganizationModel("MyOrg", "http://example.com"))
                 .environment("test")
                 .build();
-        registerServiceInstance(TEST_REALM, service);
+        registerServiceInstance(TEST_REALM, service, 201);
 
         // @formatter:off
         RestAssured.given()
@@ -225,9 +239,9 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.0")
-                .organization(new OrganizationModel("MyOrg", "http://example.com"))
+                .organization(new TestingOrganizationModel("MyOrg", "http://example.com"))
                 .environment("test")
-                .build());
+                .build(), 201);
         registerServiceInstance(TEST_REALM, TestingServiceInstance.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-url.someorg.com")
@@ -236,9 +250,9 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization(new OrganizationModel("MyOrg", "http://example.com"))
+                .organization(new TestingOrganizationModel("MyOrg", "http://example.com"))
                 .environment("test")
-                .build());
+                .build(), 201);
         registerServiceInstance(TEST_REALM, TestingServiceInstance.builder()
                 .name("test-portal")
                 .url("http://user-portal-test-url.someorg.com")
@@ -247,9 +261,9 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1")
-                .organization(new OrganizationModel("MyOrg", "http://example.com"))
+                .organization(new TestingOrganizationModel("MyOrg", "http://example.com"))
                 .environment("test")
-                .build());
+                .build(), 201);
 
         // @formatter:off
         RestAssured.given()
@@ -296,16 +310,16 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization(new OrganizationModel("MyOrg", "http://example.com"))
+                .organization(new TestingOrganizationModel("MyOrg", "http://example.com"))
                 .environment("test")
                 .build();
-        String serviceId = registerServiceInstance(TEST_REALM, service);
+        String serviceId = registerServiceInstance(TEST_REALM, service, 201);
         deleteServiceInstance(serviceId);
 
     }
 
     @Test
-    public void deregisterServiceInstanceById_instanceExistsWithId_ensureNoSideEffect() {
+    public void deleteServiceInstance_shouldNot_affectAnotherServiceSharingSameOrganization() {
         TestingServiceInstance service1 = TestingServiceInstance.builder()
                 .name("test-beacon-aggregator")
                 .url("http://beacon-aggregator-test-url.someorg.com")
@@ -314,10 +328,10 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.0")
-                .organization(new OrganizationModel("MyOrg", "http://example.com"))
+                .organization(new TestingOrganizationModel("MyOrg", "http://example.com"))
                 .environment("test")
                 .build();
-        String service1Id = registerServiceInstance(TEST_REALM, service1);
+        String service1Id = registerServiceInstance(TEST_REALM, service1, 201);
         TestingServiceInstance service2 = TestingServiceInstance.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
@@ -326,10 +340,10 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .description("description")
                 .documentationUrl("http://beacon-test-random-url.someorg.com")
                 .version("1.0.1")
-                .organization(new OrganizationModel("MyOrg", "http://example.com"))
+                .organization(new TestingOrganizationModel("MyOrg", "http://example.com"))
                 .environment("test")
                 .build();
-        registerServiceInstance(TEST_REALM, service2);
+        registerServiceInstance(TEST_REALM, service2, 201);
 
         // 1. Delete service1
         deleteServiceInstance(service1Id);

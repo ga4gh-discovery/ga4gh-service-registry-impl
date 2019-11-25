@@ -2,9 +2,9 @@ package com.dnastack.discovery.registry.controller;
 
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.dnastack.discovery.registry.TestApplication;
-import com.dnastack.discovery.registry.domain.Environment;
+import com.dnastack.discovery.registry.model.Environment;
 import com.dnastack.discovery.registry.model.OrganizationModel;
-import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
+import com.dnastack.discovery.registry.model.ServiceInstanceModel;
 import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -49,8 +49,8 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void getServiceInstanceById_instanceExistsWithId() {
-        ServiceInstanceRegistrationRequestModel service = ServiceInstanceRegistrationRequestModel.builder()
+    public void getServiceInstanceById_instanceExistsWithId() throws Exception {
+        ServiceInstanceModel service = ServiceInstanceModel.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
                 .type("org.ga4gh:beacon:1.0.1")
@@ -92,7 +92,7 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void getServiceInstanceById_instanceNotExistsWithId() {
+    public void getServiceInstanceById_instanceNotExistsWithId() throws Exception {
         // @formatter:off
         RestAssured.given()
                 .accept(ContentType.JSON)
@@ -108,7 +108,7 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void getServiceInstances_noInstanceExists() {
+    public void getServiceInstances_noInstanceExists() throws Exception {
         // @formatter:off
         RestAssured.given()
                 .filter(validationFilter)
@@ -125,8 +125,8 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void getServiceInstances_atLeastOneInstanceExists() {
-        ServiceInstanceRegistrationRequestModel service = ServiceInstanceRegistrationRequestModel.builder()
+    public void getServiceInstances_atLeastOneInstanceExists() throws Exception {
+        ServiceInstanceModel service = ServiceInstanceModel.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
                 .type("org.ga4gh:beacon:1.0.1")
@@ -167,8 +167,8 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void getServiceInstanceTypes() {
-        nodeService.registerInstance(TEST_REALM, ServiceInstanceRegistrationRequestModel.builder()
+    public void getServiceInstanceTypes() throws Exception {
+        nodeService.registerInstance(TEST_REALM, ServiceInstanceModel.builder()
                                              .name("test-beacon-aggregator")
                                              .url("http://beacon-aggregator-test-url.someorg.com")
                                              .type("org.ga4gh:beacon-aggregator:1.0.0")
@@ -182,7 +182,7 @@ public class ServiceInstanceControllerIT {
                                                                    .build())
                                              .environment(Environment.TEST)
                                              .build());
-        nodeService.registerInstance(TEST_REALM, ServiceInstanceRegistrationRequestModel.builder()
+        nodeService.registerInstance(TEST_REALM, ServiceInstanceModel.builder()
                                              .name("test-beacon")
                                              .url("http://beacon-test-url.someorg.com")
                                              .type("org.ga4gh:beacon:1.0.1")
@@ -196,7 +196,7 @@ public class ServiceInstanceControllerIT {
                                                                    .build())
                                              .environment(Environment.TEST)
                                              .build());
-        nodeService.registerInstance(TEST_REALM, ServiceInstanceRegistrationRequestModel.builder()
+        nodeService.registerInstance(TEST_REALM, ServiceInstanceModel.builder()
                                              .name("test-portal")
                                              .url("http://user-portal-test-url.someorg.com")
                                              .type("org.ga4gh:user-portal:1")
@@ -230,7 +230,7 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void getServiceInstanceTypes_empty() {
+    public void getServiceInstanceTypes_empty() throws Exception {
         // @formatter:off
         RestAssured.given()
                 .filter(validationFilter)
@@ -247,8 +247,8 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void deleteServiceInstanceById_instanceExistsWithId() {
-        ServiceInstanceRegistrationRequestModel service = ServiceInstanceRegistrationRequestModel.builder()
+    public void deleteServiceInstanceById_instanceExistsWithId() throws Exception {
+        ServiceInstanceModel service = ServiceInstanceModel.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
                 .type("org.ga4gh:beacon:1.0.1")
@@ -277,8 +277,8 @@ public class ServiceInstanceControllerIT {
     }
 
     @Test
-    public void deregisterServiceInstanceById_instanceExistsWithId_ensureNoSideEffect() {
-        ServiceInstanceRegistrationRequestModel service1 = ServiceInstanceRegistrationRequestModel.builder()
+    public void deregisterServiceInstanceById_instanceExistsWithId_ensureNoSideEffect() throws Exception {
+        ServiceInstanceModel service1 = ServiceInstanceModel.builder()
                 .name("test-beacon-aggregator")
                 .url("http://beacon-aggregator-test-url.someorg.com")
                 .type("org.ga4gh:beacon-aggregator:1.0.0")
@@ -290,7 +290,7 @@ public class ServiceInstanceControllerIT {
                 .environment(Environment.TEST)
                 .build();
         String service1Id = nodeService.registerInstance(TEST_REALM, service1).getId();
-        ServiceInstanceRegistrationRequestModel service2 = ServiceInstanceRegistrationRequestModel.builder()
+        ServiceInstanceModel service2 = ServiceInstanceModel.builder()
                 .name("test-beacon")
                 .url("http://beacon-test-random-url.someorg.com")
                 .type("org.ga4gh:beacon:1.0.1")

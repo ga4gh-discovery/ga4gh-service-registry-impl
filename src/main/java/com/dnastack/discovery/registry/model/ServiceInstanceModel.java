@@ -1,10 +1,13 @@
 package com.dnastack.discovery.registry.model;
 
-import com.dnastack.discovery.registry.domain.Environment;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.jdbi.v3.core.annotation.Unmappable;
+import org.jdbi.v3.core.mapper.Nested;
+import org.jdbi.v3.json.Json;
+import org.springframework.lang.Nullable;
 
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
@@ -22,27 +25,25 @@ public class ServiceInstanceModel {
     private String id;
     private String name;
     private String type;
-    private String url;
-    private String description;
+    private @Nullable String url;
+    private @Nullable String description;
+    @Getter(onMethod_ = @Nested("org"))
     private OrganizationModel organization;
-    private String contactUrl;
-    private String documentationUrl;
+    private @Nullable String contactUrl;
+    private @Nullable String documentationUrl;
     private ZonedDateTime createdAt;
     private ZonedDateTime updatedAt;
-    private Environment environment;
+    private @Nullable Environment environment;
     private String version;
 
     // catch-all for additional attributes (in service registry spec and custom)
     @JsonIgnore
     @Builder.Default
+    @Getter(onMethod_ = {@JsonAnyGetter, @Json})
     private Map<String, Object> additionalProperties = new LinkedHashMap<>();
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties;
-    }
-
     @JsonAnySetter
+    @Unmappable
     public void setAdditionalProperty(String key, Object value) {
         additionalProperties.put(key, value);
     }

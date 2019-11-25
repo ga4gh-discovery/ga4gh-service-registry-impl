@@ -1,11 +1,11 @@
 package com.dnastack.discovery.registry.controller;
 
 import com.dnastack.discovery.registry.model.ServiceInstanceModel;
-import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -25,7 +25,7 @@ public class ServiceInstanceController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity registerServiceInstance(
             @RequestHeader(name="Service-Registry-Realm", defaultValue = "default") String realm,
-            @RequestBody ServiceInstanceRegistrationRequestModel registrationRequest) {
+            @RequestBody ServiceInstanceModel registrationRequest) throws BindException {
         ServiceInstanceModel newInstance = service.registerInstance(realm, registrationRequest);
         ServletUriComponentsBuilder selfUri = ServletUriComponentsBuilder.fromCurrentRequestUri();
         selfUri.pathSegment("{serviceId}");

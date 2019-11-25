@@ -12,8 +12,6 @@ spring:
   jackson:
     default-property-inclusion: non_null
     time-zone: UTC
-  jpa:
-    open-in-view: false
   security:
     user:
       name: dev
@@ -48,9 +46,6 @@ spring:
   profiles: default
   datasource:
     driver-class-name: org.h2.Driver
-  jpa:
-    hibernate:
-      ddl-auto: create
 
 ---
 spring:
@@ -62,7 +57,4 @@ spring:
     password:
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
-      auto-commit: false
-  jpa:
-    hibernate:
-      ddl-auto: none # liquibase changelog is in ci/predeploy (applied by the pre-deploy image)
+      auto-commit: true

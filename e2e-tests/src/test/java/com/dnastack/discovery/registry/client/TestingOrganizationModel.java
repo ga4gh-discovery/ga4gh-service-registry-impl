@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrganizationModel {
+public class TestingOrganizationModel {
     private String name;
     private String url;
 }

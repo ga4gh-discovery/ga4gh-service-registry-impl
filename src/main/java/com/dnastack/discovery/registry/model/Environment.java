@@ -1,4 +1,4 @@
-package com.dnastack.discovery.registry.domain;
+package com.dnastack.discovery.registry.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

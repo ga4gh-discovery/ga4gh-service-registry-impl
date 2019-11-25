@@ -9,6 +9,12 @@ group "com.dnastack.discovery.registry"
 sourceCompatibility = 11
 targetCompatibility = 11
 
+tasks.withType(JavaCompile) {
+    configure(options) {
+        options.compilerArgs << "-parameters"
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -18,6 +24,7 @@ ext {
     lombokVersion = "1.18.8"
     restAssuredVersion = "4.0.0"
     swaggerValidator = "2.4.1"
+    jdbiVersion = "3.10.0"
 }
 
 springBoot {
@@ -28,11 +35,14 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter"
     compile "org.springframework.boot:spring-boot-starter-web"
     compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile 'org.springframework.boot:spring-boot-starter-jdbc'
     compile "org.springframework.boot:spring-boot-starter-json"
-    compile "org.springframework.boot:spring-boot-starter-data-jpa"
     compile "org.springframework.boot:spring-boot-starter-security"
-
     compile "javax.inject:javax.inject:${injectVersion}"
+    compile "org.jdbi:jdbi3-core:${jdbiVersion}"
+    compile "org.jdbi:jdbi3-sqlobject:${jdbiVersion}"
+    compile "org.jdbi:jdbi3-jackson2:${jdbiVersion}"
+
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 

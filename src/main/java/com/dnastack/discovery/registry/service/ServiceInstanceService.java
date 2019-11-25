@@ -1,100 +1,132 @@
 package com.dnastack.discovery.registry.service;
 
-import com.dnastack.discovery.registry.domain.Organization;
-import com.dnastack.discovery.registry.domain.ServiceInstance;
-import com.dnastack.discovery.registry.mapper.OrganizationMapper;
-import com.dnastack.discovery.registry.mapper.ServiceInstanceMapper;
+import com.dnastack.discovery.registry.model.OrganizationModel;
 import com.dnastack.discovery.registry.model.ServiceInstanceModel;
-import com.dnastack.discovery.registry.model.ServiceInstanceRegistrationRequestModel;
 import com.dnastack.discovery.registry.repository.OrganizationRepository;
 import com.dnastack.discovery.registry.repository.ServiceInstanceRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.jdbi.v3.core.Jdbi;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindException;
+import org.springframework.validation.ValidationUtils;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import static com.dnastack.discovery.registry.mapper.ServiceInstanceMapper.toDto;
-import static java.util.stream.Collectors.toList;
-
+@Slf4j
 @Service
-@Transactional
 public class ServiceInstanceService {
 
-    private ServiceInstanceRepository serviceRepository;
-    private OrganizationRepository organizationRepository;
+    private final Jdbi jdbi;
 
     @Inject
-    public ServiceInstanceService(ServiceInstanceRepository serviceRepository, OrganizationRepository organizationRepository) {
-        this.organizationRepository = organizationRepository;
-        this.serviceRepository = serviceRepository;
+    public ServiceInstanceService(Jdbi jdbi) {
+        this.jdbi = jdbi;
+    }
+
+    private void validate(ServiceInstanceModel si) throws BindException {
+        BindException errors = new BindException(si, "service");
+
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "url", "required field");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "required field");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "type", "required field");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "organization", "required field");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "version", "required field");
+
+        if (errors.hasErrors()) {
+            throw errors;
+        }
     }
 
     public ServiceInstanceModel registerInstance(
             String realm,
-            ServiceInstanceRegistrationRequestModel registrationModel) {
-        ServiceInstance serviceInstance = ServiceInstanceMapper.toEntity(realm, registrationModel);
-        ZonedDateTime now = ZonedDateTime.now();
-        serviceInstance.setCreatedAt(now);
-        serviceInstance.setUpdatedAt(now);
+            ServiceInstanceModel newServiceInstance) throws BindException {
+        validate(newServiceInstance);
+        return jdbi.inTransaction(handle -> {
+            ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
+            OrganizationRepository organizationRepository = handle.attach(OrganizationRepository.class);
 
-        Optional<ServiceInstanceModel> existingInstance = getInstanceByNameAndType(
-                realm,
-                serviceInstance.getName(),
-                serviceInstance.getType());
-        if (existingInstance.isPresent()) {
-            throw new ServiceInstanceExistsException(
-                    "Service instance (ID " + existingInstance.get().getId() + ")" +
-                            " with given name and type already exists");
-        }
+            Optional<ServiceInstanceModel> existingInstance =
+                    serviceRepository.findByNameAndType(
+                            realm,
+                            newServiceInstance.getName(),
+                            newServiceInstance.getType());
 
-        final Optional<Organization> organization = organizationRepository.findByKeyRealmAndName(
-                realm,
-                registrationModel.getOrganization().getName());
+            if (existingInstance.isPresent()) {
+                throw new ServiceInstanceExistsException(
+                        "Service instance (ID " + existingInstance.get().getId() + ")" +
+                                " with given name and type already exists");
+            }
 
-        if (organization.isPresent()) {
-            serviceInstance.setOrganization(organization.get());
-        } else {
-            Organization newOrganization = OrganizationMapper.toEntity(realm, registrationModel.getOrganization());
-            newOrganization.setKey(Organization.Key.inRealm(realm));
-            newOrganization = organizationRepository.save(newOrganization);
-            serviceInstance.setOrganization(newOrganization);
-        }
+            final Optional<OrganizationModel> organization = organizationRepository.findByName(
+                    realm,
+                    newServiceInstance.getOrganization().getName());
 
-        return toDto(serviceRepository.save(serviceInstance));
+            if (organization.isEmpty()) {
+                OrganizationModel org = newServiceInstance.getOrganization();
+                org.setId(UUID.randomUUID().toString());
+                log.debug("Creating new organization {} for this service instance", org.getId());
+                organizationRepository.save(realm, org);
+            } else {
+                newServiceInstance.setOrganization(organization.get());
+            }
+
+            ZonedDateTime now = ZonedDateTime.now();
+            newServiceInstance.setId(UUID.randomUUID().toString());
+            newServiceInstance.setCreatedAt(now);
+            newServiceInstance.setUpdatedAt(now);
+
+            serviceRepository.save(realm, newServiceInstance.getOrganization().getId(), newServiceInstance);
+            return newServiceInstance;
+        });
     }
 
     public ServiceInstanceModel replaceInstance(String realm, String id, ServiceInstanceModel patch) {
-        ServiceInstanceModel existingInstance = getInstanceById(realm, id);
-        patch.setId(id);
-        patch.setCreatedAt(existingInstance.getCreatedAt());
-        patch.setUpdatedAt(ZonedDateTime.now());
-        patch.getAdditionalProperties().putAll(existingInstance.getAdditionalProperties());
-        return ServiceInstanceMapper.toDto(serviceRepository.save(ServiceInstanceMapper.toEntity(realm, patch)));
+        return jdbi.inTransaction(handle -> {
+            ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
+            ServiceInstanceModel existingInstance = getInstanceById(realm, id);
+            patch.setId(id);
+            patch.setCreatedAt(existingInstance.getCreatedAt());
+            patch.setUpdatedAt(ZonedDateTime.now());
+            patch.getAdditionalProperties().putAll(existingInstance.getAdditionalProperties());
+            serviceRepository.update(realm, patch);
+            return patch;
+        });
     }
 
     public void deregisterInstanceById(String realm, String id) {
-        serviceRepository.deleteById(new ServiceInstance.Key(realm, id));
+        jdbi.inTransaction(handle -> {
+            ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
+            if (!serviceRepository.delete(realm, id)) {
+                throw new ServiceInstanceNotFoundException(id);
+            }
+            return null;
+        });
     }
 
     public List<ServiceInstanceModel> getInstances(String realm) {
-        return serviceRepository.findByKeyRealm(realm).stream().map(ServiceInstanceMapper::toDto).collect(toList());
+        return jdbi.inTransaction(handle -> {
+            ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
+            return serviceRepository.findAll(realm);
+        });
     }
 
     public ServiceInstanceModel getInstanceById(String realm, String id) {
-        return serviceRepository.findById(new ServiceInstance.Key(realm, id))
-                .map(ServiceInstanceMapper::toDto)
-                .orElseThrow(ServiceInstanceNotFoundException::new);
-    }
-
-    public Optional<ServiceInstanceModel> getInstanceByNameAndType(String realm, String name, String type) {
-        return serviceRepository.findOneByKeyRealmAndNameAndType(realm, name, type).map(ServiceInstanceMapper::toDto);
+        return jdbi.inTransaction(handle -> {
+            ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
+            return serviceRepository.findById(realm, id)
+                    .orElseThrow(ServiceInstanceNotFoundException::new);
+        });
     }
 
     public List<String> getTypes(String realm) {
-        return serviceRepository.findAllDistinctTypes(realm).collect(toList());
+        return jdbi.inTransaction(handle -> {
+            ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
+            return serviceRepository.findAllDistinctTypes(realm);
+        });
     }
 
 }
