@@ -1,5 +1,6 @@
 package com.dnastack.discovery.registry;
 
+import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.dnastack.discovery.registry.client.TestingOrganizationModel;
 import com.dnastack.discovery.registry.client.TestingServiceInstance;
 import io.restassured.RestAssured;
@@ -7,6 +8,7 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
@@ -18,6 +20,13 @@ import static org.hamcrest.Matchers.*;
 @Slf4j
 public class ServicesEndpointE2ET extends BaseE2ET {
     private static String TEST_REALM = "e2e-test-" + System.currentTimeMillis();
+
+    private static OpenApiValidationFilter validationFilter;
+
+    @BeforeClass
+    public static void setupValidation() {
+        validationFilter = new OpenApiValidationFilter(openapiSpecUrl());
+    }
 
     String registerServiceInstance(String realm, TestingServiceInstance service, int expectedStatus) {
         // @formatter:off
@@ -67,6 +76,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     private List<TestingServiceInstance> getServiceInstances() {
         // @formatter:off
         return RestAssured.given()
+                .filter(validationFilter)
                 .accept(ContentType.JSON)
                 .log().method()
                 .log().uri()
@@ -98,6 +108,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     public void getServiceInstanceById_should_return404_when_idIsNotFound() {
         // @formatter:off
         RestAssured.given()
+                .filter(validationFilter)
                 .accept(ContentType.JSON)
                 .log().method()
                 .log().uri()
@@ -128,6 +139,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
         // @formatter:off
         RestAssured.given()
+            .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
@@ -174,6 +186,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     public void getServiceInstances_noInstanceExists() {
         // @formatter:off
         RestAssured.given()
+            .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
@@ -204,6 +217,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
         // @formatter:off
         RestAssured.given()
+            .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
@@ -267,6 +281,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
         // @formatter:off
         RestAssured.given()
+            .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
@@ -287,6 +302,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     public void getServiceInstanceTypes_empty() {
         // @formatter:off
         RestAssured.given()
+            .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
@@ -351,6 +367,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
         // @formatter:off
         // 2 Fetch all remaining instances
         RestAssured.given()
+            .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()

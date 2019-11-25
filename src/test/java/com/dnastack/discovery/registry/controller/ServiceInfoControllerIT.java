@@ -1,6 +1,5 @@
 package com.dnastack.discovery.registry.controller;
 
-import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import com.dnastack.discovery.registry.TestApplication;
 import com.dnastack.discovery.registry.service.ServiceInstanceService;
 import io.restassured.RestAssured;
@@ -28,25 +27,15 @@ import static org.hamcrest.Matchers.equalTo;
 @SpringBootTest(classes = TestApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ServiceInfoControllerIT {
 
-    @Value("${app.service-registry.spec-url}")
-    private String specYamlUrl;
-    private OpenApiValidationFilter validationFilter;
-
     @LocalServerPort
     private Integer port;
     @Inject
     private ServiceInstanceService nodeService;
 
-    @Before
-    public void setUp() {
-        this.validationFilter = new OpenApiValidationFilter(specYamlUrl);
-    }
-
     @Test
     public void getServiceInfo() {
         // @formatter:off
         RestAssured.given()
-                .filter(validationFilter)
                 .accept(ContentType.JSON)
                 .log().method()
                 .log().uri()
