@@ -21,13 +21,6 @@ import static org.hamcrest.Matchers.*;
 public class ServicesEndpointE2ET extends BaseE2ET {
     private static String TEST_REALM = "e2e-test-" + System.currentTimeMillis();
 
-    private static OpenApiValidationFilter validationFilter;
-
-    @BeforeClass
-    public static void setupValidation() {
-        validationFilter = new OpenApiValidationFilter(openapiSpecUrl());
-    }
-
     String registerServiceInstance(String realm, TestingServiceInstance service, int expectedStatus) {
         // @formatter:off
         String createdServiceUrl = RestAssured.given()

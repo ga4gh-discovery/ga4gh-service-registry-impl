@@ -1,13 +1,23 @@
 package com.dnastack.discovery.registry;
 
+import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
 import io.restassured.RestAssured;
 import org.junit.Before;
+import org.junit.BeforeClass;
 
 import java.util.Base64;
 
 import static junit.framework.TestCase.fail;
 
 public class BaseE2ET {
+    public static OpenApiValidationFilter validationFilter;
+
+    @BeforeClass
+    public static void setupValidation() {
+        if (validationFilter == null) {
+            validationFilter = new OpenApiValidationFilter(openapiSpecUrl());
+        }
+    }
 
     @Before
     public void setUp() {
