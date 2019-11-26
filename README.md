@@ -28,10 +28,12 @@ To run just selection of tests:
 
 ## Building a deployable Docker image
 
+Normally the CI server runs this to build the image, but you can do it on your local machine
+to test the shell script and Dockerfile.
+
 ```shell script
 image_name=dnastack-service-registry
 image_version=$(git describe)
 docker_tag=my.docker.repo/${image_name}:{image_version}
 ci/build-docker-image ${docker_tag} ${image_name} ${image_version}
-docker push ${docker_tag}
 ```
