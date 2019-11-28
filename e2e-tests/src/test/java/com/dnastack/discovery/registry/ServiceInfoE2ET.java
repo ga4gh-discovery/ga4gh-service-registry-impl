@@ -22,7 +22,7 @@ public class ServiceInfoE2ET extends BaseE2ET {
                 .statusCode(200)
                 .body("id", equalTo("org.ga4gh.service-registry"))
                 .body("name", equalTo(optionalEnv("E2E_SERVICE_INFO_EXPECTED_NAME", "GA4GH Service Registry Reference Implementation")))
-                .body("type", equalTo("org.ga4gh.service-registry:1.0.0"))
+                .body("type", equalTo("org.ga4gh:service-registry:1.0.0"))
                 .body("description", equalTo(optionalEnv("E2E_SERVICE_INFO_EXPECTED_DESCRIPTION", "Reference implementation of GA4GH Service Registry")))
                 .body("organization.name", equalTo(optionalEnv("E2E_SERVICE_INFO_EXPECTED_ORGANIZATION_NAME", "GA4GH")))
                 .body("organization.url", equalTo(optionalEnv("E2E_SERVICE_INFO_EXPECTED_ORGANIZATION_URL", "https://example.com")))

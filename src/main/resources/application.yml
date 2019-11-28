@@ -29,7 +29,7 @@ app:
   service-info:
     id: "org.ga4gh.service-registry"
     name: "GA4GH Service Registry Reference Implementation"
-    type: "org.ga4gh.service-registry:1.0.0"
+    type: "org.ga4gh:service-registry:1.0.0"
     description: "Reference implementation of GA4GH Service Registry"
     organization:
       name: "GA4GH"
