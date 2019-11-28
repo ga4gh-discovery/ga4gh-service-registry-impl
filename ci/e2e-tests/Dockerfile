@@ -8,7 +8,6 @@ ADD target/build.gradle .
 ADD target/settings.gradle .
 ADD target/gradle gradle
 ADD target/gradlew .
-RUN find .
 RUN ./gradlew resolveAllDependencies
 
 # Now add sources, which will bust the cache.
