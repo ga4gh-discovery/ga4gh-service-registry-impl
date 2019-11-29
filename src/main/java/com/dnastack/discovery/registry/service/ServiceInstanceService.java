@@ -7,6 +7,9 @@ import com.dnastack.discovery.registry.repository.ServiceInstanceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ValidationUtils;
 
@@ -18,6 +21,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
 public class ServiceInstanceService {
 
     private final Jdbi jdbi;
@@ -45,7 +49,7 @@ public class ServiceInstanceService {
             String realm,
             ServiceInstanceModel newServiceInstance) throws BindException {
         validate(newServiceInstance);
-        return jdbi.inTransaction(handle -> {
+        return jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
             OrganizationRepository organizationRepository = handle.attach(OrganizationRepository.class);
 
@@ -85,7 +89,7 @@ public class ServiceInstanceService {
     }
 
     public ServiceInstanceModel replaceInstance(String realm, String id, ServiceInstanceModel patch) {
-        return jdbi.inTransaction(handle -> {
+        return jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
             ServiceInstanceModel existingInstance = getInstanceById(realm, id);
             patch.setId(id);
@@ -98,7 +102,7 @@ public class ServiceInstanceService {
     }
 
     public void deregisterInstanceById(String realm, String id) {
-        jdbi.inTransaction(handle -> {
+        jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
             if (!serviceRepository.delete(realm, id)) {
                 throw new ServiceInstanceNotFoundException(id);
@@ -108,14 +112,14 @@ public class ServiceInstanceService {
     }
 
     public List<ServiceInstanceModel> getInstances(String realm) {
-        return jdbi.inTransaction(handle -> {
+        return jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
             return serviceRepository.findAll(realm);
         });
     }
 
     public ServiceInstanceModel getInstanceById(String realm, String id) {
-        return jdbi.inTransaction(handle -> {
+        return jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
             return serviceRepository.findById(realm, id)
                     .orElseThrow(ServiceInstanceNotFoundException::new);
@@ -123,7 +127,7 @@ public class ServiceInstanceService {
     }
 
     public List<String> getTypes(String realm) {
-        return jdbi.inTransaction(handle -> {
+        return jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
             return serviceRepository.findAllDistinctTypes(realm);
         });

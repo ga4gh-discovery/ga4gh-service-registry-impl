@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -289,6 +291,26 @@ public class ServicesEndpointE2ET extends BaseE2ET {
         String serviceId = registerServiceInstance(TEST_REALM, service, 201);
         deleteServiceInstance(serviceId);
 
+    }
+
+    @Test
+    public void registerServiceInstancesConcurrently_should_workWhenServicesShareSameOrganization() {
+        TestingOrganizationModel sharedOrg = new TestingOrganizationModel("Shared Org", "https://sharing.is/caring");
+
+        int numberOfInstancesToRegister = 5;
+        IntStream.range(0, numberOfInstancesToRegister)
+                .parallel()
+                .forEach(n -> {
+                    TestingServiceInstance s = makeServiceInstance(
+                            "test-concurrent-registration-" + n,
+                            "http://concurrenct.is/hard/" + n,
+                            "org.ga4gh:beacon:1.0.0",
+                            sharedOrg);
+                    registerServiceInstance(TEST_REALM, s, 201);
+                });
+
+        List<TestingServiceInstance> serviceInstances = getServiceInstances();
+        assertThat(serviceInstances, hasSize(numberOfInstancesToRegister));
     }
 
     @Test
