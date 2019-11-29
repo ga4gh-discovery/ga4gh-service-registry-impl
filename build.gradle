@@ -23,7 +23,7 @@ ext {
     injectVersion = "1"
     lombokVersion = "1.18.8"
     restAssuredVersion = "4.0.0"
-    jdbiVersion = "3.10.0"
+    jdbiVersion = "3.10.1"
 }
 
 springBoot {
