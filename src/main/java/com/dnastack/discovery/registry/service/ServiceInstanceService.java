@@ -5,6 +5,7 @@ import com.dnastack.discovery.registry.model.ServiceInstanceModel;
 import com.dnastack.discovery.registry.repository.OrganizationRepository;
 import com.dnastack.discovery.registry.repository.ServiceInstanceRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -51,7 +52,6 @@ public class ServiceInstanceService {
         validate(newServiceInstance);
         return jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
-            OrganizationRepository organizationRepository = handle.attach(OrganizationRepository.class);
 
             Optional<ServiceInstanceModel> existingInstance =
                     serviceRepository.findByNameAndType(
@@ -65,18 +65,7 @@ public class ServiceInstanceService {
                                 " with given name and type already exists");
             }
 
-            final Optional<OrganizationModel> organization = organizationRepository.findByName(
-                    realm,
-                    newServiceInstance.getOrganization().getName());
-
-            if (organization.isEmpty()) {
-                OrganizationModel org = newServiceInstance.getOrganization();
-                org.setId(UUID.randomUUID().toString());
-                log.debug("Creating new organization {} for this service instance", org.getId());
-                organizationRepository.save(realm, org);
-            } else {
-                newServiceInstance.setOrganization(organization.get());
-            }
+            createOrResolveOrganization(handle, realm, newServiceInstance);
 
             ZonedDateTime now = ZonedDateTime.now();
             newServiceInstance.setId(UUID.randomUUID().toString());
@@ -88,6 +77,31 @@ public class ServiceInstanceService {
         });
     }
 
+    /**
+     * Sets the {@code id} attribute of the given service's organization by setting it to the ID of
+     * an existing organization in the same realm with the same name, or by creating a new organization
+     * in the given realm and setting its ID.
+     *
+     * @param handle an active JDBI handle
+     * @param realm the realm the service instance is in
+     * @param serviceInstance the service instance whose organization should be updated.
+     */
+    private void createOrResolveOrganization(Handle handle, String realm, ServiceInstanceModel serviceInstance) {
+        OrganizationRepository organizationRepository = handle.attach(OrganizationRepository.class);
+        final Optional<String> organizationId = organizationRepository.findIdForName(
+                realm,
+                serviceInstance.getOrganization().getName());
+
+        if (organizationId.isEmpty()) {
+            OrganizationModel org = serviceInstance.getOrganization();
+            org.setId(UUID.randomUUID().toString());
+            log.debug("Creating new organization {} for this service instance", org.getId());
+            organizationRepository.save(realm, org);
+        } else {
+            serviceInstance.getOrganization().setId(organizationId.get());
+        }
+    }
+
     public ServiceInstanceModel replaceInstance(String realm, String id, ServiceInstanceModel patch) {
         return jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
@@ -95,6 +109,7 @@ public class ServiceInstanceService {
             patch.setId(id);
             patch.setCreatedAt(existingInstance.getCreatedAt());
             patch.setUpdatedAt(ZonedDateTime.now());
+            createOrResolveOrganization(handle, realm, patch);
             patch.getAdditionalProperties().putAll(existingInstance.getAdditionalProperties());
             serviceRepository.update(realm, patch);
             return patch;

@@ -80,6 +80,26 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     }
 
     /**
+     * Registers the given service instance in the service registry under test.
+     */
+    void updateServiceInstance(String realm, String serviceId, TestingServiceInstance service, int expectedStatus) {
+        // @formatter:off
+        RestAssured.given()
+            .accept(ContentType.JSON)
+            .log().method()
+            .log().uri()
+            .header("Authorization", "Basic " + getBase64Auth())
+            .header("Service-Registry-Realm", realm)
+            .contentType("application/json")
+            .body(service)
+            .put("/services/" + serviceId)
+            .then()
+            .log().ifValidationFails()
+            .statusCode(expectedStatus);
+        // @formatter:on
+    }
+
+    /**
      * Deregisters the given service instance in the service registry under test.
      */
     private void deleteServiceInstance(String serviceId) {
@@ -117,6 +137,27 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .assertThat()
                 .statusCode(200)
                 .extract().body().as(new TypeRef<>() {});
+        // @formatter:on
+    }
+
+    /**
+     * Retrieves all the service instances in the testing realm from the service registry under test.
+     */
+    private TestingServiceInstance getServiceInstance(String id) {
+        // @formatter:off
+        return RestAssured.given()
+                .filter(validationFilter)
+                .accept(ContentType.JSON)
+                .log().method()
+                .log().uri()
+                .header("Authorization", "Basic " + getBase64Auth())
+                .header("Service-Registry-Realm", TEST_REALM)
+                .get("/services/" + id)
+                .then()
+                .log().ifValidationFails()
+                .assertThat()
+                .statusCode(200)
+                .extract().body().as(TestingServiceInstance.class);
         // @formatter:on
     }
 
@@ -189,6 +230,25 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     public void postServiceInstance_should_return400_when_instanceHasNoOrg() {
         TestingServiceInstance service = makeServiceInstance("test-no-org", "http://beacon-test-random-url.noorg.com", "org.ga4gh:beacon:1.0.1", null);
         registerServiceInstance(TEST_REALM, service, 400);
+    }
+
+    @Test
+    public void putServiceInstanceRoundTrip_should_preserveAllValuesExceptUpdatedAt() {
+        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", "org.ga4gh:beacon:1.0.1");
+        String serviceId = registerServiceInstance(TEST_REALM, service, 201);
+        TestingServiceInstance origFromServer = getServiceInstance(serviceId);
+        updateServiceInstance(TEST_REALM, serviceId, origFromServer, 200);
+        TestingServiceInstance updatedFromServer = getServiceInstance(serviceId);
+
+        // updatedAt should be a later timestamp
+        String origUpdatedAt = (String) origFromServer.getAdditionalProperties().get("updatedAt");
+        String newUpdatedAt = (String) updatedFromServer.getAdditionalProperties().get("updatedAt");
+        assertThat(newUpdatedAt, greaterThan(origUpdatedAt));
+        origFromServer.getAdditionalProperties().remove("updatedAt");
+        updatedFromServer.getAdditionalProperties().remove("updatedAt");
+
+        // all remaining properties should be identical
+        assertThat(updatedFromServer, equalTo(origFromServer));
     }
 
     @Test
@@ -303,7 +363,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                 .forEach(n -> {
                     TestingServiceInstance s = makeServiceInstance(
                             "test-concurrent-registration-" + n,
-                            "http://concurrenct.is/hard/" + n,
+                            "http://concurrency.is/hard/" + n,
                             "org.ga4gh:beacon:1.0.0",
                             sharedOrg);
                     registerServiceInstance(TEST_REALM, s, 201);

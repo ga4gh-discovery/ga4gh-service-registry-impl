@@ -12,8 +12,8 @@ import java.util.Optional;
 @Repository
 public interface OrganizationRepository {
 
-    @SqlQuery("SELECT * FROM organization o WHERE o.realm = :realm AND o.name = :name")
-    Optional<OrganizationModel> findByName(String realm, String name);
+    @SqlQuery("SELECT id FROM organization o WHERE o.realm = :realm AND o.name = :name")
+    Optional<String> findIdForName(String realm, String name);
 
     @SqlUpdate("INSERT INTO organization (realm, id, name, url) VALUES (:realm, :org.id, :org.name, :org.url)")
     void save(@Bind("realm") String realm, @BindBean("org") OrganizationModel organization);
