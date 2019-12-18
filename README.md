@@ -1,30 +1,34 @@
-# Discovery Service Registry [![Build Status](https://travis-ci.org/ga4gh-discovery/service-registry-impl.svg?branch=develop)](https://travis-ci.org/ga4gh-discovery/service-registry-impl)
+![](https://www.ga4gh.org/wp-content/themes/ga4gh-theme/gfx/GA-logo-horizontal-tag-RGB.svg)
 
-## API docs
+# Service Registry Reference Implementation [![Build Status](https://travis-ci.org/ga4gh-discovery/ga4gh-service-registry-impl.svg?branch=develop)](https://travis-ci.org/ga4gh-discovery/ga4gh-service-registry-impl)
 
-See api [documentation](https://github.com/ga4gh-discovery/ga4gh-discovery-service-registry/blob/develop/service-registry.yml). You can use [online swagger editor](https://editor.swagger.io/) to view api documentation.
+This repository contains a reference implementation of the [Service Registry standard](https://github.com/ga4gh-discovery/ga4gh-service-registry/).
 
-## Development
+You can view the Service Registry API [on GitHub](https://github.com/ga4gh-discovery/ga4gh-service-registry/blob/develop/service-registry.yaml) directly, or in [Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-registry/develop/service-registry.yaml).
+
+## How to build
+
+Natively:
 
 ```
 ./gradlew clean build bootRun
 ```
 
-Or
+With Docker:
 
 ```
-docker build -t discovery-service-registry . && docker run -p 8080:8080 -it discovery-service-registry
+docker build -t service-registry . && docker run -p 8080:8080 -it service-registry
 ```
 
-## Running tests
+## How to test
 
-To run entire suite of integration tests:
+To run all integration tests:
 
 ```
 ./gradlew clean build integrationTest
 ```
 
-To run just selection of tests:
+To run a subset of integration tests:
 
 ```
 ./gradlew clean build integrationTest --tests "*getServiceNodeById*"
