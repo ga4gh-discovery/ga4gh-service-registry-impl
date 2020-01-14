@@ -61,6 +61,7 @@ public class ServiceInstanceService {
 
             if (existingInstance.isPresent()) {
                 throw new ServiceInstanceExistsException(
+                        existingInstance.get().getId(),
                         "Service instance (ID " + existingInstance.get().getId() + ")" +
                                 " with given name and type already exists");
             }
@@ -111,6 +112,7 @@ public class ServiceInstanceService {
             patch.setUpdatedAt(ZonedDateTime.now());
             createOrResolveOrganization(handle, realm, patch);
             patch.getAdditionalProperties().putAll(existingInstance.getAdditionalProperties());
+            log.debug("Replaced/updated service instance {}", id);
             serviceRepository.update(realm, patch);
             return patch;
         });

@@ -65,15 +65,20 @@ public class RestControllerExceptionHandler {
             responseStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }
 
-        List<Error> errors = ex.getMessage() != null && !ex.getMessage().isEmpty()
-                             ? singletonList(buildApplicationError(ex))
-                             : emptyList();
-
-        ErrorInfo responseBody = ErrorInfo.builder()
+        ErrorInfo.ErrorInfoBuilder errorBuilder = ErrorInfo.builder()
                 .timestamp(ZonedDateTime.now())
                 .code(responseStatus.value())
-                .message(responseStatus.getReasonPhrase())
-                .errors(errors)
+                .message(responseStatus.getReasonPhrase());
+
+        if (ex instanceof HasServiceInstanceId) {
+            errorBuilder.serviceInstanceId(((HasServiceInstanceId) ex).getServiceInstanceId());
+        }
+
+        errorBuilder.errors(ex.getMessage() != null && !ex.getMessage().isEmpty()
+                             ? singletonList(buildApplicationError(ex))
+                             : emptyList());
+
+        ErrorInfo responseBody = errorBuilder
                 .build();
 
         return ResponseEntity.status(responseStatus).body(responseBody);

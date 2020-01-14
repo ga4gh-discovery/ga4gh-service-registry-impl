@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.inject.Inject;
+import java.util.concurrent.Callable;
 
 @Slf4j
 @RestController
@@ -29,33 +30,23 @@ public class ServiceInstanceController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity registerServiceInstance(
             @RequestHeader(name = "Service-Registry-Realm", defaultValue = "default") String realm,
-            @RequestBody ServiceInstanceModel registrationRequest) throws BindException, InterruptedException {
-        int remainingAttempts = 5;
-        long nextBackoff = (long) (Math.random() * 1000.0);
-        for (;;) {
-            try {
-                ServiceInstanceModel newInstance = service.registerInstance(realm, registrationRequest);
-                ServletUriComponentsBuilder selfUri = ServletUriComponentsBuilder.fromCurrentRequestUri();
-                selfUri.pathSegment("{serviceId}");
-                return ResponseEntity.created(selfUri.build(newInstance.getId())).body(newInstance);
-            } catch (final TransactionSystemException | UnableToExecuteStatementException e) {
-                remainingAttempts--;
-                if (remainingAttempts == 0) {
-                    throw e;
-                }
-                log.info("Retrying potential transaction serialization failure (backoff={}; remainingAttempts={})", nextBackoff, remainingAttempts);
-                Thread.sleep(nextBackoff);
-                nextBackoff *= 2;
-            }
-        }
+            @RequestBody ServiceInstanceModel registrationRequest) throws Exception {
+        return withRetry(() -> {
+            ServiceInstanceModel newInstance = service.registerInstance(realm, registrationRequest);
+            ServletUriComponentsBuilder selfUri = ServletUriComponentsBuilder.fromCurrentRequestUri();
+            selfUri.pathSegment("{serviceId}");
+            return ResponseEntity.created(selfUri.build(newInstance.getId())).body(newInstance);
+        });
     }
 
     @PutMapping(value = "/{serviceId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity replaceServiceInstance(
             @RequestHeader(name = "Service-Registry-Realm", defaultValue = "default") String realm,
             @PathVariable("serviceId") String serviceId,
-            @RequestBody ServiceInstanceModel patch) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.replaceInstance(realm, serviceId, patch));
+            @RequestBody ServiceInstanceModel patch) throws Exception {
+        return withRetry(() -> {
+            return ResponseEntity.status(HttpStatus.OK).body(service.replaceInstance(realm, serviceId, patch));
+        });
     }
 
     @DeleteMapping(value = "/{serviceId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -85,4 +76,22 @@ public class ServiceInstanceController {
         return ResponseEntity.status(HttpStatus.OK).body(service.getTypes(realm));
     }
 
+    public <R> R withRetry(Callable<R> callback) throws Exception {
+        int remainingAttempts = 5;
+        long nextBackoff = (long) (Math.random() * 1000.0) + 200;
+        for (;;) {
+            try {
+                return callback.call();
+            } catch (final TransactionSystemException | UnableToExecuteStatementException e) {
+                remainingAttempts--;
+                if (remainingAttempts == 0) {
+                    throw e;
+                }
+                log.info("Retrying potential transaction serialization failure (backoff={}; remainingAttempts={})", nextBackoff, remainingAttempts);
+                Thread.sleep(nextBackoff);
+                nextBackoff *= 2;
+            }
+        }
+
+    }
 }

@@ -374,6 +374,27 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     }
 
     @Test
+    public void registerThenUpdateServiceInstancesConcurrently_should_workWhenServicesShareSameOrganization() {
+        TestingOrganizationModel sharedOrg = new TestingOrganizationModel("Shared Org", "https://sharing.is/caring");
+
+        int numberOfInstancesToRegister = 50;
+        IntStream.range(0, numberOfInstancesToRegister)
+                .parallel()
+                .forEach(n -> {
+                    TestingServiceInstance s = makeServiceInstance(
+                            "test-concurrent-registration-" + n,
+                            "http://concurrency.is/hard/" + n,
+                            "org.ga4gh:beacon:1.0.0",
+                            sharedOrg);
+                    String id = registerServiceInstance(TEST_REALM, s, 201);
+                    updateServiceInstance(TEST_REALM, id, s, 200);
+                });
+
+        List<TestingServiceInstance> serviceInstances = getServiceInstances();
+        assertThat(serviceInstances, hasSize(numberOfInstancesToRegister));
+    }
+
+    @Test
     public void deleteServiceInstance_shouldNot_affectAnotherServiceSharingSameOrganization() {
         TestingOrganizationModel sharedOrg = new TestingOrganizationModel("Shared Org", "https://sharing.is/caring");
         TestingServiceInstance service1 = makeServiceInstance("test-beacon-aggregator", "http://beacon-aggregator-test-url.someorg.com", "org.ga4gh:beacon-aggregator:1.0.0", sharedOrg);

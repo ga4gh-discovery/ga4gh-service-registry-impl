@@ -1,12 +1,18 @@
 package com.dnastack.discovery.registry.service;
 
-public class ServiceInstanceExistsException extends RuntimeException {
+import com.dnastack.discovery.registry.controller.exception.HasServiceInstanceId;
 
-    public ServiceInstanceExistsException() {
-    }
+public class ServiceInstanceExistsException extends RuntimeException implements HasServiceInstanceId {
 
-    public ServiceInstanceExistsException(String message) {
+    private final String serviceInstanceId;
+
+    public ServiceInstanceExistsException(String serviceInstanceId, String message) {
         super(message);
+        this.serviceInstanceId = serviceInstanceId;
     }
 
+    @Override
+    public String getServiceInstanceId() {
+        return serviceInstanceId;
+    }
 }
