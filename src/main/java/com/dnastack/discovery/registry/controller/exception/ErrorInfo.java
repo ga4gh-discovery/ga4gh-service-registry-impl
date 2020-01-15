@@ -16,13 +16,14 @@ import java.util.List;
 @NoArgsConstructor
 public class ErrorInfo {
 
-    private ZonedDateTime timestamp;
-    private int code;
-    private String message;
+    private int status;
+    private String title;
+    private String detail;
 
+    /**
+     * Additional property not in the specification. Needed by Beacon Network so it can fall back from
+     * POST to PUT when updating existing registrations.
+     */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String serviceInstanceId;
-
-    private List<Error> errors;
-
 }

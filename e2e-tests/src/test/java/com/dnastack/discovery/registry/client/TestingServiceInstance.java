@@ -17,7 +17,7 @@ public class TestingServiceInstance {
     private String id;
     private String name;
     private String url;
-    private String type;
+    private TestingServiceType type;
     private TestingOrganizationModel organization;
     private String version;
     private String description;

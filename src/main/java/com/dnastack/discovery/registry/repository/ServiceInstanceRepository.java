@@ -1,6 +1,7 @@
 package com.dnastack.discovery.registry.repository;
 
 import com.dnastack.discovery.registry.model.ServiceInstanceModel;
+import com.dnastack.discovery.registry.model.ServiceType;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapperFactory;
 import org.jdbi.v3.sqlobject.config.RegisterRowMappers;
@@ -29,7 +30,7 @@ public interface ServiceInstanceRepository {
     Optional<ServiceInstanceModel> findByNameAndType(String realm, String name, String type);
 
     @SqlQuery("SELECT DISTINCT si.type FROM service_instance si WHERE si.realm = :realm")
-    List<String> findAllDistinctTypes(String realm);
+    List<ServiceType> findAllDistinctTypes(String realm);
 
     @SqlQuery("SELECT si.*, o.id AS org_id, o.name AS org_name, o.url AS org_url" +
             " FROM service_instance si" +

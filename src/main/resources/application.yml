@@ -38,7 +38,10 @@ app:
   service-info:
     id: "org.ga4gh.service-registry"
     name: "GA4GH Service Registry Reference Implementation"
-    type: "org.ga4gh:service-registry:1.0.0"
+    type:
+      group: "org.ga4gh"
+      artifact: "service-registry"
+      version: "1.0.0"
     description: "Reference implementation of GA4GH Service Registry"
     organization:
       name: "GA4GH"
@@ -46,7 +49,7 @@ app:
     contact-url: "mailto:support@example.com"
     documentation-url: "https://github.com/ga4gh-discovery/ga4gh-service-registry"
     environment: "dev"
-    version: 1.0.0
+    version: "1.0.0"
 
 logging:
   level:

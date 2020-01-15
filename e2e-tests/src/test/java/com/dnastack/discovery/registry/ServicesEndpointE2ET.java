@@ -2,6 +2,7 @@ package com.dnastack.discovery.registry;
 
 import com.dnastack.discovery.registry.client.TestingOrganizationModel;
 import com.dnastack.discovery.registry.client.TestingServiceInstance;
+import com.dnastack.discovery.registry.client.TestingServiceType;
 import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
@@ -10,10 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -24,7 +27,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     /**
      * Creates a service instance with the given info and a randomly named organization.
      */
-    private TestingServiceInstance makeServiceInstance(String name, String url, String type) {
+    private TestingServiceInstance makeServiceInstance(String name, String url, TestingServiceType type) {
         TestingOrganizationModel org = new TestingOrganizationModel(
                 "Org" + Math.random(),
                 "http://example.com/" + Math.random());
@@ -34,7 +37,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     /**
      * Creates a service instance with the given info.
      */
-    private TestingServiceInstance makeServiceInstance(String name, String url, String type, TestingOrganizationModel org) {
+    private TestingServiceInstance makeServiceInstance(String name, String url, TestingServiceType type, TestingOrganizationModel org) {
         return TestingServiceInstance.builder()
                 .name(name)
                 .url(url)
@@ -53,7 +56,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
      */
     String registerServiceInstance(String realm, TestingServiceInstance service, int expectedStatus) {
         // @formatter:off
-        String createdServiceUrl = RestAssured.given()
+        String createdServiceUrl = given()
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
@@ -61,8 +64,9 @@ public class ServicesEndpointE2ET extends BaseE2ET {
             .header("Service-Registry-Realm", realm)
             .contentType("application/json")
             .body(service)
+        .when()
             .post("/services")
-            .then()
+        .then()
             .log().ifValidationFails()
             .statusCode(expectedStatus)
             .extract().header("Location");
@@ -84,7 +88,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
      */
     void updateServiceInstance(String realm, String serviceId, TestingServiceInstance service, int expectedStatus) {
         // @formatter:off
-        RestAssured.given()
+        given()
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
@@ -104,7 +108,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
      */
     private void deleteServiceInstance(String serviceId) {
         // @formatter:off
-        RestAssured.given()
+        given()
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
@@ -124,7 +128,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
      */
     private List<TestingServiceInstance> getServiceInstances() {
         // @formatter:off
-        return RestAssured.given()
+        return given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
                 .log().method()
@@ -145,7 +149,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
      */
     private TestingServiceInstance getServiceInstance(String id) {
         // @formatter:off
-        return RestAssured.given()
+        return given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
                 .log().method()
@@ -177,7 +181,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     @Test
     public void getServiceInstanceById_should_return404_when_idIsNotFound() {
         // @formatter:off
-        RestAssured.given()
+        given()
                 .filter(validationFilter)
                 .accept(ContentType.JSON)
                 .log().method()
@@ -194,11 +198,11 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
     @Test
     public void postServiceInstance_shouldWork_when_instanceHasNewOrg() {
-        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", "org.ga4gh:beacon:1.0.1");
+        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", new TestingServiceType("org.ga4gh", "beacon", "1.0.1"));
         String serviceId = registerServiceInstance(TEST_REALM, service, 201);
 
         // @formatter:off
-        RestAssured.given()
+        given()
             .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
@@ -228,13 +232,13 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
     @Test
     public void postServiceInstance_should_return400_when_instanceHasNoOrg() {
-        TestingServiceInstance service = makeServiceInstance("test-no-org", "http://beacon-test-random-url.noorg.com", "org.ga4gh:beacon:1.0.1", null);
+        TestingServiceInstance service = makeServiceInstance("test-no-org", "http://beacon-test-random-url.noorg.com", new TestingServiceType("org.ga4gh", "beacon", "1.0.1"), null);
         registerServiceInstance(TEST_REALM, service, 400);
     }
 
     @Test
     public void putServiceInstanceRoundTrip_should_preserveAllValuesExceptUpdatedAt() {
-        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", "org.ga4gh:beacon:1.0.1");
+        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", new TestingServiceType("org.ga4gh", "beacon", "1.0.1"));
         String serviceId = registerServiceInstance(TEST_REALM, service, 201);
         TestingServiceInstance origFromServer = getServiceInstance(serviceId);
         updateServiceInstance(TEST_REALM, serviceId, origFromServer, 200);
@@ -254,7 +258,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     @Test
     public void getServiceInstances_noInstanceExists() {
         // @formatter:off
-        RestAssured.given()
+        given()
             .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
@@ -271,11 +275,11 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
     @Test
     public void getServiceInstances_atLeastOneInstanceExists() {
-        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", "org.ga4gh:beacon:1.0.1");
+        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", new TestingServiceType("org.ga4gh", "beacon", "1.0.1"));
         registerServiceInstance(TEST_REALM, service, 201);
 
         // @formatter:off
-        RestAssured.given()
+        given()
             .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
@@ -304,33 +308,34 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
     @Test
     public void getServiceInstanceTypes() {
-        registerServiceInstance(TEST_REALM, makeServiceInstance("test-beacon-aggregator", "http://beacon-aggregator-test-url.someorg.com", "org.ga4gh:beacon-aggregator:1.0.0"), 201);
-        registerServiceInstance(TEST_REALM, makeServiceInstance("test-beacon", "http://beacon-test-url.someorg.com", "org.ga4gh:beacon:1.0.1"), 201);
-        registerServiceInstance(TEST_REALM, makeServiceInstance("test-portal", "http://user-portal-test-url.someorg.com", "org.ga4gh:user-portal:1"), 201);
+        registerServiceInstance(TEST_REALM, makeServiceInstance("test-beacon-aggregator", "http://beacon-aggregator-test-url.someorg.com", new TestingServiceType("org.ga4gh", "beacon-aggregator", "1.0.0")), 201);
+        registerServiceInstance(TEST_REALM, makeServiceInstance("test-beacon", "http://beacon-test-url.someorg.com", new TestingServiceType("org.ga4gh", "beacon", "1.0.1")), 201);
+        registerServiceInstance(TEST_REALM, makeServiceInstance("test-portal", "http://user-portal-test-url.someorg.com", new TestingServiceType("org.ga4gh", "user-portal", "1")), 201);
 
         // @formatter:off
-        RestAssured.given()
+        given()
             .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
             .header("Authorization", "Basic " + getBase64Auth())
             .header("Service-Registry-Realm", TEST_REALM)
+        .when()
             .get("/services/types")
-            .then()
+        .then()
             .log().ifValidationFails()
             .statusCode(200)
             .body(".",
-                  containsInAnyOrder("org.ga4gh:beacon:1.0.1",
-                                     "org.ga4gh:beacon-aggregator:1.0.0",
-                                     "org.ga4gh:user-portal:1"));
+                  containsInAnyOrder(new TestingServiceType("org.ga4gh", "beacon", "1.0.1"),
+                                     new TestingServiceType("org.ga4gh", "beacon-aggregator", "1.0.0"),
+                                     new TestingServiceType("org.ga4gh", "user-portal", "1")));
         // @formatter:on
     }
 
     @Test
     public void getServiceInstanceTypes_empty() {
         // @formatter:off
-        RestAssured.given()
+        given()
             .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
@@ -347,7 +352,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
     @Test
     public void deleteServiceInstanceById_instanceExistsWithId() {
-        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", "org.ga4gh:beacon:1.0.1");
+        TestingServiceInstance service = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", new TestingServiceType("org.ga4gh", "beacon", "1.0.1"));
         String serviceId = registerServiceInstance(TEST_REALM, service, 201);
         deleteServiceInstance(serviceId);
 
@@ -364,7 +369,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                     TestingServiceInstance s = makeServiceInstance(
                             "test-concurrent-registration-" + n,
                             "http://concurrency.is/hard/" + n,
-                            "org.ga4gh:beacon:1.0.0",
+                            new TestingServiceType("org.ga4gh", "beacon", "1.0.0"),
                             sharedOrg);
                     registerServiceInstance(TEST_REALM, s, 201);
                 });
@@ -384,7 +389,7 @@ public class ServicesEndpointE2ET extends BaseE2ET {
                     TestingServiceInstance s = makeServiceInstance(
                             "test-concurrent-registration-" + n,
                             "http://concurrency.is/hard/" + n,
-                            "org.ga4gh:beacon:1.0.0",
+                            new TestingServiceType("org.ga4gh", "beacon", "1.0.0"),
                             sharedOrg);
                     String id = registerServiceInstance(TEST_REALM, s, 201);
                     updateServiceInstance(TEST_REALM, id, s, 200);
@@ -397,9 +402,9 @@ public class ServicesEndpointE2ET extends BaseE2ET {
     @Test
     public void deleteServiceInstance_shouldNot_affectAnotherServiceSharingSameOrganization() {
         TestingOrganizationModel sharedOrg = new TestingOrganizationModel("Shared Org", "https://sharing.is/caring");
-        TestingServiceInstance service1 = makeServiceInstance("test-beacon-aggregator", "http://beacon-aggregator-test-url.someorg.com", "org.ga4gh:beacon-aggregator:1.0.0", sharedOrg);
+        TestingServiceInstance service1 = makeServiceInstance("test-beacon-aggregator", "http://beacon-aggregator-test-url.someorg.com", new TestingServiceType("org.ga4gh", "beacon-aggregator", "1.0.0"), sharedOrg);
         String service1Id = registerServiceInstance(TEST_REALM, service1, 201);
-        TestingServiceInstance service2 = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", "org.ga4gh:beacon:1.0.1", sharedOrg);
+        TestingServiceInstance service2 = makeServiceInstance("test-beacon", "http://beacon-test-random-url.someorg.com", new TestingServiceType("org.ga4gh", "beacon", "1.0.1"), sharedOrg);
         registerServiceInstance(TEST_REALM, service2, 201);
 
         // 1. Delete service1
@@ -407,15 +412,16 @@ public class ServicesEndpointE2ET extends BaseE2ET {
 
         // @formatter:off
         // 2 Fetch all remaining instances
-        RestAssured.given()
+        given()
             .filter(validationFilter)
             .accept(ContentType.JSON)
             .log().method()
             .log().uri()
             .header("Authorization", "Basic " + getBase64Auth())
             .header("Service-Registry-Realm", TEST_REALM)
+        .when()
             .get("/services")
-            .then()
+        .then()
             .log().everything()
             .statusCode(200)
             .body("[0].id", notNullValue())

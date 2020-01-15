@@ -2,6 +2,7 @@ package com.dnastack.discovery.registry.service;
 
 import com.dnastack.discovery.registry.model.OrganizationModel;
 import com.dnastack.discovery.registry.model.ServiceInstanceModel;
+import com.dnastack.discovery.registry.model.ServiceType;
 import com.dnastack.discovery.registry.repository.OrganizationRepository;
 import com.dnastack.discovery.registry.repository.ServiceInstanceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,7 @@ public class ServiceInstanceService {
                     serviceRepository.findByNameAndType(
                             realm,
                             newServiceInstance.getName(),
-                            newServiceInstance.getType());
+                            newServiceInstance.getType().toString());
 
             if (existingInstance.isPresent()) {
                 throw new ServiceInstanceExistsException(
@@ -143,7 +144,7 @@ public class ServiceInstanceService {
         });
     }
 
-    public List<String> getTypes(String realm) {
+    public List<ServiceType> getTypes(String realm) {
         return jdbi.withHandle(handle -> {
             ServiceInstanceRepository serviceRepository = handle.attach(ServiceInstanceRepository.class);
             return serviceRepository.findAllDistinctTypes(realm);

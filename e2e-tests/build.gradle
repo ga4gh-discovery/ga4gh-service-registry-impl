@@ -18,6 +18,9 @@ ext {
     swaggerValidatorVersion = "2.4.1"
 }
 
+compileJava.options.compilerArgs.add '-parameters'
+compileTestJava.options.compilerArgs.add '-parameters'
+
 dependencies {
     compile "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
@@ -27,6 +30,7 @@ dependencies {
     testCompile 'org.slf4j:slf4j-simple:1.7.28'
     testCompile 'com.fasterxml.jackson.core:jackson-databind:2.9.9.3'
     testCompile 'com.fasterxml.jackson.core:jackson-annotations:2.9.9'
+    testCompile 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.9.9'
     testCompile "io.rest-assured:rest-assured:${restAssuredVersion}"
     testCompile "io.rest-assured:json-path:${restAssuredVersion}"
     testCompile "io.rest-assured:xml-path:${restAssuredVersion}"

@@ -12,31 +12,21 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.ZonedDateTime;
-import java.util.List;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.joining;
 
 @Slf4j
 @ControllerAdvice
 public class RestControllerExceptionHandler {
 
-    private ApplicationError buildApplicationError(RuntimeException ex) {
-        return ApplicationError.builder().message(ex.getMessage()).build();
-    }
-
     private ResponseEntity<Object> handleValidationException(BindingResult binding) {
         HttpStatus responseStatus = HttpStatus.BAD_REQUEST;
 
-        List<Error> fieldErrors = binding.getFieldErrors().stream().map(this::buildValidationError).collect(toList());
+        String fieldErrors = binding.getFieldErrors().stream().map(FieldError::toString).collect(joining("; "));
 
         ErrorInfo responseBody = ErrorInfo.builder()
-                .timestamp(ZonedDateTime.now())
-                .code(responseStatus.value())
-                .message(responseStatus.getReasonPhrase())
-                .errors(fieldErrors)
+                .status(responseStatus.value())
+                .title(responseStatus.getReasonPhrase())
+                .detail(fieldErrors)
                 .build();
 
         return ResponseEntity.status(responseStatus).body(responseBody);
@@ -55,6 +45,7 @@ public class RestControllerExceptionHandler {
     public ResponseEntity<Object> handleException(RuntimeException ex) {
         HttpStatus responseStatus;
         if (ex instanceof IllegalArgumentException) {
+            log.info("Assuming IllegalArgumentException is caused by user input", ex);
             responseStatus = HttpStatus.BAD_REQUEST;
         } else if (ex instanceof ServiceInstanceNotFoundException) {
             responseStatus = HttpStatus.NOT_FOUND;
@@ -66,22 +57,15 @@ public class RestControllerExceptionHandler {
         }
 
         ErrorInfo.ErrorInfoBuilder errorBuilder = ErrorInfo.builder()
-                .timestamp(ZonedDateTime.now())
-                .code(responseStatus.value())
-                .message(responseStatus.getReasonPhrase());
+                .status(responseStatus.value())
+                .title(responseStatus.getReasonPhrase())
+                .detail(ex.getMessage());
 
         if (ex instanceof HasServiceInstanceId) {
             errorBuilder.serviceInstanceId(((HasServiceInstanceId) ex).getServiceInstanceId());
         }
 
-        errorBuilder.errors(ex.getMessage() != null && !ex.getMessage().isEmpty()
-                             ? singletonList(buildApplicationError(ex))
-                             : emptyList());
-
-        ErrorInfo responseBody = errorBuilder
-                .build();
-
-        return ResponseEntity.status(responseStatus).body(responseBody);
+        return ResponseEntity.status(responseStatus).body(errorBuilder.build());
     }
 
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})

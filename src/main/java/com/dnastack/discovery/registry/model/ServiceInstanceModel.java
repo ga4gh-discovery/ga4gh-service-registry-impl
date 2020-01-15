@@ -24,7 +24,7 @@ public class ServiceInstanceModel {
 
     private String id;
     private String name;
-    private String type;
+    private ServiceType type;
     private @Nullable String url;
     private @Nullable String description;
     @Getter(onMethod_ = @Nested("org"))
