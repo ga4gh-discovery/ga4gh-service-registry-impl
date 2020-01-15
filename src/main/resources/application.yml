@@ -16,6 +16,15 @@ spring:
     user:
       name: dev
       password: dev
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost/serviceregistry
+    username: serviceregistry
+    password: serviceregistry
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      auto-commit: false
+      leak-detection-threshold: 2000
 
 management:
   endpoints:
@@ -42,22 +51,4 @@ app:
 logging:
   level:
     org.jdbi: INFO
-
----
-spring:
-  profiles: default
-  datasource:
-    driver-class-name: org.h2.Driver
-
----
-spring:
-  profiles: postgres
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost/serviceregistry
-    username: serviceregistry
-    password:
-    type: com.zaxxer.hikari.HikariDataSource
-    hikari:
-      auto-commit: false
-      leak-detection-threshold: 2000
+    com.dnastack.discovery.registry: DEBUG

@@ -45,7 +45,6 @@ dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-    compile "com.h2database:h2"
     compile "org.postgresql:postgresql"
 
     testCompile "org.springframework.boot:spring-boot-starter-test"

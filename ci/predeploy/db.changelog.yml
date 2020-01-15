@@ -1,4 +1,5 @@
 databaseChangeLog:
+  - logicalFilePath: /db.changelog.yml
   - changeSet:
       id: initial
       author: jfuerth
