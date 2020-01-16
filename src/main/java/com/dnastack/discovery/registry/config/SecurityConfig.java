@@ -26,6 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/actuator/health").permitAll()
                 .antMatchers("/service-info").permitAll()
+                .antMatchers(HttpMethod.GET, "/services").permitAll()
                 .antMatchers(HttpMethod.GET, "/services/**").permitAll()
                 .antMatchers("/**").authenticated();
         // @formatter:on

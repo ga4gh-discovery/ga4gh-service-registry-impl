@@ -1,6 +1,9 @@
 package com.dnastack.discovery.registry;
 
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
+import com.dnastack.discovery.registry.client.TestingOrganizationModel;
+import com.dnastack.discovery.registry.client.TestingServiceInstance;
+import com.dnastack.discovery.registry.client.TestingServiceType;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
@@ -17,6 +20,34 @@ import static junit.framework.TestCase.fail;
 
 public class BaseE2ET {
     public static OpenApiValidationFilter validationFilter;
+    public static String TEST_REALM = "e2e-test-" + System.currentTimeMillis();
+
+    /**
+     * Creates a service instance with the given info and a randomly named organization.
+     */
+    TestingServiceInstance makeServiceInstance(String name, String url, TestingServiceType type) {
+        TestingOrganizationModel org = new TestingOrganizationModel(
+                "Org" + Math.random(),
+                "http://example.com/" + Math.random());
+        return makeServiceInstance(name, url, type, org);
+    }
+
+    /**
+     * Creates a service instance with the given info.
+     */
+    TestingServiceInstance makeServiceInstance(String name, String url, TestingServiceType type, TestingOrganizationModel org) {
+        return TestingServiceInstance.builder()
+                .name(name)
+                .url(url)
+                .type(type)
+                .contactUrl("beacon-admin@someorg.com")
+                .description("description")
+                .documentationUrl("http://beacon-test-random-url.someorg.com")
+                .version("1." + Math.random())
+                .organization(org)
+                .environment("test")
+                .build();
+    }
 
     @BeforeClass
     public static void setupValidation() throws IOException {

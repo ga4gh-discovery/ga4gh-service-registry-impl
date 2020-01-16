@@ -22,34 +22,6 @@ import static org.hamcrest.Matchers.*;
 
 @Slf4j
 public class ServicesEndpointE2ET extends BaseE2ET {
-    private static String TEST_REALM = "e2e-test-" + System.currentTimeMillis();
-
-    /**
-     * Creates a service instance with the given info and a randomly named organization.
-     */
-    private TestingServiceInstance makeServiceInstance(String name, String url, TestingServiceType type) {
-        TestingOrganizationModel org = new TestingOrganizationModel(
-                "Org" + Math.random(),
-                "http://example.com/" + Math.random());
-        return makeServiceInstance(name, url, type, org);
-    }
-
-    /**
-     * Creates a service instance with the given info.
-     */
-    private TestingServiceInstance makeServiceInstance(String name, String url, TestingServiceType type, TestingOrganizationModel org) {
-        return TestingServiceInstance.builder()
-                .name(name)
-                .url(url)
-                .type(type)
-                .contactUrl("beacon-admin@someorg.com")
-                .description("description")
-                .documentationUrl("http://beacon-test-random-url.someorg.com")
-                .version("1." + Math.random())
-                .organization(org)
-                .environment("test")
-                .build();
-    }
 
     /**
      * Registers the given service instance in the service registry under test.
