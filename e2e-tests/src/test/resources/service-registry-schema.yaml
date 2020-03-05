@@ -2,7 +2,9 @@ openapi: 3.0.2
 info:
   title: 'GA4GH Service Registry API Specification'
   version: 1.0.0
-  description: 'More information on [GitHub](https://github.com/ga4gh-discovery/ga4gh-service-registry/).'
+  description: |
+    Service registry is a GA4GH service providing information about other GA4GH services, primarily for the purpose of organizing services into networks or groups and service discovery across organizational boundaries. Information about the individual services in the registry is described in a complementary [service-info](https://github.com/ga4gh-discovery/ga4gh-service-info) specification.
+    More information on [GitHub](https://github.com/ga4gh-discovery/ga4gh-service-registry/).
   license:
     name: 'Apache 2.0'
     url: 'https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-registry/develop/LICENSE'
@@ -80,14 +82,7 @@ paths:
               schema:
                 type: array
                 items:
-                  # --- begin local modification (see https://github.com/ga4gh-discovery/ga4gh-service-registry/issues/94)
-                  type: object
-                  description: 'Information pertaining to the type of service being operated. Custom groups and artifacts are supported.'
-                  required:
-                    - group
-                    - artifact
-                    - version
-                  # --- end local modification
+                  $ref: '#/components/schemas/ServiceType'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -107,7 +102,7 @@ paths:
           description: |
             Display service information about this service registry.
 
-            Use `type: org.ga4gh:service-registry:1.0.0` when implementing this specification directly.
+            Use `"type": {"group": "org.ga4gh", "artifact": "service-registry", "version": "1.0.0"}` when implementing this specification directly.
           content:
             application/json:
               schema:
@@ -159,8 +154,7 @@ components:
             $ref: '#/components/schemas/Error'
   schemas:
     Service:
-      # TODO: Change to a tag once service-info is released.
-      $ref: 'https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/develop/service-info.yaml#/components/schemas/Service'
+      $ref: 'https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/v1.0.0/service-info.yaml#/components/schemas/Service'
     ExternalService:
       description: 'GA4GH service with a URL'
       allOf:
@@ -177,6 +171,8 @@ components:
               example: 'https://api.example.com/v1'
           required:
             - url
+    ServiceType:
+      $ref: 'https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/v1.0.0/service-info.yaml#/components/schemas/ServiceType'
     Error:
       type: object
       properties:
