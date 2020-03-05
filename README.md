@@ -50,20 +50,6 @@ Make sure the database schema is up-to-date, then:
 ./gradlew clean build bootRun
 ```
 
-## How to test
-
-To run all integration tests:
-
-```
-./gradlew clean build integrationTest
-```
-
-To run a subset of integration tests:
-
-```
-./gradlew clean build integrationTest --tests "*getServiceNodeById*"
-```
-
 ## Building a deployable Docker image
 
 Normally the CI server runs this to build the image, but you can do it on your local machine
