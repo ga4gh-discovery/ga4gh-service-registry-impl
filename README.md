@@ -1,11 +1,11 @@
-# Discovery Service Registry
+![](https://www.ga4gh.org/wp-content/themes/ga4gh-theme/gfx/GA-logo-horizontal-tag-RGB.svg)
 
 A CRUD style implementation of the GA4GH Service Registry specification. Could be used to back any kind of installation
 as long as there is a compatible client that can create, update, and remove service instances when necessary.
 
-## API docs
+# Service Registry Reference Implementation [![Build Status](https://travis-ci.org/ga4gh-discovery/ga4gh-service-registry-impl.svg?branch=develop)](https://travis-ci.org/ga4gh-discovery/ga4gh-service-registry-impl) [![](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-registry-impl/develop/LICENSE)
 
-See api [documentation](https://github.com/ga4gh-discovery/ga4gh-discovery-service-registry/blob/develop/service-registry.yml). You can use [online swagger editor](https://editor.swagger.io/) to view api documentation.
+This repository contains a reference implementation of the [Service Registry standard](https://github.com/ga4gh-discovery/ga4gh-service-registry/).
 
 ## Development prerequisites
 
@@ -50,15 +50,15 @@ Make sure the database schema is up-to-date, then:
 ./gradlew clean build bootRun
 ```
 
-## Running tests
+## How to test
 
-To run entire suite of integration tests:
+To run all integration tests:
 
 ```
 ./gradlew clean build integrationTest
 ```
 
-To run just selection of tests:
+To run a subset of integration tests:
 
 ```
 ./gradlew clean build integrationTest --tests "*getServiceNodeById*"
