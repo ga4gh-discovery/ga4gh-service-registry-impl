@@ -11,7 +11,12 @@ This repository contains a reference implementation of the [Service Registry sta
 
 * OpenJDK 11 or newer. [AdoptOpenJDK](https://adoptopenjdk.net/) is a good source.
 * A PostgreSQL database v9.2 or newer (we use the JSON data type). You can just install the `postgres` package on
-    your OS, or you can use this Docker incantation to get one temporarily:
+    your OS and configure a user and a database:
+    ```
+    createuser -d serviceregistry
+    createdb -U serviceregistry serviceregistry
+    ```
+* Or you can use this Docker incantation to get one temporarily:
     ```
     docker run -d -p 5432:5432 --name serviceregistry -e POSTGRES_USER=serviceregistry -e POSTGRES_PASSWORD=serviceregistry postgres
     ```
@@ -21,7 +26,7 @@ This repository contains a reference implementation of the [Service Registry sta
 Mac or Windows:
 ```
 docker run --rm -it -v $(pwd)/ci/predeploy/:/liquibase/changelog/ \
-  gcr.io/dnastack-container-store/liquibase-docker-image:1.0-2-gf48af98 \
+  $LIQUIBASE_DOCKER_IMAGE \
   --driver=org.postgresql.Driver \
   --changeLogFile=/liquibase/changelog/db.changelog.yml \
   --url=jdbc:postgresql://host.docker.internal/serviceregistry \
@@ -33,7 +38,7 @@ docker run --rm -it -v $(pwd)/ci/predeploy/:/liquibase/changelog/ \
 Linux:
 ```
 docker run --rm -it -v $(pwd)/ci/predeploy/:/liquibase/changelog/ \
-  gcr.io/dnastack-container-store/liquibase-docker-image:1.0-2-gf48af98 \
+  $LIQUIBASE_DOCKER_IMAGE \
   --driver=org.postgresql.Driver \
   --changeLogFile=/liquibase/changelog/db.changelog.yml \
   --url=jdbc:postgresql://localhost/serviceregistry \
@@ -41,6 +46,8 @@ docker run --rm -it -v $(pwd)/ci/predeploy/:/liquibase/changelog/ \
   --password=serviceregistry \
   update
 ```
+
+where $LIQUIBASE_DOCKER_IMAGE should be set to your Liquibase Docker Image link. See https://cloud.google.com/container-registry/docs/quickstart for Container Registry setup and look up your image at at https://console.cloud.google.com/gcr/images/. This value should be of form `gcr.io/container-store/liquibase-docker-image:version`.
 
 # Running the service locally
 
@@ -61,3 +68,13 @@ image_version=$(git describe)
 docker_tag=my.docker.repo/${image_name}:{image_version}
 ci/build-docker-image ${docker_tag} ${image_name} ${image_version}
 ```
+
+## Running E2E tests
+
+To run the tests, execute the following from `e2e-tests` directory:
+
+```
+./gradlew endToEndTest
+```
+
+Environment variables for development setup as required by the tests can be obtained by sourcing `test-secrets.env`. Use `set -a` to export variables so that they're accessible by `gradlew`.
