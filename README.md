@@ -1,5 +1,88 @@
 ![](https://www.ga4gh.org/wp-content/themes/ga4gh-theme/gfx/GA-logo-horizontal-tag-RGB.svg)
 
+# Brian's Instructions for a Mac
+
+## run Postgres
+docker run -d -p 5432:5432 --name serviceregistry -e POSTGRES_USER=serviceregistry -e POSTGRES_PASSWORD=serviceregistry postgres 
+
+## export Liquibase name
+export LIQUIBASE_DOCKER_IMAGE=docker.io/liquibase/liquibase:latest
+
+# run the liquibase to setup schema 
+% docker run --rm -it -v $(pwd)/ci/predeploy/:/liquibase/changelog/ \
+  $LIQUIBASE_DOCKER_IMAGE \
+  --driver=org.postgresql.Driver \
+  --changeLogFile=/db.changelog.yml \
+  --url=jdbc:postgresql://host.docker.internal/serviceregistry \
+  --username=serviceregistry \
+  --password=serviceregistry \
+  update
+
+## changes to code (already done in this forked repo)
+diff --git a/ci/impl/Dockerfile b/ci/impl/Dockerfile
+index 06e4c44..d410872 100644
+--- a/ci/impl/Dockerfile
++++ b/ci/impl/Dockerfile
+@@ -12,6 +12,6 @@ FROM openjdk:11-jdk-slim
+
+ COPY --from=builder /home/gradle/src/target/build/**/*.jar /app.jar
+
+-EXPOSE 8080
++EXPOSE 8085
+
+-ENTRYPOINT exec java $JAVA_OPTS -jar /app.jar
+\ No newline at end of file
++ENTRYPOINT exec java $JAVA_OPTS -jar /app.jar
+diff --git a/src/main/resources/application.yml b/src/main/resources/application.yml
+index 31411b8..ce9f9d1 100644
+--- a/src/main/resources/application.yml
++++ b/src/main/resources/application.yml
+@@ -18,7 +18,7 @@ spring:
+       password: dev
+   datasource:
+     driver-class-name: org.postgresql.Driver
+-    url: jdbc:postgresql://localhost/serviceregistry
++    url: jdbc:postgresql://host.docker.internal/serviceregistry
+     username: serviceregistry
+     password: serviceregistry
+     type: com.zaxxer.hikari.HikariDataSource
+@@ -54,4 +54,4 @@ app:
+ logging:
+   level:
+     org.jdbi: INFO
+-    com.dnastack.discovery.registry: DEBUG
+\ No newline at end of file
++    com.dnastack.discovery.registry: DEBUG￼
+
+## build the docker image
+./ci/build-docker-image dnastack-service-registry dnastack-service-registry 1.0.0
+
+## run the docker image 
+docker run -p 8085:8085 --rm -it dnastack-service-registry:latest
+
+## open this in the browser, should be empty
+http://127.0.0.1:8085/services
+
+## At this point it’s working… but there are no entries … add with:
+
+curl --request POST \
+  --url http://localhost:8085/services \
+  --header 'Authorization: Basic ZGV2OmRldg==' \
+  --header 'Content-Type: application/json' \
+  --data '{
+        "name":"test",
+        "type": {
+                "group":"foo",
+                "artifact":"bar",
+                "version":"1.0.0"
+        },
+        "url":"http://localhost",
+        "organization": {
+                "name":"elwazi"
+        },
+        "version": "1.0.0"
+}'
+
 A CRUD style implementation of the GA4GH Service Registry specification. Could be used to back any kind of installation
 as long as there is a compatible client that can create, update, and remove service instances when necessary.
 
