@@ -2,10 +2,10 @@
 
 # Brian's Instructions for a Mac
 
-# run Postgres
+## run Postgres
 docker run -d -p 5432:5432 --name serviceregistry -e POSTGRES_USER=serviceregistry -e POSTGRES_PASSWORD=serviceregistry postgres 
 
-# export Liquibase name
+## export Liquibase name
 export LIQUIBASE_DOCKER_IMAGE=docker.io/liquibase/liquibase:latest
 
 # run the liquibase to setup schema 
@@ -18,7 +18,7 @@ export LIQUIBASE_DOCKER_IMAGE=docker.io/liquibase/liquibase:latest
   --password=serviceregistry \
   update
 
-# changes to code 
+## changes to code (already done in this forked repo)
 diff --git a/ci/impl/Dockerfile b/ci/impl/Dockerfile
 index 06e4c44..d410872 100644
 --- a/ci/impl/Dockerfile
@@ -54,16 +54,16 @@ index 31411b8..ce9f9d1 100644
 \ No newline at end of file
 +    com.dnastack.discovery.registry: DEBUG￼
 
-# build the docker image
+## build the docker image
 ./ci/build-docker-image dnastack-service-registry dnastack-service-registry 1.0.0
 
-# run the docker image 
+## run the docker image 
 docker run -p 8085:8085 --rm -it dnastack-service-registry:latest
 
-# open this in the browser, should be empty
+## open this in the browser, should be empty
 http://127.0.0.1:8085/services
 
-# At this point it’s working… but there are no entries … add with:
+## At this point it’s working… but there are no entries … add with:
 
 curl --request POST \
   --url http://localhost:8085/services \
