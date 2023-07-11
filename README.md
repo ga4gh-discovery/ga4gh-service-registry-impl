@@ -83,6 +83,11 @@ curl --request POST \
         "version": "1.0.0"
 }'
 
+## open this in the browser, now has an entry:
+http://127.0.0.1:8085/services 
+
+# Content from original README unchanged below
+
 A CRUD style implementation of the GA4GH Service Registry specification. Could be used to back any kind of installation
 as long as there is a compatible client that can create, update, and remove service instances when necessary.
 
